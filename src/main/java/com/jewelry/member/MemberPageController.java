@@ -19,12 +19,12 @@ public class MemberPageController {
 	@GetMapping("/profile")
 	public String profile(ModelMap model) {
 		model.addAttribute("userid", ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
-		return "member/member_profile_view";
+		return "member/profile/profile_view";
 	}
 	
 	@GetMapping("/profile/modify")
 	public String profileModify(ModelMap model) {
 		model.addAttribute("userid", ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
-		return "member/member_profile_modify";
+		return "member/profile/profile_modify";
 	}
 }
