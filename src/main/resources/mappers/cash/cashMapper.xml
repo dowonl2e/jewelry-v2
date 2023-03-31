@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jewelry.cash.mapper.CashMapper">
+
+	<sql id="cash-search">
+		<if test='searchstore != null and !searchstore.equals("")'>
+			AND a.store_cd = #{searchstore}
+		</if>
+		<if test='searchcashtype != null and !searchcashtype.equals("")'>
+			AND a.cash_type_cd = #{searchcashtype}
+		</if>
+		<if test='searchbankbook != null and !searchbankbook.equals("")'>
+			AND a.bankbook_cd = #{searchbankbook}
+		</if>
+		<if test='searchcashtype2 != null and !searchcashtype2.equals("")'>
+			AND a.cash_type_cd2 = #{searchcashtype2}
+		</if>
+		<if test='searchmaterial != null and !searchmaterial.equals("")'>
+			AND a.material_cd = #{searchmaterial}
+		</if>
+		<if test='searchstdt != null and !searchstdt.equals("")'>
+			AND DATE_FORMAT(a.reg_dt, '%Y-%m-%d') <![CDATA[ >= ]]> STR_TO_DATE(#{searchstdt}, '%Y-%m-%d')
+		</if>
+		<if test='searcheddt != null and !searcheddt.equals("")'>
+			AND DATE_FORMAT(a.reg_dt, '%Y-%m-%d') <![CDATA[ <= ]]> STR_TO_DATE(#{searcheddt}, '%Y-%m-%d')
+		</if>
+		<!-- 검색 키워드가 있을 때 -->
+		<if test='searchword != null and !searchword.equals("")'>
+			AND (
+		    a.vender_nm LIKE CONCAT('%', #{searchword}, '%')
+				OR a.history_desc LIKE CONCAT('%', #{searchword}, '%')
+			)
+		</if>
+	</sql>
+	
+	<select id="selectCashListCount" parameterType="CashTO" resultType="Integer">
+		SELECT COUNT(a.cash_no)
+		FROM tb_cash a
+		WHERE a.del_yn = 'N'
+		<include refid="cash-search" />
+	</select>
+	
+	<select id="selectCashList" parameterType="CashTO" resultType="CashVO">
+		SELECT a.cash_no, a.reg_dt, a.store_cd, a.cash_type_cd, a.cash_type_cd2, a.bankbook_cd, a.vender_nm
+						, a.history_desc, a.material_cd, a.weight_gram, a.quantity, a.unit_price
+						, CASE DAYOFWEEK(DATE_FORMAT(a.reg_dt, '%Y%m%d'))
+				       	WHEN '1' THEN '일'
+				       	WHEN '2' THEN '월'
+				       	WHEN '3' THEN '화'
+				       	WHEN '4' THEN '수'
+				       	WHEN '5' THEN '목'
+				       	WHEN '6' THEN '금'
+				       	WHEN '7' THEN '토'
+			       	END AS reg_day
+		FROM tb_cash a
+		WHERE a.del_yn = 'N'
+		<include refid="cash-search" />
+		ORDER BY a.reg_dt DESC, a.cash_no DESC
+		<include refid="commonMapper.paging" />
+	</select>
+	
+	<select id="selectCashStatsList" parameterType="CashTO" resultType="CashVO">
+		SELECT stats_ord, store_cd, stats_cd, bef_yesterday_price, yesterday_price, today_price
+		FROM (
+			SELECT stats_ord, store_cd, stats_cd
+							, (IFNULL(bef_yesterday_price,0)-IFNULL(bef_yesterday_price2,0)) AS bef_yesterday_price
+							, (IFNULL(yesterday_price,0)-IFNULL(yesterday_price2,0)) AS yesterday_price
+							, (IFNULL(today_price,0)-IFNULL(today_price2,0)) AS today_price
+			FROM (
+				SELECT sa.stats_ord, sa.store_cd, sa.bankbook_cd AS stats_cd
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS01' 
+										AND store_cd = sa.store_cd 
+										AND bankbook_cd = sa.bankbook_cd 
+										AND reg_dt = #{befYesterday}
+										AND del_yn = 'N'
+									) AS bef_yesterday_price									
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS02'
+										AND store_cd = sa.store_cd
+										AND bankbook_cd = sa.bankbook_cd
+										AND reg_dt = #{befYesterday}
+										AND del_yn = 'N'
+									) AS bef_yesterday_price2
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS01' 
+										AND store_cd = sa.store_cd 
+										AND bankbook_cd = sa.bankbook_cd 
+										AND reg_dt = #{yesterday}
+										AND del_yn = 'N'
+									) AS yesterday_price									
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS02'
+										AND store_cd = sa.store_cd
+										AND bankbook_cd = sa.bankbook_cd
+										AND reg_dt = #{yesterday}
+										AND del_yn = 'N'
+									) AS yesterday_price2
+								, (
+										SELECT SUM(unit_price)
+										FROM (
+											SELECT a.unit_price
+											FROM tb_cash a
+											WHERE cash_type_cd = 'RS01' 
+											AND store_cd = sa.store_cd 
+											AND bankbook_cd = sa.bankbook_cd 
+											AND reg_dt = #{today}
+											AND del_yn = 'N'
+											<include refid="cash-search" />
+											ORDER BY a.reg_dt DESC, a.cash_no DESC
+											<include refid="commonMapper.paging" />
+										) a
+									) AS today_price
+								, (
+										SELECT SUM(unit_price)
+										FROM (
+											SELECT a.unit_price
+											FROM tb_cash a
+											WHERE cash_type_cd = 'RS02'
+											AND store_cd = sa.store_cd
+											AND bankbook_cd = sa.bankbook_cd
+											AND reg_dt = #{today}
+											AND del_yn = 'N'
+											<include refid="cash-search" />
+											ORDER BY a.reg_dt DESC, a.cash_no DESC
+											<include refid="commonMapper.paging" />
+										) a
+									) AS today_price2
+				FROM (
+					SELECT stats_ord, reg_dt, store_cd, bankbook_cd
+					FROM (
+						SELECT 1 AS stats_ord, reg_dt, store_cd, bankbook_cd
+						FROM tb_cash a
+						WHERE a.del_yn = 'N'
+						<include refid="cash-search" />
+						ORDER BY a.reg_dt DESC, a.cash_no DESC
+						<include refid="commonMapper.paging" />
+					) a1
+					GROUP BY stats_ord, reg_dt, store_cd, bankbook_cd
+				) sa
+			) ta
+		) ta2
+		GROUP BY ta2.store_cd, ta2.stats_ord, ta2.bef_yesterday_price, ta2.yesterday_price, ta2.today_price
+		ORDER BY ta2.stats_cd ASC
+	</select>
+	
+	<select id="selectCashMaterialStatsList" parameterType="CashTO" resultType="CashVO">
+		SELECT stats_ord, store_cd, stats_cd, bef_yesterday_price, yesterday_price, today_price
+		FROM (
+			SELECT stats_ord, store_cd, stats_cd
+								, (IFNULL(bef_yesterday_price,0)-IFNULL(bef_yesterday_price2,0)) AS bef_yesterday_price
+								, (IFNULL(yesterday_price,0)-IFNULL(yesterday_price2,0)) AS yesterday_price
+								, (IFNULL(today_price,0)-IFNULL(today_price2,0)) AS today_price
+			FROM (
+				SELECT sa.stats_ord, sa.store_cd, sa.material_cd AS stats_cd
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS01'
+										AND store_cd = sa.store_cd
+										AND material_cd = sa.material_cd
+										AND reg_dt = #{befYesterday}
+										AND del_yn = 'N'
+									) AS bef_yesterday_price
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS02'
+										AND store_cd = sa.store_cd
+										AND material_cd = sa.material_cd
+										AND reg_dt = #{befYesterday}
+										AND del_yn = 'N'
+									) AS bef_yesterday_price2
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS01'
+										AND store_cd = sa.store_cd
+										AND material_cd = sa.material_cd
+										AND reg_dt = #{yesterday}
+										AND del_yn = 'N'
+									) AS yesterday_price
+								, (
+										SELECT SUM(unit_price)
+										FROM tb_cash a
+										WHERE cash_type_cd = 'RS02'
+										AND store_cd = sa.store_cd
+										AND material_cd = sa.material_cd
+										AND reg_dt = #{yesterday}
+										AND del_yn = 'N'
+									) AS yesterday_price2
+								, (
+										SELECT SUM(unit_price)
+										FROM (
+											SELECT unit_price
+											FROM tb_cash a
+											WHERE cash_type_cd = 'RS01'
+											AND store_cd = sa.store_cd
+											AND material_cd = sa.material_cd
+											AND reg_dt = #{today}
+											AND del_yn = 'N'
+											<include refid="cash-search" />
+											ORDER BY a.reg_dt DESC, a.cash_no DESC
+											<include refid="commonMapper.paging" />
+										) a
+									) AS today_price
+								, (
+										SELECT SUM(unit_price)
+										FROM (
+											SELECT unit_price
+											FROM tb_cash a
+											WHERE cash_type_cd = 'RS02'
+											AND store_cd = sa.store_cd
+											AND material_cd = sa.material_cd
+											AND reg_dt = #{today}
+											AND del_yn = 'N'
+											<include refid="cash-search" />
+											ORDER BY a.reg_dt DESC, a.cash_no DESC
+											<include refid="commonMapper.paging" />
+										) a
+									) AS today_price2
+				FROM (
+					SELECT stats_ord, reg_dt, store_cd, material_cd
+					FROM (
+						SELECT 2 AS stats_ord, reg_dt, store_cd, material_cd
+						FROM tb_cash a
+						WHERE a.material_cd = 'SM03'
+						AND a.weight_gram > 0
+						AND a.del_yn = 'N'
+						<include refid="cash-search" />
+						ORDER BY a.reg_dt DESC, a.cash_no DESC
+						<include refid="commonMapper.paging" />
+					) a2
+					GROUP BY stats_ord, reg_dt, store_cd, material_cd
+				) sa
+			) ta
+		) ta2
+		GROUP BY ta2.store_cd, ta2.stats_ord, ta2.bef_yesterday_price, ta2.yesterday_price, ta2.today_price
+	</select>
+	
+	<insert id="insertCash" parameterType="CashTO">
+		INSERT INTO tb_cash (
+			inpt_id, inpt_dt
+			<if test='reg_dt != null and !reg_dt.equals("")'>, reg_dt</if>
+			<if test='store_cd != null and !store_cd.equals("")'>, store_cd</if>
+			<if test='cash_type_cd != null and !cash_type_cd.equals("")'>, cash_type_cd</if>
+			<if test='cash_type_cd2 != null and !cash_type_cd2.equals("")'>, cash_type_cd2</if>
+			<if test='bankbook_cd != null and !bankbook_cd.equals("")'>, bankbook_cd</if>
+			<if test='vender_no != null and vender_no > 0'>, vender_no</if>
+			<if test='vender_nm != null and !vender_nm.equals("")'>, vender_nm</if>
+			<if test='history_desc != null and !history_desc.equals("")'>, history_desc</if>
+			<if test='material_cd != null and !material_cd.equals("")'>, material_cd</if>
+			<if test='weight_gram != null and weight_gram > 0'>, weight_gram</if>
+			<if test='quantity != null and quantity > 0'>, quantity</if>
+			<if test='unit_price != null and unit_price > 0'>, unit_price</if>
+		)
+		VALUES (
+			#{inpt_id}, NOW()
+			<if test='reg_dt != null and !reg_dt.equals("")'>, #{reg_dt}</if>
+			<if test='store_cd != null and !store_cd.equals("")'>, #{store_cd}</if>
+			<if test='cash_type_cd != null and !cash_type_cd.equals("")'>, #{cash_type_cd}</if>
+			<if test='cash_type_cd2 != null and !cash_type_cd2.equals("")'>, #{cash_type_cd2}</if>
+			<if test='bankbook_cd != null and !bankbook_cd.equals("")'>, #{bankbook_cd}</if>
+			<if test='vender_no != null and vender_no > 0'>, #{vender_no}</if>
+			<if test='vender_nm != null and !vender_nm.equals("")'>, #{vender_nm}</if>
+			<if test='history_desc != null and !history_desc.equals("")'>, #{history_desc}</if>
+			<if test='material_cd != null and !material_cd.equals("")'>, #{material_cd}</if>
+			<if test='weight_gram != null and weight_gram > 0'>, #{weight_gram}</if>
+			<if test='quantity != null and quantity > 0'>, #{quantity}</if>
+			<if test='unit_price != null and unit_price > 0'>, #{unit_price}</if>
+		)	
+	</insert>
+	
+	<select id="selectCash" parameterType="Long" resultType="CashVO">
+		SELECT cash_no, reg_dt, store_cd, cash_type_cd, cash_type_cd2, bankbook_cd, vender_no
+						, vender_nm, history_desc, material_cd, weight_gram, quantity, unit_price
+		FROM tb_cash
+		WHERE cash_no = #{cash_no}
+	</select>
+	
+	<update id="updateCash" parameterType="CashTO">
+		UPDATE tb_cash
+		SET updt_id = #{inpt_id}
+		, updt_dt = NOW()
+		<if test='reg_dt != null and !reg_dt.equals("")'>, reg_dt = #{reg_dt}</if>
+		<if test='store_cd != null and !store_cd.equals("")'>, store_cd = #{store_cd}</if>
+		<if test='cash_type_cd != null and !cash_type_cd.equals("")'>, cash_type_cd = #{cash_type_cd}</if>
+		<if test='cash_type_cd2 != null and !cash_type_cd2.equals("")'>, cash_type_cd2 = #{cash_type_cd2}</if>
+		<if test='bankbook_cd != null and !bankbook_cd.equals("")'>, bankbook_cd = #{bankbook_cd}</if>
+		<if test='vender_no != null and vender_no > 0'>, vender_no = #{vender_no}</if>
+		, vender_nm = #{vender_nm}
+		, history_desc = #{history_desc}
+		, material_cd = #{material_cd}
+		, weight_gram = #{weight_gram}
+		, unit_price = #{unit_price}
+		WHERE cash_no = #{cash_no}
+	</update>
+	
+	<update id="updateCashToDelete" parameterType="CashTO">
+		UPDATE tb_cash
+		SET updt_id = #{inpt_id}
+		, updt_dt = NOW()
+		, del_yn = 'Y'
+		WHERE cash_no = #{cash_no}
+	</update>
+	
+	<update id="updateCashesToDelete" parameterType="CashTO">
+		UPDATE tb_cash
+		SET updt_id = #{inpt_id}
+		, updt_dt = NOW()
+		, del_yn = 'Y'
+		WHERE cash_no IN (
+			<foreach collection="cash_no_arr" item="item" separator=" , ">
+				#{item}
+			</foreach>
+		)
+	</update>
+</mapper>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jewelry.catalog.mapper.CatalogMapper">
+
+	<sql id="catalog-search">
+		<if test='searchvender != null and searchvender > 0'>
+			AND a.vender_no = #{searchvender}
+		</if>
+		<!-- 검색 키워드가 있을 때 -->
+		<if test='searchword != null and !searchword.equals("")'>
+			<choose>
+				<!-- 검색 유형이 없을 때 -->
+				<when test='searchtype == null or searchtype.equals("")'>
+					AND (
+				    model_id LIKE CONCAT('%', #{searchword}, '%')
+						OR model_nm LIKE CONCAT('%', #{searchword}, '%')
+					)
+				</when>
+				<!-- 검색 유형이 있을 때 -->
+				<otherwise>
+					<if test='searchtype.equals("id")'>
+						AND a.model_id LIKE CONCAT('%', #{searchword}, '%')
+					</if>
+					<if test='searchtype.equals("name")'>
+						AND a.model_nm LIKE CONCAT('%', #{searchword}, '%')
+					</if>
+				</otherwise>
+			</choose>
+		</if>
+	</sql>
+
+	<select id="selectCatalogListCount" parameterType="CatalogTO" resultType="Integer">
+		SELECT COUNT(a.catalog_no)
+		FROM tb_catalog a
+		WHERE a.del_yn = 'N'
+		<include refid="catalog-search" />
+	</select>
+	
+	<select id="selectCatalogList" parameterType="CatalogTO" resultType="CatalogVO">
+		SELECT a.catalog_no, a.vender_no, c.vender_nm, a.model_id, a.model_nm, a.stdd_size, a.stdd_weight, a.stdd_material_cd, a.stdd_color_cd, a.basic_idst
+						, b.file_path, b.origin_nm, b.file_nm
+		FROM tb_catalog a
+			LEFT OUTER JOIN tb_vender c
+				ON a.vender_no = c.vender_no
+			LEFT OUTER JOIN tb_file b
+				ON a.catalog_no = b.ref_no
+				AND b.ref_info = 'CATALOG'
+				AND b.file_ord = 1
+				AND b.del_yn = 'N'
+		WHERE a.del_yn = 'N'
+		<include refid="catalog-search" />
+		ORDER BY a.reg_dt DESC
+		<include refid="commonMapper.paging" />
+	</select>
+	
+	<insert id="insertCatalog" parameterType="CatalogTO" useGeneratedKeys="true" keyProperty="catalog_no" keyColumn="catalog_no">
+		INSERT INTO tb_catalog 
+		(
+			inpt_id, inpt_dt
+			<if test='vender_no != null and vender_no > 0'>, vender_no</if>
+			<if test='model_id != null and !model_id.equals("")'>, model_id</if>
+			<if test='model_nm != null and !model_nm.equals("")'>, model_nm</if>
+			<if test='stdd_material_cd != null and !stdd_material_cd.equals("")'>, stdd_material_cd</if>
+			<if test='stdd_weight != null and !stdd_weight.equals("")'>, stdd_weight</if>
+			<if test='stdd_color_cd != null and !stdd_color_cd.equals("")'>, stdd_color_cd</if>
+			<if test='stdd_size != null and !stdd_size.equals("")'>, stdd_size</if>
+			<if test='odr_notice != null and !odr_notice.equals("")'>, odr_notice</if>
+			<if test='reg_dt != null and !reg_dt.equals("")'>, reg_dt</if>
+			<if test='basic_idst != null and !basic_idst.equals("")'>, basic_idst</if>
+			<if test='main_price != null and !main_price.equals("")'>, main_price</if>
+			<if test='sub_price != null and !sub_price.equals("")'>, sub_price</if>
+			<if test='total_price != null and !total_price.equals("")'>, total_price</if>
+		)
+		VALUES
+		(
+			#{inpt_id}, NOW()
+			<if test='vender_no != null and vender_no > 0'>, #{vender_no}</if>
+			<if test='model_id != null and !model_id.equals("")'>, #{model_id}</if>
+			<if test='model_nm != null and !model_nm.equals("")'>, #{model_nm}</if>
+			<if test='stdd_material_cd != null and !stdd_material_cd.equals("")'>, #{stdd_material_cd}</if>
+			<if test='stdd_weight != null and !stdd_weight.equals("")'>, #{stdd_weight}</if>
+			<if test='stdd_color_cd != null and !stdd_color_cd.equals("")'>, #{stdd_color_cd}</if>
+			<if test='stdd_size != null and !stdd_size.equals("")'>, #{stdd_size}</if>
+			<if test='odr_notice != null and !odr_notice.equals("")'>, #{odr_notice}</if>
+			<if test='reg_dt != null and !reg_dt.equals("")'>, #{reg_dt}</if>
+			<if test='basic_idst != null and !basic_idst.equals("")'>, #{basic_idst}</if>
+			<if test='main_price != null and !main_price.equals("")'>, #{main_price}</if>
+			<if test='sub_price != null and !sub_price.equals("")'>, #{sub_price}</if>
+			<if test='total_price != null and !total_price.equals("")'>, #{total_price}</if>
+		)
+	</insert>
+	
+	<insert id="insertStone" parameterType="List">
+		INSERT INTO tb_catalog_stone
+		(inpt_id, inpt_dt, catalog_no, stone_type_cd, stone_nm, bead_cnt, purchase_price, stone_desc)
+		VALUES 
+		<foreach collection="list" item="item" separator=" , ">
+			(#{item.inpt_id}, NOW(), #{item.catalog_no}, #{item.stone_type_cd}, #{item.stone_nm}, #{item.bead_cnt}, #{item.purchase_price}, #{item.stone_desc})
+		</foreach>
+	</insert>
+	
+	<select id="selectCatalog" parameterType="Long" resultType="CatalogVO">
+		SELECT a.catalog_no, a.vender_no, a.model_id, a.model_nm
+						, a.stdd_material_cd, a.stdd_weight, a.stdd_color_cd, a.stdd_size
+						, a.odr_notice, a.reg_dt, a.basic_idst, a.main_price, a.sub_price
+						, a.total_price
+						, b.vender_nm
+		FROM tb_catalog a
+			LEFT OUTER JOIN tb_vender b
+				ON a.vender_no = b.vender_no
+		WHERE a.catalog_no = #{catalog_no}
+	</select>
+	
+	<select id="selectStoneListByCatalogNo" parameterType="Long" resultType="StoneVO">
+		SELECT stone_no, catalog_no, stone_type_cd, stone_nm, bead_cnt, purchase_price, stone_desc
+		FROM tb_catalog_stone
+		WHERE catalog_no = #{catalog_no}
+		ORDER BY stone_no ASC
+	</select>
+	
+	<update id="updateCatalog" parameterType="CatalogTO">
+		UPDATE tb_catalog
+		SET updt_dt = NOW()
+		, updt_id = #{updt_id}
+		<if test='vender_no != null and vender_no > 0'>
+			, vender_no = #{vender_no}
+		</if>
+		<if test='model_id != null and !model_id.equals("")'>
+			, model_id = #{model_id}
+		</if>
+		, model_nm = #{model_nm}
+		, stdd_material_cd = #{stdd_material_cd}
+		, stdd_weight = #{stdd_weight}
+		, stdd_color_cd = #{stdd_color_cd}
+		, stdd_size = #{stdd_size}
+		, odr_notice = #{odr_notice}
+		, reg_dt = #{reg_dt}
+		, basic_idst = #{basic_idst}
+		, main_price = #{main_price}
+		, sub_price = #{sub_price}
+		, total_price = #{total_price}
+		WHERE catalog_no = #{catalog_no}
+	</update>
+	
+	<delete id="deleteStone" parameterType="Long">
+		DELETE FROM tb_catalog_stone
+		WHERE catalog_no = #{catalog_no}
+	</delete>
+	
+	<update id="updateCatalogsToDelete" parameterType="CatalogTO">
+		UPDATE tb_catalog
+		SET updt_dt = NOW()
+		, updt_id = #{updt_id}
+		, del_yn = 'Y'
+		WHERE catalog_no IN (
+			<foreach collection="catalog_no_arr" item="item" separator=" , ">
+				#{item}
+			</foreach>
+		)
+	</update>
+	
+	
+</mapper>
