@@ -63,7 +63,7 @@
 		   		form.cd_id.value = checkNullVal(json.cdid)+addZeroFront(json.childcnt+1,2);
 		   	}).catch(error => {
 		    	alert('코드정보를 찾을 수 없습니다.');
-		    	window.opener.findAll();
+		    	fncParentRefresh();
 		   	});
 			}
 

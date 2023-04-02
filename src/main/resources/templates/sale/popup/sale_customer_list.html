@@ -5,8 +5,8 @@
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
   <div class="card shadow mb-4">
-    <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary">주문 고객 변경</h6>
+    <div class="card-header py-3 text-center">
+      <h6 class="m-0 font-weight-bold text-primary">고객현황</h6>
     </div>
     <div class="card-body">
       <form id="searchForm" onsubmit="return false;">
@@ -16,6 +16,8 @@
             <button type="button" onclick="findAll(0);" class="btn btn-secondary">
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
+            <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
+            <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary waves-effect waves-light">자료등록</a>
           </div>
         </div>
       </form>
@@ -88,15 +90,14 @@
         let html = '';
         const pagination = params;
 
-        var startpage = parseInt(params.currentpage / pagination.pagesize) * pagination.pagesize;
-        var endpage = startpage + pagination.pagesize - 1;
-        endpage  = ( endpage > pagination.totalpage ? pagination.totalpage : endpage);
+        var startpage = pagination.startpage;
+        var endpage = pagination.endpage;
 
         // 첫 페이지, 이전 페이지
         if (pagination.hasprevpage) {
           html += `
             <li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-            <li><a href="javascript:void(0)" onclick="findAll("+(params.startpage - 1)+");" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
           `;
         }
 
@@ -109,8 +110,8 @@
         // 다음 페이지, 마지막 페이지
         if (pagination.hasnextpage) {
           html += `
-            <li><a href="javascript:void(0)" onclick="findAll("+(params.endpage - 1)+");" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
-            <li><a href="javascript:void(0)" onclick="findAll("+(params.totalpage)+");" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
           `;
         }
 
@@ -128,9 +129,9 @@
         const form = document.getElementById('searchForm');
 
         var params = {
-          startpage: page
+          currentpage: page
+          , salesno: /*[[${salesno}]]*/
           , searchword: form.searchword.value
-          , ordersno: /*[[${ordersno}]]*/
         }
         checkListNullParams(params);
 
@@ -140,7 +141,7 @@
 
         getJson('/api/customer/list', params).then(response => {
           if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
-            document.getElementById('list').innerHTML = '<td colspan="15" class="text-center">등록된 고객이 없습니다.</td>';
+            document.getElementById('list').innerHTML = '<td colspan="7" class="text-center">등록된 고객이 없습니다.</td>';
             drawPages();
             return false;
           }
@@ -156,7 +157,7 @@
                 <td class="text-center">` + checkSubstringNullVal(obj.regdt,0,10) + `</td>
                 <td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.contractcd)]) +`</td>
                 <td class="text-center bold">
-                  <a href="javascript: void(0);" onclick="fncModify('`+checkNullVal(obj.customerno)+`'); return false;">`+checkNullVal(obj.customerno)+`</a>
+                  <a href="javascript: void(0);" onclick="fncSave('` + checkNullVal(obj.customerno) + `', '`+checkNullVal(obj.contractornm)+`', '`+checkNullVal(obj.contractorcel)+`'); return false;">`+checkNullVal(obj.customerno)+`</a>
                 </td>
                 <td class="text-center">` + checkNullVal(obj.contractornm)+`</td>
                 <td class="text-center">` + checkNullVal(obj.contractorcel)+`</td>
@@ -170,28 +171,40 @@
         });
       }
 
-      function fncModify(customerno){
-        if(confirm('변경하시겠습니까?')){
-          var orderno = /*[[${ordersno}]]*/;
-          var order_no_arr = orderno.split(',');
-          const form = document.getElementById('searchForm');
-          const writeForm = new FormData(form);
+      /**
+       * 작성하기
+       */
+      function fncPopupWrite() {
+        var url = "/customer/popup/write";
+        var name = "customerWritePopup";
+        var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
+      }
+
+      function fncSave(customerno, customernm, customercel){
+
+        if(confirm('\'' + customernm + '\' 고객으로 변경하시겠습니까?')){
+          var salesno = /*[[${param.salesno}]]*/;
+          var sale_arr = salesno.split(',');
 
           const formData = new FormData();
           formData.append('customer_no', customerno);
-          for(var i = 0 ; i < order_no_arr.length ; i++){
-            formData.append('order_no_arr[]',order_no_arr[i]);
+          formData.append('customer_nm', customernm);
+          formData.append('customer_cel', customercel);
+
+          for(var i = 0 ; i < sale_arr.length ; i++){
+            formData.append('sale_arr[]', sale_arr[i]);
           }
 
-          fetch('/api/order/customer/modify', {
+          fetch('/api/sale/sales/customer/modify', {
             method: 'PATCH',
             body: formData
           }).then(response => {
             if(!response.ok){
               throw new Error('Request Failed...');
             }
-            alert('변경되었습니다.');
-            fncParentRefresh();
+            alert('변경 되었습니다.');
+            window.opener.refresh();
             fncClose();
           }).catch(error => {
             alert('오류가 발생하였습니다.');

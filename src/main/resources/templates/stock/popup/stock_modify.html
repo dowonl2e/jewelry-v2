@@ -6,7 +6,7 @@
 <th:block layout:fragment="content">
   <div class="card shadow mt-4 mb-4">
     <div class="card-header py-3 text-center">
-      <h6 class="m-0 font-weight-bold text-primary">주문 재고 등록</h6>
+      <h6 class="m-0 font-weight-bold text-primary">재고 등록</h6>
     </div>
     <div class="card-body">
       <form id="form" class="form-horizontal">
@@ -82,7 +82,7 @@
               </tr>
               <th:block th:each="idx : ${#numbers.sequence(0,2)}">
                 <tr>
-                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#string:substring(prevstocklist[idx].regdt,0,10)}"></td>
+                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#string.substring(prevstocklist[idx].regdt,0,10)}"></td>
                   <td class="text-center border-right small" th:id="'prev_model_id_'+${idx}" th:text="${prevstocklist[idx].modelid}"></td>
                   <td class="text-center border-right small" th:id="'prev_stock_type_cd_'+${idx}">
                     <th:block th:each="oc : ${oclist}">
@@ -94,7 +94,7 @@
                       <th:block th:if="${prevstocklist[idx].materialcd == sm.cdid}" th:text="${sm.cdnm}"></th:block>
                     </th:block>
                   </td>
-                  <td class="text-center border-right small" id="prev_color_cd_${idx}">
+                  <td class="text-center border-right small" th:id="'prev_color_cd_'+${idx}">
                     <th:block th:each="sc : ${sclist}">
                       <th:block th:if="${prevstocklist[idx].colorcd == sc.cdid}" th:text="${sc.cdnm}"></th:block>
                     </th:block>
@@ -104,7 +104,7 @@
                   <td class="text-center border-right small" th:id="'prev_size_'+${idx}" th:text="${prevstocklist[idx].size}"></td>
                   <td class="text-center border-right small" th:id="'prev_stock_desc_'+${idx}" th:text="${prevstocklist[idx].stockdesc}"></td>
                   <td class="text-center border-right small" th:id="'prev_per_weight_gram_'+${idx}" th:text="${prevstocklist[idx].perweightgram}"></td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}" th:text="">
+                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}">
                     <th:block th:with="prevPerPrice = ${prevstocklist[idx].perpricemain}"/>
                     <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricesub}"/>
                     <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricebasic}"/>
@@ -117,7 +117,7 @@
                     </th:block>
                     <span th:text="${prevPerPrice}"/>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_gold_real_'+${idx}">
+                  <td class="text-center border-right small" th:id="prev_per_price_gold_real_${idx}">
                     <th:block th:with="weight = 0"/>
                     <th:block th:if="${prevstocklist[idx].materialcd == 'SM01'}">
                       <th:block th:with="weight = 0.6435"/>
@@ -132,8 +132,8 @@
                     <th:block th:with="realPchGoldPrice" value="${realPchGoldPrice == 0 ? '' : (realPchGoldPrice+'')}"/>
                     <span th:text="${realPchGoldPrice}"/>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_gold_stdd_'+${idx}" th:text="${prevPerPrice}"></td>
-                  <td class="text-center border-right small" th:id="'prev_multiple_cnt_'+${idx}" th:text="${prevstocklist[idx].multiplecnt}"></td>
+                  <td class="text-center border-right small" th:id="prev_per_price_gold_stdd_${idx}" th:text="${prevPerPrice}"></td>
+                  <td class="text-center border-right small" th:id="prev_multiple_cnt_${idx}" th:text="${prevstocklist[idx].multiplecnt}"></td>
                   <td class="text-center small" th:id="'prev_consumer_price_'+${idx}">
                     <th:block th:with="prevConsumerPrice = ${prevPerPrice*prevstocklist[idx].multiplecnt}"/>
                     <th:block th:with="prevConsumerPrice = ${prevConsumerPrice eq 0 ? '' : (prevConsumerPrice+'')}"/>
@@ -250,7 +250,7 @@
                     <input type="number" name="quantity_arr" th:id="'quantity_'+${idx}" class="form-control form-multi mtb5" value="1" min="1"/>
                   </td>
                   <td class="text-center border-right">
-                    <input type="number" name="per_weight_gram_arr" th:id="'per_weight_gram_'+${idx}" class="form-control form-multi perweightgram tb5" maxlength="20"/>
+                    <input type="number" name="per_weight_gram_arr" th:id="'per_weight_gram_'+${idx}" class="form-control form-multi perweightgramm tb5" maxlength="20"/>
                   </td>
                   <td class="text-center border-right">
                     <input type="text" th:id="'per_weight_gold_'+${idx}" class="form-control perweightgold mtb5" disabled="disabled"/>
@@ -274,7 +274,7 @@
                     <input type="text" th:id="'per_price_gold_stdd_'+${idx}" class="form-control perpricegoldstdd mtb5" disabled="disabled"/>
                   </td>
                   <td class="text-center border-right">
-                    <input type="number" name="multiple_cnt_arr" th:id="'multiple_cnt_'+${idx}" class="form-control multiplecnt form-multi mtb5" maxlength="20"/>
+                    <input type="number" name="multiple_cnt_arr" th:id="'multiple_cnt_'+${idx}" class="form-control form-multi multiplecnt mtb5" maxlength="20"/>
                   </td>
                   <td class="text-center border-right">
                     <input type="number" th:id="'consumer_price_'+${idx}" class="form-control consumerprice mtb5" disabled="disabled"/>
@@ -286,7 +286,9 @@
         </div>
 
         <div class="btn_wrap text-center">
-          <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">등록</a>
+<!--          <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
+            <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
+<!--          </th:block>-->
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -298,9 +300,10 @@
 			$(document).ready(function(){
 				const inputElement = document.getElementById("file");
 				inputElement.addEventListener("change", readURL, false);
+				find();
 
-				$("#real_pch_gold_price, .perpricebasic, .perpriceadd, .perpricemain, .perpricesub, .perweightgram, .materialcd, .multiplecnt").on('change keyup', function() {
-					$(".perweightgram").each(function(idx){
+				$("#real_pch_gold_price, .perpricebasic, .perpriceadd, .perpricemain, .perpricesub, .perweightgramm, .materialcd, .multiplecnt").on('change keyup', function() {
+					$(".perweightgramm").each(function(idx){
 						//실질 구매 순금시세----------------------------------------------------------------------------------------------------------------
 						realPchGoldPriceSum = $("#real_pch_gold_price").val() == '' ? 0 : Number($("#real_pch_gold_price").val());
 						//실질 구매 순금시세 끝--------------------------------------------------------------------------------------------------------------
@@ -308,7 +311,7 @@
 						//개당 구매가 순금계산---------------------------------------------------------------------------------------------------------------
 						weight = 0;
 						goldWeight = 0;
-						perWeightGram = $(".perweightgram").eq(idx).val() == '' ? 0 : Number($(".perweightgram").eq(idx).val());
+						perWeightGram = $(".perweightgramm").eq(idx).val() == '' ? 0 : Number($(".perweightgramm").eq(idx).val());
 
 						//재질별 중량 체크
 						if($(".materialcd").eq(idx).val() == 'SM01') weight = 0.6435;
@@ -340,58 +343,116 @@
 						if(realPchGoldPriceSum == 0 || realPchGoldPriceSum == 0.0) $(".perpricegoldreal").eq(idx).val('');
 						else $(".perpricegoldreal").eq(idx).val(realPchGoldPriceSum+'');
 
+
 						multipleCnt = $(".multiplecnt").eq(idx).val() == '' ? 0 : Number($(".multiplecnt").eq(idx).val());
 						consumerPrice = perPriceGoldStddSum * multipleCnt;
 
 						if(consumerPrice == 0 || consumerPrice == 0.0) $(".consumerprice").eq(idx).val('');
 						else $(".consumerprice").eq(idx).val(consumerPrice+'');
 
+
 					});
 				});
-				findAll();
 			});
 
-			function findAll() {
+			function find() {
 
-				const ordersno = /*[[${ordersno}]]*/;
-				if(!ordersno){
-					return false;
-				}
+				const stockno = /*[[${stockno}]]*/;
+				if ( !stockno ) {
+		    	return false;
+		    }
 
-				var order_no_arr = ordersno.split(',');
-
-				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
-
-				fetch('/api/order/list/nos', {
-					method: 'POST',
-					body: formData
-				}).then(response => {
+				fetch(`/api/stock/`+stockno).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
 		    	return response.json();
-				}).then(json => {
-					if(json.list != null && json.list.length > 0){
-						json.list.forEach((obj, idx) => {
-							document.getElementById('catalog_no_'+idx).value = checkNullVal(obj.catalogno);
-							document.getElementById('model_id_'+idx).value = checkNullVal(obj.modelid);
-							document.getElementById('vender_no_'+idx).value = checkNullVal(obj.venderno);
-							document.getElementById('vender_nm_'+idx).value = checkNullVal(obj.vendernm);
-							document.getElementById('material_cd_'+idx).value = checkNullVal(obj.materialcd);
-							document.getElementById('color_cd_'+idx).value = checkNullVal(obj.colorcd);
-							document.getElementById('main_stone_type_'+idx).value = checkNullVal(obj.mainstonetype);
-							document.getElementById('sub_stone_type_'+idx).value = checkNullVal(obj.substonetype);
-							document.getElementById('size_'+idx).value = checkNullVal(obj.size);
-							document.getElementById('stock_desc_'+idx).value = checkNullVal(obj.orderdesc);
-							document.getElementById('quantity_'+idx).value = checkNullVal(obj.quantity);
-						});
-					}
+
+		   	}).then(json => {
+		   		var filelist = json.filelist;
+		   		var filepath = '';
+		   		var filenm = '';
+
+		   		if(filelist != null && filelist.length > 0){
+			   		for(var i = 0 ; i < filelist.length ; i++){
+			   			if(filelist[i].fileord == 1){
+			   				filepath = checkNullVal(filelist[i].filepath);
+			   				filenm = checkNullVal(filelist[i].filenm);
+			   			}
+			   		}
+		   		}
+		   		if(filenm == '')
+		   			form.preview.src = '/img/no-image.png';
+		   		else
+		   			form.preview.src = '/file/image/display?filePath='+filepath+'&fileName='+filenm;
+
+		   		form.reg_dt.value = checkSubstringNullVal(json.regdt,0,10);
+		   		form.store_cd.value = checkNullVal(json.storecd);
+		   		form.stock_type_cd.value = checkNullVal(json.stocktypecd);
+
+		   		form.real_pch_gold_price.value = checkNullVal(json.realpchgoldprice);
+
+		   		form.catalog_no_0.value = checkNullVal(json.catalogno);
+		   		form.model_id_0.value = checkNullVal(json.modelid);
+		   		form.vender_no_0.value = checkNullVal(json.venderno);
+		   		form.vender_nm_0.value = checkNullVal(json.vendernm);
+
+		   		form.material_cd_0.value = checkNullVal(json.materialcd);
+		   		form.color_cd_0.value = checkNullVal(json.colorcd);
+		   		form.quantity_0.value = checkNullVal(json.quantity);
+		   		form.main_stone_type_0.value = checkNullVal(json.mainstonetype);
+		   		form.sub_stone_type_0.value = checkNullVal(json.substonetype);
+		   		form.size_0.value = checkNullVal(json.size);
+		   		form.stock_desc_0.value = checkNullVal(json.stockdesc);
+		   		form.quantity_0.value = checkNullVal(json.quantity);
+		   		form.per_weight_gram_0.value = checkNullVal(json.perweightgram);
+
+		   		materialCd = checkNullVal(json.materialcd);
+		   		weight = 0;
+		   		if(materialCd == 'SM01') weight = 0.6435;
+					else if(materialCd == 'SM02') weight = 0.825;
+					else if(materialCd == 'SM03') weight = 1;
+
+		   		perWeightGram = Number(checkNullValR(json.perweightgram,'0'));
+
+		   		//재질중량(g) 순금 계산
+		   		perGoldWeight = perWeightGram * weight;
+
+		   		form.per_weight_gold_0.value = (perGoldWeight == 0 || perGoldWeight == 0.0 ? '' : (perGoldWeight+''));
+
+		   		form.per_price_basic_0.value = checkNullVal(json.perpricebasic);
+		   		form.per_price_add_0.value = checkNullVal(json.perpriceadd);
+		   		form.per_price_main_0.value = checkNullVal(json.perpricemain);
+		   		form.per_price_sub_0.value = checkNullVal(json.perpricesub);
+
+		   		perPriceBasic = Number(checkNullValR(json.perpricebasic,'0'));
+		   		perPriceAdd = Number(checkNullValR(json.perpriceadd,'0'));
+		   		perPriceMain = Number(checkNullValR(json.perpricemain,'0'));
+		   		perPriceSub = Number(checkNullValR(json.perpricesub,'0'));
+
+		   		//개당구매가(공임) 합산
+		   		perPriceGoldStdd = (perPriceBasic + perPriceAdd + perPriceMain + perPriceSub);
+
+		   		perPriceGoldReal = 0;
+		   		realPchGoldPrice = Number(checkNullValR(json.realpchgoldprice,'0'));
+
+		   		perPriceGoldReal = realPchGoldPrice*perGoldWeight;
+		   		perPriceGoldReal += perPriceGoldStdd;
+
+		   		form.per_price_gold_real_0.value = perPriceGoldReal;
+
+		   		form.per_price_gold_stdd_0.value = (perPriceGoldStdd == 0 || perPriceGoldStdd == 0.0 ? '' : (perPriceGoldStdd+''));
+
+		   		form.multiple_cnt_0.value = checkNullVal(json.multiplecnt);
+
+		   		multipleCnt = Number(checkNullValR(json.multiplecnt,'1'));
+					comsumerPrice = perPriceGoldStdd * multipleCnt;
+		   		form.consumer_price_0.value = (comsumerPrice == 0 || comsumerPrice == 0.0 ? '' : (comsumerPrice+''));
+
 		   	}).catch(error => {
-					alert('선택하신 주문이력 조회에 실패했습니다.');
-					fncClose();
+		    	alert('재고 정보를 찾을 수 없습니다.');
+		    	window.opener.refresh();
+		    	fncClose();
 		   	});
 			}
 
@@ -409,7 +470,23 @@
 			  }
 			}
 
+			/* function readURL(obj) {
+			  if (obj.files && obj.files[0]) {
+			    var reader = new FileReader();
+			    reader.onload = function(e) {
+			      document.getElementById('preview').src = e.target.result;
+			    };
+			    reader.readAsDataURL(obj.files[0]);
+			  } else {
+			    document.getElementById('preview').src = "";
+			  }
+			} */
+
 			function fncSave(){
+				/* if( !isValid() ){
+					return false;
+				} */
+
 				if($("#reg_dt").val() == ''){
 					alert('등록일을 입력해주세요.');
 					$("#reg_dt").focus();
@@ -434,21 +511,11 @@
 					return false;
 				}
 
-				const ordersno = /*[[${ordersno}]]*/;
-				if(!ordersno){
-					alert('선택된 주문 이력이 없습니다.');
-					fncClose();
-					return false;
-				}
-
-				var order_no_arr = ordersno.split(',');
-
 				const fileField = document.querySelector('input[type="file"]');
-				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
+				const form = document.getElementById('form');
+				const writeForm = new FormData(form);
 
+				const formData = new FormData();
 				$(".form-data").each(function(){
 					formData.append($(this).attr("name"), checkNullVal($(this).val()));
 				});
@@ -456,18 +523,18 @@
 					formData.append($(this).attr("name")+'[]', checkNullVal($(this).val()));
 				});
 
-				//배열 데이터 넣기
 				formData.append("file", fileField.files[0]);
 
-				fetch('/api/stock/orders/stock/write', {
+				const stockno = /*[[${stockno}]]*/;
+				fetch('/api/stock/modify/'+stockno, {
 					method: 'PATCH',
 					body: formData
 				}).then(response => {
 					if(!response.ok){
 						throw new Error('Request Failed...');
 					}
-					alert('재고등록이 완료되었습니다.');
-					fncParentRefresh();
+					alert('저장되었습니다.');
+					window.opener.refresh();
 					fncClose();
 				}).catch(error => {
 					alert('오류가 발생하였습니다.');
@@ -498,8 +565,15 @@
 				$("#consumer_price_"+idx).val('');
 			}
 
+			function fncCustomerListPop(){
+				var url = "/customer/popup/list";
+	      var name = "customerListPopup";
+	      var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+	      window.open(url, name, option);
+			}
+
 			function fncCatalogListPop(idx){
-				var url = "/catalog/popup/list?openeridx="+idx;
+				var url = "/catalog/popup/list?reqtype=all&openeridx="+idx;
 	      var name = "catalogListPopup";
 	      var option = "width = 1150, height = 800, top = 100, left = 200, location = no";
 	      window.open(url, name, option);

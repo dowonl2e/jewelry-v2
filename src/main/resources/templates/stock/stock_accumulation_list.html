@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/admin_layout">
+<th:block layout:fragment="content">
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <form id="searchForm" onsubmit="return false;">
+        <div class="mb20" id="adv-search">
+          <div class="form-inline">
+            <select id="searchstore" class="form-control">
+              <option value="">매장구분</option>
+              <option th:each="cditem : ${stlist}" th:value="${cditem.cdid}" th:text="${cditem.cdnm}"></option>
+            </select>
+            <select id="searchstocktype" class="form-control ml5">
+              <option value="">현재고구분</option>
+              <option th:each="cditem : ${oclist}" th:value="${cditem.cdid}" th:text="${cditem.cdnm}"></option>
+            </select>
+            <select id="searchmaterial" class="form-control ml5">
+              <option value="">재질구분</option>
+              <option th:each="cditem : ${smlist}" th:value="${cditem.cdid}" th:text="${cditem.cdnm}"></option>
+            </select>
+          </div>
+          <div class="form-inline mt5">
+            <span class="mlr5">등록일</span>
+            <input type="date" id="searchstdt" class="form-control mlr5"/> ~
+            <input type="date" id="searcheddt" class="form-control mlr5"/>
+            <input type="number" id="searchrecordcnt" class="form-control mlr5" placeholder="행 개수" min="1" max="100" oninput="fncCheckZero(this);" style="width:100px;"/>
+            <input type="text" id="searchword" class="form-control mlr5" placeholder="고객명/모델번호 입력" style="width: auto;" />
+            <button type="button" onclick="findAll(0);" class="btn btn-secondary">
+              <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
+            </button>
+            <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light ml5">새로고침</a>
+<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
+              <a href="javascript: void(0);" onclick="fncPopupStockWrite();" class="btn btn-primary waves-effect waves-light ml5">재고등록</a>
+            </th:block>
+          </div>
+        </div>
+      </form>
+      <div class="table-responsive clearfix">
+        <table class="table">
+          <thead>
+          <tr>
+            <th rowspan="2" class="text-center">No</th>
+            <th rowspan="2" class="text-center border-left"><a href="javascript:void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a></th>
+            <th rowspan="2" class="text-center border-left">매장</th>
+            <th rowspan="2" class="text-center border-left">등록일<br/>변경일</th>
+            <th rowspan="2" class="text-center border-left">시리얼</th>
+            <th rowspan="2" class="text-center border-left">재고<br/>구분</th>
+            <th rowspan="2" class="text-center border-left">사이즈<br/>비&nbsp;&nbsp;&nbsp;고</th>
+            <th rowspan="2" class="text-center border-left">모델<br/>번호</th>
+            <th rowspan="2" class="text-center border-left">재질</th>
+            <th rowspan="2" class="text-center border-left">색상</th>
+            <th rowspan="2" class="text-center border-left">메인</th>
+            <th rowspan="2" class="text-center border-left">보조</th>
+            <th rowspan="2" class="text-center border-left">수량</th>
+            <th rowspan="2" class="text-center border-left">중량</th>
+            <th colspan="3" class="text-center border-left">개당 구매가</th>
+            <th rowspan="2" class="text-center border-left">배수</th>
+            <th rowspan="2" class="text-center border-left">개당<br/>TAG가</th>
+          </tr>
+          <tr>
+            <th class="text-center border-left">공임</th>
+            <th class="text-center border-left">실질</th>
+            <th class="text-center border-left">기준</th>
+          </tr>
+          </thead>
+          <tbody id="list"></tbody>
+        </table>
+
+        <div class="text-left mt-3">
+          <a href="javascript: void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a><span class="ml5">체크된 것</span>
+<!--          <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
+            <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+<!--          </th:block>-->
+        </div>
+
+        <nav aria-label="Page navigation" class="text-center">
+          <ul class="pagination"></ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+
+      var minNumberLen = 1;
+      var maxNumberLen = 100;
+
+      /**
+       * 페이지 HTML 렌더링
+       */
+      var codemap = {
+        [# th:each="code, loop : ${cdmapper}"]
+          "[(${code.cdid})]": "[(${code.cdnm})]",
+        [/]
+      };
+
+      window.onload = () => {
+        setQueryStringParams();
+        findAll();
+        addEnterSearchEvent();
+      }
+
+      /**
+        * 키워드 - 엔터 검색 이벤트 바인딩
+        */
+      function addEnterSearchEvent() {
+        document.getElementById('searchword').addEventListener('keyup', (e) => {
+          if (e.keyCode === 13) {
+            findAll(0);
+          }
+        });
+      }
+
+      function drawPages(params) {
+
+        if (!params) {
+          document.querySelector('.pagination').innerHTML = '';
+          return false;
+        }
+
+        let html = '';
+        const pagination = params;
+
+        var startpage = pagination.startpage;
+        var endpage = pagination.endpage;
+
+        // 첫 페이지, 이전 페이지
+        if (pagination.hasprevpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+          `;
+        }
+
+        // 페이지 번호
+        for (let i = startpage ; i < endpage ; i++) {
+          const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
+          html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
+        }
+
+        // 다음 페이지, 마지막 페이지
+        if (pagination.hasnextpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+          `;
+        }
+
+        document.querySelector('.pagination').innerHTML = html;
+      }
+
+      /**
+       * 게시글 리스트 조회
+       */
+      function findAll(page) {
+
+        const pageParams = Number(new URLSearchParams(location.search).get('page'));
+        page = page ? page : (pageParams ? pageParams : 1);
+
+        const form = document.getElementById('searchForm');
+
+        var params = {
+          currentpage: page
+          , searchstore: form.searchstore.value
+          , searchstocktype: form.searchstocktype.value
+          , searchmaterial: form.searchmaterial.value
+          , searchstdt: form.searchstdt.value
+          , searcheddt: form.searcheddt.value
+          , searchrecordcnt: form.searchrecordcnt.value
+          , searchword: form.searchword.value
+        }
+        checkListNullParams(params);
+
+        const queryString = new URLSearchParams(params).toString();
+        const replaceUri = location.pathname + '?' + queryString;
+        history.replaceState({}, '', replaceUri);
+
+        getJson('/api/stock/accumulation/list', params).then(response => {
+          if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
+            document.getElementById('list').innerHTML = '<td colspan="19" class="text-center">재고내역이 없습니다.</td>';
+            drawPages();
+            return false;
+          }
+
+          let html = '';
+          let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
+          //const viewAuth = '${sessionScope.VIEW_AUTH}';
+          const viewAuth = 'Y';
+          response.list.forEach((obj, idx) => {
+
+            delyn = checkNullVal(obj.delyn);
+            saleyn = checkNullVal(obj.saleyn);
+            storetypecd = checkNullVal(obj.stocktypecd);
+            backgroundTr = '';
+            if(delyn == 'Y') {
+              backgroundTr = 'bg-orange';
+            }
+            else if(storetypecd == 'OC03'){
+                if(saleyn == 'Y') backgroundTr = 'bg-green';
+                else backgroundTr = 'bg-springgreen';
+            }
+
+            html += `
+              <tr class="`+backgroundTr+` small">
+                <td class="text-center">
+            `;
+            if(viewAuth == 'Y'){
+              html += `		<a href="javascript: void(0);" onclick="fncPopupView('`+checkNullVal(obj.stockno)+`'); return false;">` + (num--) + `</a>`;
+            }
+            else {
+              html += (num--);
+            }
+            html += `
+                </td>
+                <td class="text-center"><input type="checkbox" name="stock_no_arr" class="form-check" value="`+checkNullVal(obj.stockno)+`"/></td>
+                <td class="text-center">`+ checkNullVal(codemap[obj.storecd]) + `</td>
+                <td class="text-center"><div class="">` + checkSubstringNullVal(obj.regdt,2,10) + `</div><div>`+checkSubstringNullVal(obj.updtdt,2,10)+`</div></td>
+                <td class="text-center bold">`+checkNullVal(obj.stockno)+`</td>
+            `;
+            stocktype = '';
+            if(delyn == 'Y')
+              stocktype = '<div>삭제</div>';
+            else if(saleyn == 'Y')
+              stocktype = '<div>판매</div>';
+
+            if(checkNullVal(codemap[obj.stocktypecd]) != '')
+              stocktype += '<div>'+checkNullVal(codemap[obj.stocktypecd])+'</div>';
+
+            html += `
+                <td class="text-center">`+ stocktype + `</td>
+                <td class="text-center"><div class="">` + checkNullVal(obj.size)+`</div><div>`+checkNullVal(obj.stockdesc)+`</div></td>
+                <td class="text-center">` + checkNullVal(obj.modelid)+`</td>
+                <td class="text-center important">` + checkNullVal(codemap[obj.materialcd])+`</td>
+                <td class="text-center">` + checkNullVal(codemap[obj.colorcd]) + `</td>
+                <td class="text-center">` + checkNullVal(obj.mainstonetype) + `</td>
+                <td class="text-center">` + checkNullVal(obj.substonetype) + `</td>
+                <td class="text-center">` + checkNullVal(obj.quantity) + `</td>
+                <td class="text-center">` + checkNullVal(obj.perweightgram) + `</td>
+            `;
+            //개당구매가 공임
+            perPrice = Number(checkNullValR(obj.perpricebasic,'0'));
+            perPrice += Number(checkNullValR(obj.perpriceadd,'0'));
+            perPrice += Number(checkNullValR(obj.perpricemain,'0'));
+            perPrice += Number(checkNullValR(obj.perpricesub,'0'));
+            perPriceTxt = (perPrice == 0 || perPrice == 0.0 ? '' : priceWithComma(perPrice));
+            html += `
+                <td class="text-center">`+perPriceTxt+`</td>
+            `;
+
+            //재질별 중량 체크
+            weight = 0;
+            materialCd = checkNullVal(obj.materialcd);
+            if(materialCd == 'SM01') weight = 0.6435;
+            else if(materialCd == 'SM02') weight = 0.825;
+            else if(materialCd == 'SM03') weight = 1;
+
+            //개당구매가 실질
+            realPchGoldPrice = Number(checkNullValR(obj.realpchgoldprice,'0'));
+            realPchGoldPrice = realPchGoldPrice*(Number(checkNullValR(obj.perweightgram,'0'))*weight)+perPrice;
+            realPchGoldPriceTxt = (realPchGoldPrice == 0 || realPchGoldPrice == 0.0 ? '' : priceWithComma(realPchGoldPrice));
+            html += `
+                <td class="text-center">`+realPchGoldPriceTxt+`</td>
+            `;
+            //개당구매가 기준
+            html += `
+                <td class="text-center">`+perPriceTxt+`</td>
+                <td class="text-center">`+checkNullVal(obj.multiplecnt)+`</td>
+            `;
+            //소비자 TAG가
+            consumerPrice = Number(checkNullValR(obj.multiplecnt,'0'))*perPrice;
+            consumerPriceTxt = (consumerPrice == 0 || consumerPrice == 0.0 ? '' : priceWithComma(consumerPrice));
+            html += `
+                <td class="text-center">`+consumerPriceTxt+`</td>
+              </tr>
+            `;
+          });
+
+          document.getElementById('list').innerHTML = html;
+          drawPages(response.params);
+        });
+      }
+
+      /**
+       * 작성하기
+       */
+      function fncPopupStockWrite() {
+        var url = "/stock/popup/write";
+        var name = "stockWritePopup";
+        var option = "width = 1500, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
+      }
+
+      /**
+       * 수정하기
+       */
+      function fncPopupView(stockno) {
+        var url = "/stock/popup/"+stockno;
+        var name = "stockViewPopup";
+        var option = "width = 1500, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
+      }
+
+      function fncRemove(){
+
+        var orderscheckcnt = 0;
+        $(".form-check").each(function(){
+          if($(this).is(":checked")){
+            orderscheckcnt++;
+          }
+        });
+        if(orderscheckcnt == 0){
+          alert('삭제할 주문이력을 선택해주세요.');
+          return false;
+        }
+        if(confirm('삭제하시겠습니까?')){
+          const form = document.getElementById('searchForm');
+          const writeForm = new FormData(form);
+
+          const formData = new FormData();
+          $(".form-check").each(function(){
+            if($(this).is(":checked"))
+              formData.append("stock_no_arr[]", checkNullVal($(this).val()));
+          });
+
+          fetch('/api/stock/stocks/remove', {
+            method: 'PATCH',
+            body: formData
+          }).then(response => {
+            if(!response.ok){
+              throw new Error('Request Failed...');
+            }
+            alert('삭제되었습니다.');
+            findAll();
+          }).catch(error => {
+            alert('오류가 발생하였습니다.');
+          });
+        }
+      }
+    /*]]>*/
+	</script>
+</th:block>
+</html>

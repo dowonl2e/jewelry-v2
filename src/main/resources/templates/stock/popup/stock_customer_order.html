@@ -6,7 +6,7 @@
 <th:block layout:fragment="content">
   <div class="card shadow mb-4">
     <div class="card-header py-3">
-      <h6 class="m-0 font-weight-bold text-primary">주문 고객 변경</h6>
+      <h6 class="m-0 font-weight-bold text-primary">고객주문</h6>
     </div>
     <div class="card-body">
       <form id="searchForm" onsubmit="return false;">
@@ -16,6 +16,7 @@
             <button type="button" onclick="findAll(0);" class="btn btn-secondary">
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
+            <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light ml5">새로고침</a>
           </div>
         </div>
       </form>
@@ -47,7 +48,7 @@
   </div>
 
   <script th:inline="javascript">
-		/*<![CDATA[*/
+    /*<![CDATA[*/
 
       var minNumberLen = 1;
       var maxNumberLen = 100;
@@ -129,8 +130,8 @@
 
         var params = {
           startpage: page
+          , stocksno : /*[[${stocksno}]]*/
           , searchword: form.searchword.value
-          , ordersno: /*[[${ordersno}]]*/
         }
         checkListNullParams(params);
 
@@ -156,7 +157,7 @@
                 <td class="text-center">` + checkSubstringNullVal(obj.regdt,0,10) + `</td>
                 <td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.contractcd)]) +`</td>
                 <td class="text-center bold">
-                  <a href="javascript: void(0);" onclick="fncModify('`+checkNullVal(obj.customerno)+`'); return false;">`+checkNullVal(obj.customerno)+`</a>
+                  <a href="javascript: void(0);" onclick="fncSelect('` + checkNullVal(obj.customerno) + `', '`+checkNullVal(obj.contractornm)+`', '`+checkNullVal(obj.contractorcel)+`'); return false;">`+checkNullVal(obj.customerno)+`</a>
                 </td>
                 <td class="text-center">` + checkNullVal(obj.contractornm)+`</td>
                 <td class="text-center">` + checkNullVal(obj.contractorcel)+`</td>
@@ -165,32 +166,84 @@
             `;
           });
 
+
           document.getElementById('list').innerHTML = html;
           drawPages(response.params);
         });
       }
 
-      function fncModify(customerno){
-        if(confirm('변경하시겠습니까?')){
-          var orderno = /*[[${ordersno}]]*/;
-          var order_no_arr = orderno.split(',');
+      /**
+       * 조회 API 호출
+       */
+      async function getJson(uri, params) {
+
+        if (params) {
+          uri = uri + '?' + new URLSearchParams(params).toString();
+        }
+
+        const response = await fetch(uri);
+
+        if (!response.ok) {
+          await response.json().then(error => {
+            throw error;
+          });
+        }
+
+        return await response.json();
+      }
+
+      function setQueryStringParams() {
+
+        if ( !location.search ) {
+          return false;
+        }
+
+        const form = document.getElementById('searchForm');
+
+        new URLSearchParams(location.search).forEach((value, key) => {
+          if (form[key]) {
+            form[key].value = value;
+          }
+        });
+      }
+
+      //새로고침
+      function fncRefresh(){
+        $("#adv-search").find("input").val('');
+        $("#adv-search").find("select").val('');
+        findAll(0);
+      }
+
+      function fncSelect(customerno, customernm, customercel){
+        if(confirm('\''+customernm+'\' 고객으로 주문하시겠습니까?')){
+          var stocksno = /*[[${stocksno}]]*/;
+          var stock_no_arr = stocksno.split(',');
+          if(stock_no_arr == null || stock_no_arr.length == 0){
+            alert('재고 선택 후 주문바랍니다.');
+            fncClose();
+            return false;
+          }
+
           const form = document.getElementById('searchForm');
           const writeForm = new FormData(form);
 
           const formData = new FormData();
           formData.append('customer_no', customerno);
-          for(var i = 0 ; i < order_no_arr.length ; i++){
-            formData.append('order_no_arr[]',order_no_arr[i]);
+          formData.append('customer_nm', customernm);
+          formData.append('customer_cel', customercel);
+
+          for(var i = 0 ; i < stock_no_arr.length ; i++){
+            formData.append('stock_no_arr[]',stock_no_arr[i]);
           }
 
-          fetch('/api/order/customer/modify', {
-            method: 'PATCH',
+          fetch('/api/stock/order/customer/write', {
+            method: 'POST',
             body: formData
           }).then(response => {
             if(!response.ok){
               throw new Error('Request Failed...');
             }
-            alert('변경되었습니다.');
+            alert('고객주문이 완료되었습니다.');
             fncParentRefresh();
             fncClose();
           }).catch(error => {

@@ -6,7 +6,7 @@
 <th:block layout:fragment="content">
   <div class="card shadow mt-4 mb-4">
     <div class="card-header py-3 text-center">
-      <h6 class="m-0 font-weight-bold text-primary">주문 재고 등록</h6>
+      <h6 class="m-0 font-weight-bold text-primary">재고 등록</h6>
     </div>
     <div class="card-body">
       <form id="form" class="form-horizontal">
@@ -82,14 +82,14 @@
               </tr>
               <th:block th:each="idx : ${#numbers.sequence(0,2)}">
                 <tr>
-                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#string:substring(prevstocklist[idx].regdt,0,10)}"></td>
+                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#string.substring(prevstocklist[idx].regdt,0,10)}"></td>
                   <td class="text-center border-right small" th:id="'prev_model_id_'+${idx}" th:text="${prevstocklist[idx].modelid}"></td>
                   <td class="text-center border-right small" th:id="'prev_stock_type_cd_'+${idx}">
                     <th:block th:each="oc : ${oclist}">
                       <th:block th:if="${prevstocklist[idx].stocktypecd == oc.cdid}" th:text="${oc.cdnm}"></th:block>
                     </th:block>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_material_cd_'+${idx}">
+                  <td class="text-center border-right small" id="prev_material_cd_${idx}">
                     <th:block th:each="sm : ${smlist}">
                       <th:block th:if="${prevstocklist[idx].materialcd == sm.cdid}" th:text="${sm.cdnm}"></th:block>
                     </th:block>
@@ -104,7 +104,7 @@
                   <td class="text-center border-right small" th:id="'prev_size_'+${idx}" th:text="${prevstocklist[idx].size}"></td>
                   <td class="text-center border-right small" th:id="'prev_stock_desc_'+${idx}" th:text="${prevstocklist[idx].stockdesc}"></td>
                   <td class="text-center border-right small" th:id="'prev_per_weight_gram_'+${idx}" th:text="${prevstocklist[idx].perweightgram}"></td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}" th:text="">
+                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}">
                     <th:block th:with="prevPerPrice = ${prevstocklist[idx].perpricemain}"/>
                     <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricesub}"/>
                     <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricebasic}"/>
@@ -117,7 +117,7 @@
                     </th:block>
                     <span th:text="${prevPerPrice}"/>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_gold_real_'+${idx}">
+                  <td class="text-center border-right small" th:id="prev_per_price_gold_real_${idx}">
                     <th:block th:with="weight = 0"/>
                     <th:block th:if="${prevstocklist[idx].materialcd == 'SM01'}">
                       <th:block th:with="weight = 0.6435"/>
@@ -132,8 +132,8 @@
                     <th:block th:with="realPchGoldPrice" value="${realPchGoldPrice == 0 ? '' : (realPchGoldPrice+'')}"/>
                     <span th:text="${realPchGoldPrice}"/>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_gold_stdd_'+${idx}" th:text="${prevPerPrice}"></td>
-                  <td class="text-center border-right small" th:id="'prev_multiple_cnt_'+${idx}" th:text="${prevstocklist[idx].multiplecnt}"></td>
+                  <td class="text-center border-right small" th:id="prev_per_price_gold_stdd_${idx}" th:text="${prevPerPrice}"></td>
+                  <td class="text-center border-right small" th:id="prev_multiple_cnt_${idx}" th:text="${prevstocklist[idx].multiplecnt}"></td>
                   <td class="text-center small" th:id="'prev_consumer_price_'+${idx}">
                     <th:block th:with="prevConsumerPrice = ${prevPerPrice*prevstocklist[idx].multiplecnt}"/>
                     <th:block th:with="prevConsumerPrice = ${prevConsumerPrice eq 0 ? '' : (prevConsumerPrice+'')}"/>
@@ -218,7 +218,7 @@
                   <td class="text-center border-right">
                     <input type="hidden" name="vender_no_arr" th:id="'vender_no_'+${idx}" class="form-data form-multi"/>
                     <div class="input-group-append">
-                      <input type="text" name="vender_nm_arr" th:id="'vender_nm_'+${idx}" class="form-control form-multi mtb5 beadcnt" readonly="readonly"/>
+                      <input type="text" name="vender_nm_arr" th:id="'vender_nm_${idx}" class="form-control form-multi mtb5 beadcnt" readonly="readonly"/>
                       <i class="fas fa-search fa-sm ml5 mt15" th:onclick="fncVenderListPop([[${idx}]]); return false;"></i>
                     </div>
                   </td>
@@ -286,7 +286,9 @@
         </div>
 
         <div class="btn_wrap text-center">
-          <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">등록</a>
+<!--          <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
+            <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">등록</a>
+<!--          </th:block>-->
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -348,52 +350,7 @@
 
 					});
 				});
-				findAll();
 			});
-
-			function findAll() {
-
-				const ordersno = /*[[${ordersno}]]*/;
-				if(!ordersno){
-					return false;
-				}
-
-				var order_no_arr = ordersno.split(',');
-
-				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
-
-				fetch('/api/order/list/nos', {
-					method: 'POST',
-					body: formData
-				}).then(response => {
-		    	if (!response.ok) {
-						throw new Error('Request failed...');
-			    }
-		    	return response.json();
-				}).then(json => {
-					if(json.list != null && json.list.length > 0){
-						json.list.forEach((obj, idx) => {
-							document.getElementById('catalog_no_'+idx).value = checkNullVal(obj.catalogno);
-							document.getElementById('model_id_'+idx).value = checkNullVal(obj.modelid);
-							document.getElementById('vender_no_'+idx).value = checkNullVal(obj.venderno);
-							document.getElementById('vender_nm_'+idx).value = checkNullVal(obj.vendernm);
-							document.getElementById('material_cd_'+idx).value = checkNullVal(obj.materialcd);
-							document.getElementById('color_cd_'+idx).value = checkNullVal(obj.colorcd);
-							document.getElementById('main_stone_type_'+idx).value = checkNullVal(obj.mainstonetype);
-							document.getElementById('sub_stone_type_'+idx).value = checkNullVal(obj.substonetype);
-							document.getElementById('size_'+idx).value = checkNullVal(obj.size);
-							document.getElementById('stock_desc_'+idx).value = checkNullVal(obj.orderdesc);
-							document.getElementById('quantity_'+idx).value = checkNullVal(obj.quantity);
-						});
-					}
-		   	}).catch(error => {
-					alert('선택하신 주문이력 조회에 실패했습니다.');
-					fncClose();
-		   	});
-			}
 
 			function readURL() {
 			  if (this.files && this.files[0]) {
@@ -410,6 +367,7 @@
 			}
 
 			function fncSave(){
+
 				if($("#reg_dt").val() == ''){
 					alert('등록일을 입력해주세요.');
 					$("#reg_dt").focus();
@@ -434,21 +392,11 @@
 					return false;
 				}
 
-				const ordersno = /*[[${ordersno}]]*/;
-				if(!ordersno){
-					alert('선택된 주문 이력이 없습니다.');
-					fncClose();
-					return false;
-				}
-
-				var order_no_arr = ordersno.split(',');
-
 				const fileField = document.querySelector('input[type="file"]');
-				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
+				const form = document.getElementById('form');
+				const writeForm = new FormData(form);
 
+				const formData = new FormData();
 				$(".form-data").each(function(){
 					formData.append($(this).attr("name"), checkNullVal($(this).val()));
 				});
@@ -459,15 +407,15 @@
 				//배열 데이터 넣기
 				formData.append("file", fileField.files[0]);
 
-				fetch('/api/stock/orders/stock/write', {
-					method: 'PATCH',
+				fetch('/api/stock/write', {
+					method: 'POST',
 					body: formData
 				}).then(response => {
 					if(!response.ok){
 						throw new Error('Request Failed...');
 					}
-					alert('재고등록이 완료되었습니다.');
-					fncParentRefresh();
+					alert('저장되었습니다.');
+					window.opener.findAll();
 					fncClose();
 				}).catch(error => {
 					alert('오류가 발생하였습니다.');
@@ -498,8 +446,15 @@
 				$("#consumer_price_"+idx).val('');
 			}
 
+			function fncCustomerListPop(){
+				var url = "/customer/popup/list";
+	      var name = "customerListPopup";
+	      var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+	      window.open(url, name, option);
+			}
+
 			function fncCatalogListPop(idx){
-				var url = "/catalog/popup/list?openeridx="+idx;
+				var url = "/catalog/popup/list?reqtype=all&openeridx="+idx;
 	      var name = "catalogListPopup";
 	      var option = "width = 1150, height = 800, top = 100, left = 200, location = no";
 	      window.open(url, name, option);
