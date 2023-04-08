@@ -24,11 +24,13 @@ public class JwtAuthController {
 	@PostMapping("/login")
     public ResponseEntity<BasicResponse<TokenResponse>> login(@RequestBody UserTO user) {
 		Optional<TokenVO> resObj = Optional.of(jwtAuthService.login(user.getUser_id(), user.getUser_pwd()));
-		// RT 저장
+
+		// RefreshToken 저장
 		HttpCookie httpCookie = ResponseCookie.from("refresh-token", resObj.get().getRefreshToken())
 				.maxAge(COOKIE_EXPIRATION)
 				.httpOnly(true)
 				.secure(true)
+				.sameSite("Lax")
 				.build();
 
 		return ResponseEntity.ok()
@@ -36,7 +38,10 @@ public class JwtAuthController {
 				.body(
 					new BasicResponse<>(
 							ResponseCode.USER_FIND_SUCCESS,
-							new TokenResponse(resObj.get().getGrantType(), resObj.get().getAccessToken())
+							new TokenResponse(
+									resObj.get().getGrantType(),
+									resObj.get().getAccessToken(),
+									resObj.get().getAccessTokenExpioresIn())
 					)
 		);
 	}
@@ -62,6 +67,7 @@ public class JwtAuthController {
 					.maxAge(COOKIE_EXPIRATION)
 					.httpOnly(true)
 					.secure(true)
+					.sameSite("Lax")
 					.build();
 			return ResponseEntity
 					.status(HttpStatus.OK)

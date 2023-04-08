@@ -148,7 +148,27 @@
 		};
 
 		window.onload = () => {
-			findAll();
+		  if(validateExpioresIn() == true){
+		    findAll();
+			}
+			else {
+      	const accessToken = 'Bearer ' + getLocalStorage('access_token');
+        fetch('/api/jauth/reissue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': accessToken
+          }
+        }).then(response => {
+          if(!response.ok){
+            alert('로그인 후 이용해주세요.');
+            goSigninPage();
+          }
+          else {
+            findAll();
+          }
+        }).catch(error => {});
+      }
 		}
 		/**
 		 * 게시글 리스트 조회

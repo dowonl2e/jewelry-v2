@@ -18,7 +18,6 @@ import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,7 +25,7 @@ import java.util.Optional;
 public class JwtAuthService {
 
   private final UserRepository userRepository;
-  private final RefreshTokenRepository refreshTokenRepository;
+  //private final RefreshTokenRepository refreshTokenRepository;
   private final PasswordEncoder passwordEncoder;
   private final JwtTokenProvider jwtTokenProvider;
   private final RedisService redisService;
@@ -94,8 +93,9 @@ public class JwtAuthService {
       return null; // -> 재로그인 요청
     }
 
-    // 요청된 RefreshToken의 유효성 검사 & Redis에 저장되어 있는 RefreshToken의 같은지 비교
-    if(!jwtTokenProvider.validateRefreshToken(refreshToken) || !refreshTokenInRedis.equals(refreshToken)) {
+    // 요청된 RefreshToken의 유효성 검사 & Redis에 저장되어 있는 Ref크reshToken의 같은지 비교
+    if(!refreshTokenInRedis.equals(refreshToken)
+        || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
       redisService.deleteValues(REDIS_REFRESH_TOKEN_SERVER+":" + principal); // 탈취 가능성 -> 삭제
       return null; // -> 재로그인 요청
     }
@@ -131,22 +131,22 @@ public class JwtAuthService {
         refreshToken, // value
         jwtTokenProvider.getTokenExpirationTime(refreshToken)); // timeout(milliseconds)
 
-    Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByKeyId(principal);
+//    Optional<RefreshToken> refreshTokenEntity = refreshTokenRepository.findByKeyId(principal);
 
     //RefreshToken 재발급으로 인한 갱신토큰 갱신
-    if(refreshTokenEntity.isEmpty()) {
-      RefreshToken refreshTokenObj = RefreshToken.builder()
-          .keyId(principal)
-          .tokenValue(refreshToken)
-          .expiredDt(refreshExpiredDate)
-          .build();
-      refreshTokenRepository.save(refreshTokenObj);
-    }
-    else {
-      if(jwtTokenProvider.validateToken(refreshTokenEntity.get().getTokenValue()) == false
-          || !ObjectUtils.nullSafeEquals(refreshToken, refreshTokenEntity.get().getTokenValue()))
-        refreshTokenEntity.get().update(refreshToken, refreshExpiredDate);
-    }
+//    if(refreshTokenEntity.isEmpty()) {
+//      RefreshToken refreshTokenObj = RefreshToken.builder()
+//          .keyId(principal)
+//          .tokenValue(refreshToken)
+//          .expiredDt(refreshExpiredDate)
+//          .build();
+//      refreshTokenRepository.save(refreshTokenObj);
+//    }
+//    else {
+//      if(jwtTokenProvider.validateToken(refreshTokenEntity.get().getTokenValue()) == false
+//          || !ObjectUtils.nullSafeEquals(refreshToken, refreshTokenEntity.get().getTokenValue()))
+//        refreshTokenEntity.get().update(refreshToken, refreshExpiredDate);
+//    }
   }
 
   // 로그아웃

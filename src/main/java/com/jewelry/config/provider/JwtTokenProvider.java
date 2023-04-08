@@ -235,10 +235,6 @@ public class JwtTokenProvider {
 	/**RefreshToken 유효성 검증 */
 	public boolean validateRefreshToken(String refreshToken){
 		try{
-			if (redisService.getValues(refreshToken).equals("delete")) { // 회원 탈퇴했을 경우
-				return false;
-			}
-
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken);
 			return true;
 		}
