@@ -87,14 +87,15 @@
 					return response.json();
 				}).then(json => {
 					if(json.status == '200'){
-						setSessionStorage("accessToken", json.data.accessToken);
+						setLocalStorage("access_token", json.data.accessToken);
+						setLocalStorage("access_token_expiores_in", json.data.accessTokenExpioresIn);
 						goPage('/main');
 					}
 					else {
 						alert(json.message);
 					}
-			   	}).catch(error => {
-					alert('오류가 발생하였습니다.');
+        }).catch(error => {
+            alert('오류가 발생하였습니다.');
 				});
 			}
 
