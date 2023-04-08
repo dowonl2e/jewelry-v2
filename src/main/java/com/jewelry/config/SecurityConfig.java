@@ -1,10 +1,14 @@
 package com.jewelry.config;
 
+import com.jewelry.config.filter.JwtAuthenticationFilter;
+import com.jewelry.config.handler.CustomAccessDeniedHandler;
+import com.jewelry.config.handler.CustomAuthenticationEntryPoint;
+import com.jewelry.config.provider.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -13,13 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.jewelry.config.filter.JwtAuthenticationFilter;
-import com.jewelry.config.handler.CustomAccessDeniedHandler;
-import com.jewelry.config.handler.CustomAuthenticationEntryPoint;
-import com.jewelry.config.provider.JwtTokenProvider;
-
-import lombok.RequiredArgsConstructor;
 
 @EnableWebSecurity
 //@EnableGlobalMethodSecurity(securedEnabled = true) //Controller에 @Secured("권한 이름") 어노테이션으로 설정이 가능하다.
@@ -59,7 +56,7 @@ public class SecurityConfig {
         		.csrf().disable()
         		.httpBasic().disable()
                 .formLogin().disable()
-	            .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+							.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
                 //예외처리
@@ -82,8 +79,7 @@ public class SecurityConfig {
 	            .and()
                 .headers()
                 .frameOptions().sameOrigin();
-	            
-        
+
         return http.build();
     }
 	
@@ -91,13 +87,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-	
-	/**
-     * JWT의 인증 및 권한을 확인하는 필터
-     */
-//    @Bean
-//    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-//        return new JwtAuthenticationFilter(jwtTokenProvider);
-//    }
-
 }
