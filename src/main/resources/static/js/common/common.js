@@ -103,33 +103,55 @@ function getSessionStorage(name){
 	return 'Bearer ' + sessionStorage.getItem(name);
 }
 
+function setLocalStorage(name, value){
+	localStorage.setItem(name, value);
+}
+
+function getLocalStorage(name){
+	return localStorage.getItem(name);
+}
+
+/*
+ * 토큰 만료시간이 현시간보다 30초 밑으로 차이나면 토큰 갱신 필요
+ */
+function validateExpioresIn(){
+  const accessTokenExpioresIn = getLocalStorage('access_token_expiores_in');
+  if(accessTokenExpioresIn == '' || accessTokenExpioresIn == 0 || accessTokenExpioresIn == 'undefined'){
+    return false;
+  }
+  var remainExpioresIn = (accessTokenExpioresIn - new Date().getTime())/1000;
+  if(remainExpioresIn <= 30){
+    return false;
+  }
+  return true;
+}
+
+
 /**
  * 조회 API 호출
  */
 async function getJson(uri, params) {
 
-	if (params) {
-		uri = uri + '?' + new URLSearchParams(params).toString();
-	}
-	
-	const accessToken = getSessionStorage('accessToken');
-	
-	const response = await fetch(uri, {
-        method: 'GET',
-        headers: {
-            'Authorization': accessToken
-        }
-	});
-	
-	/*
-	if (!response.ok) {
-		await response.json().then(error => {
-			throw error;
-		});
-	}
-	*/
+  if (params) {
+    uri = uri + '?' + new URLSearchParams(params).toString();
+  }
 
-	return await response.json();
+	const accessToken = 'Bearer ' + getLocalStorage('access_token');
+  const response = await fetch(uri, {
+    method: 'GET',
+    headers: {
+        'Authorization': accessToken
+    }
+  });
+
+  if (!response.ok) {
+    await response.json().then(error => {
+      throw error;
+    });
+  }
+
+  return await response.json();
+
 }
 
 function setQueryStringParams() {
@@ -156,6 +178,3 @@ function fncParentRefresh(){
 function fncClose(){
   self.close();
 }
-//function refresh(currentpage){
-//    findAll(currentpage);
-//}

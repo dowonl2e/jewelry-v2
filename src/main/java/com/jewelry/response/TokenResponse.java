@@ -8,4 +8,6 @@ import lombok.RequiredArgsConstructor;
 public class TokenResponse {
     private final String grantType;
     private final String accessToken;
+
+    private final Long accessTokenExpioresIn;
 }
