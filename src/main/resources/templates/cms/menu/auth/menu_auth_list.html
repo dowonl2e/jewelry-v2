@@ -159,7 +159,7 @@
   						<td class="text-center">`+(num--)+`</td>
   						<td class="text-center">`+obj.userid+`</td>
   						<td class="text-center bold">`+obj.username+`</td>
-  						<td class="text-center">`+checkNullVal(obj.gendner)+`</td>
+  						<td class="text-center">`+checkNullVal(obj.gender)+`</td>
   						<td class="text-center">`;
   				if(checkNullVal(obj.userrole) == 'MANAGER'){
   					html += `매니저`;
@@ -193,7 +193,13 @@
 				return false;
 			}
 
-			fetch('/api/menuauth/menus/'+userid).then(response => {
+			fetch('/api/menuauth/menus/'+userid, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': getToken()
+        }
+      }).then(response => {
 	    	if (!response.ok) {
 					throw new Error('Request failed...');
 		    }
@@ -366,6 +372,9 @@
 
 				fetch('/api/menuauth/menus', {
 					method: 'POST',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){
@@ -403,6 +412,9 @@
 
 				fetch('/api/menuauth/menu', {
 					method: 'POST',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){

@@ -43,7 +43,7 @@
                                         <div class="form-group">
                                             <input type="password" id="user_pwd" class="form-control form-control-user" placeholder="Password">
                                         </div>
-                                        <a href="javascript:void(0)" onclick="fncLogin(); return false;" class="btn btn-primary btn-user btn-block"> 로그인 </a>
+                                        <a href="javascript:void(0)" onclick="fncLogin(); return false;" id="loginBtn" class="btn btn-primary btn-user btn-block"> 로그인 </a>
                                     </form>
                                     <hr>
                                 </div>
@@ -54,8 +54,18 @@
             </div>
         </div>
     </div>
-    <script th:inline="javascript">
+
+  <script th:inline="javascript">
 		/*<![CDATA[*/
+      $(document).ready(function(){
+        $("#user_id").focus();
+        $("input").keydown(function(key) {
+          if(key.keyCode == 13) {
+            $("#loginBtn").click();
+          }
+        });
+      });
+
 			function fncLogin(){
 				const form = document.getElementById('form');
 				if( form.user_id.value == '' ){
@@ -67,7 +77,6 @@
 					alert('비밀번호를 입력해주세요.');
 					return false;
 				}
-
 
 				const params = {
 					user_id : form.user_id.value,
@@ -109,6 +118,6 @@
 				}
 			}
 		/*]]>*/
-    </script>
+  </script>
 </body>
 </html>

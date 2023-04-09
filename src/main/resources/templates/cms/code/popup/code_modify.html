@@ -39,31 +39,37 @@
     </form>
   </div>
 
-  <script>
+  <script th:inline="javascript">
 		/*<![CDATA[*/
 			window.onload = () => {
-				findCode();
+				find();
 	  	}
 
-			function findCode() {
+			function find() {
 
 				const cdid = /*[[${cdid}]]*/;
 				if ( !cdid ) {
 		    	return false;
 		    }
 
-				fetch(`/api/code/`+cdid).then(response => {
+				fetch(`/api/code/`+cdid, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+					}
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
 		    	return response.json();
-
 		   	}).then(json => {
+
 		   		const form = document.getElementById('form');
-		   		form.cd_id.value = json.cdid;
-		   		form.cd_nm.value = json.cdnm;
-		   		json.useyn == 'N' ? form.use_n.checked = true : form.use_n.checked = false;
-		   		json.useyn == 'Y' ? form.use_y.checked = true : form.use_y.checked = false;
+		   		form.cd_id.value = checkNullVal(json.cdid);
+		   		form.cd_nm.value = checkNullVal(json.cdnm);
+		   		checkNullVal(json.useyn) == 'N' ? form.use_n.checked = true : form.use_n.checked = false;
+		   		checkNullVal(json.useyn) == 'Y' ? form.use_y.checked = true : form.use_y.checked = false;
 
 		   	}).catch(error => {
 		    	alert('코드 정보를 찾을 수 없습니다.');
@@ -72,18 +78,23 @@
 			}
 
 			function modify(){
+
+        const cdid = /*[[${cdid}]]*/;
+				if ( !cdid ) {
+		    	return false;
+		    }
+
 				const form = document.getElementById('form');
 				const params = {
 					cd_nm : form.cd_nm.value,
 					use_yn : form.use_yn.value,
 				};
 
-        const cdid = /*[[${cdid}]]*/;
-
 				fetch(`/api/code/`+cdid, {
 					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {
@@ -113,16 +124,21 @@
 
 			//코드 삭제
 			function remove() {
+			  const cdid = /*[[${cdid}]]*/;
+				if ( !cdid ) {
+		    	return false;
+		    }
+
       	if ( !confirm(`코드를 삭제하시겠습니까?`) ) {
       		return false;
       	}
 
-        const cdid = /*[[${cdid}]]*/;
-
       	fetch(`/api/code/`+cdid, {
 					method: 'DELETE',
-        	headers: { 'Content-Type': 'application/json' },
-
+        	headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+          }
       	}).then(response => {
       		if (!response.ok) {
          		throw new Error('Request failed...');
@@ -137,7 +153,12 @@
 	  	}
 
 			function goList(){
-			  const subcdid = /*[[${#string.substring(cdid,0,2)}]]*/;
+			  const cdid = /*[[${cdid}]]*/;
+				if ( !cdid ) {
+		    	return false;
+		    }
+
+			  const subcdid = cdid.substring(0,2);
 			  const cddepth = /*[[${cddepth}]]*/;
 				location.href = '/code/popup/list/'+subcdid+'/'+cddepth;
 			}

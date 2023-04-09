@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/menu/auth")
 public class MenuAuthPageController {
 	
-	@GetMapping("/managers")
+	@GetMapping("/list")
 	public String list() {
-		return "cms/menu/auth/manager_list";
+		return "cms/menu/auth/menu_auth_list";
 	}
 	
 }

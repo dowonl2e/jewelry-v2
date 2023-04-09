@@ -88,7 +88,12 @@
 		    	return false;
 		    }
 
-				fetch(`/api/user/`+userid).then(response => {
+				fetch(`/api/user/`+userid, {
+					method: 'GET',
+					headers: {
+						'Authorization': getToken()
+					}
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
@@ -113,6 +118,10 @@
 			}
 
 			function fncSave(){
+        const userid = /*[[${userid}]]*/;
+        if( !userid ){
+          return false;
+        }
 
 				if($("#user_pwd").val() != '' && $("#user_pwd_chk").val() == ''){
 					alert('비밀번호를 확인해주세요.');
@@ -143,11 +152,11 @@
 						use_yn : useYn
 				};
 
-				const userid = /*[[${userid}]]*/;
 				fetch('/api/user/modify/'+userid, {
 					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {

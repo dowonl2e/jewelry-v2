@@ -50,14 +50,18 @@
 		    	return false;
 		    }
 
-				fetch(`/api/code/`+upcdid).then(response => {
+				fetch(`/api/code/`+upcdid, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+          }
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
 		    	return response.json();
-
 		   	}).then(json => {
-
 		   		document.getElementById('upcdnm').innerHTML = checkNullVal(json.cdnm);
 		   		const form = document.getElementById('form');
 		   		form.cd_id.value = checkNullVal(json.cdid)+addZeroFront(json.childcnt+1,2);
@@ -68,10 +72,6 @@
 			}
 
 			function save(){
-				/* if( !isValid() ){
-					return false;
-				} */
-
 				if($("#cd_nm").val() == ''){
 					alert('코드명을 입력해주세요.');
 					$("#cd_nm").focus();
@@ -91,6 +91,7 @@
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {

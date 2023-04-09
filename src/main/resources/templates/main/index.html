@@ -139,253 +139,253 @@
 
   <script th:inline="javascript">
     /*<![CDATA[*/
-		var salePriceLineChartLabels = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+      var salePriceLineChartLabels = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
-		var codemap = {
-		  [# th:each="code, loop : ${cdmapper}"]
-            "[(${code.cdid})]": "[(${code.cdnm})]",
-          [/]
-		};
+      var codemap = {
+        [# th:each="code, loop : ${cdmapper}"]
+          "[(${code.cdid})]": "[(${code.cdnm})]",
+        [/]
+      };
 
-		window.onload = () => {
-		  if(validateExpioresIn() == true){
-		    findAll();
-			}
-			else {
-      	const accessToken = 'Bearer ' + getLocalStorage('access_token');
-        fetch('/api/jauth/reissue', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': accessToken
-          }
-        }).then(response => {
-          if(!response.ok){
-            alert('로그인 후 이용해주세요.');
-            goSigninPage();
+      window.onload = () => {
+        if(validateTokenExpioresIn() == true){
+          findAll();
+        }
+        else {
+          fetch('/api/jauth/reissue', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': getToken()
+            }
+          }).then(response => {
+            if(!response.ok){
+              alert('로그인 후 이용해주세요.');
+              goSigninPage();
+            }
+            else {
+              findAll();
+            }
+          }).catch(error => {});
+        }
+      }
+
+      /**
+       * 게시글 리스트 조회
+       */
+      function findAll() {
+        var salePriceData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        getJson('/api/main/stats/all', null).then(response => {
+
+          if (Object.keys(response).length == 0 || response.salePriceMonthly == null || response.salePriceMonthly.length == 0) {
+            initLineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
           }
           else {
-            findAll();
+            salePriceData = new Array();
+            response.salePriceMonthly.forEach((obj, idx) => {
+              salePriceData.push(obj);
+            });
+            initCanvas('monthlySalePriceChart');
+            lineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
           }
-        }).catch(error => {});
+
+          let html = '';
+
+          //재질별 주문
+          if (Object.keys(response).length == 0 || response.materialOrders == null || response.materialOrders.length == 0) {
+            initPieChart('materialOrdersPieChart');
+            document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
+          }
+          else {
+            var chartLabels = new Array();
+            var bgColor = ['#f6c23e', '#20c9a6', '#4e73df', '#e83e95', '#e3e6f0'];
+            var hoverBgColor = ['#fd7e14', '#36b9cc', '#36b9cc', '#e74a3b', '#858796'];
+            var chartData = new Array();
+
+            response.materialOrders.forEach((obj, idx) => {
+              chartLabels.push(checkNullVal(codemap[obj.materialcd]));
+              chartData.push(Number(checkNullValR(obj.ordercnt,'0')));
+              html += `
+                <span class="mr-2">
+                  <i class="fas fa-circle " style="color: `+bgColor[idx]+` !important;"></i> `+ checkNullVal(codemap[obj.materialcd]) + `
+                </span>
+              `;
+            });
+
+            initCanvas('materialOrdersPieChart');
+            pieChart('materialOrdersPieChart', chartLabels, bgColor, hoverBgColor, chartData);
+            document.getElementById('materialOrdersPieChart-Div').innerHTML = html;
+          }
+
+          html = '';
+          //재질별 재고현황
+          chartLabels = new Array();
+          chartData = new Array();
+          chartData2 = new Array();
+          if (Object.keys(response).length == 0 || response.materialStocks == null || response.materialStocks.length == 0) {
+            initBarChart('materialStocksChart', '', chartLabels, chartData);
+            initBarChart('materialStocksChart2', '', chartLabels, chartData2);
+            document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
+          }
+          else {
+
+            totalWeightGram = 0.0;
+            totalStockCnt = 0;
+            response.materialStocks.forEach((obj, idx) => {
+              chartLabels.push(checkNullVal(codemap[obj.materialcd]));
+              chartData.push(Number(checkNullValR(obj.stockcnt,'0')));
+              chartData2.push(Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100);
+              html += `
+                <tr>
+                  <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
+                  <td class="text-center">` + Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100 + `g</td>
+                  <td class="text-center">` + checkNullValR(obj.stockcnt,'0') + `</td>
+                </tr>
+              `;
+              totalWeightGram += Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100;
+              totalStockCnt += Number(checkNullValR(obj.stockcnt,'0'));
+            });
+            html += `
+              <tr>
+                <th>합계</th>
+                <th>`+totalWeightGram.toFixed(2)+`g</th>
+                <th>`+totalStockCnt+`</th>
+              </tr>
+            `;
+            initCanvas('materialStocksChart');
+            initCanvas('materialStocksChart2');
+            barChart('materialStocksChart', '개수', chartLabels, chartData);
+            barChart('materialStocksChart2', '중량', chartLabels, chartData2);
+            document.getElementById('matStockList').innerHTML = html;
+          }
+        });
       }
-		}
-		/**
-		 * 게시글 리스트 조회
-		 */
-		function findAll() {
-			var salePriceData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-			getJson('/api/main/stats/all', null).then(response => {
 
-				if (Object.keys(response).length == 0 || response.salePriceMonthly == null || response.salePriceMonthly.length == 0) {
-					initLineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
-				}
-				else {
-					salePriceData = new Array();
-	     			response.salePriceMonthly.forEach((obj, idx) => {
-	     				salePriceData.push(obj);
-		     		});
-		     		initCanvas('monthlySalePriceChart');
-		     		lineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
-				}
+      function materialStocksStats(val){
+        var params = {
+          searchyear: val
+        };
+        getJson('/api/main/material/stocks', params).then(response => {
+          //재질별 재고현황
+          chartLabels = new Array();
+          chartData = new Array();
+          chartData2 = new Array();
 
-				let html = '';
+          if (response.materialStocks == null || response.materialStocks.length == 0) {
+            initBarChart('materialStocksChart', '', chartLabels, chartData);
+            initBarChart('materialStocksChart2', '', chartLabels, chartData2);
+            document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
+            return false;
+          }
 
-   			//재질별 주문
-     		if (Object.keys(response).length == 0 || response.materialOrders == null || response.materialOrders.length == 0) {
-					initPieChart('materialOrdersPieChart');
-     			document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
-				}
-     		else {
-	     		var chartLabels = new Array();
-	     		var bgColor = ['#f6c23e', '#20c9a6', '#4e73df', '#e83e95', '#e3e6f0'];
-	     		var hoverBgColor = ['#fd7e14', '#36b9cc', '#36b9cc', '#e74a3b', '#858796'];
-	     		var chartData = new Array();
+          let html = '';
 
-	     		response.materialOrders.forEach((obj, idx) => {
-	     			chartLabels.push(checkNullVal(codemap[obj.materialcd]));
-	     			chartData.push(Number(checkNullValR(obj.ordercnt,'0')));
-	     			html += `
-	     				<span class="mr-2">
-		            <i class="fas fa-circle " style="color: `+bgColor[idx]+` !important;"></i> `+ checkNullVal(codemap[obj.materialcd]) + `
-		          </span>
-	          `;
-	     		});
-
-	     		initCanvas('materialOrdersPieChart');
-	     		pieChart('materialOrdersPieChart', chartLabels, bgColor, hoverBgColor, chartData);
-	     		document.getElementById('materialOrdersPieChart-Div').innerHTML = html;
-				}
-
-     		html = '';
-     		//재질별 재고현황
-     		chartLabels = new Array();
-     		chartData = new Array();
-     		chartData2 = new Array();
-     		if (Object.keys(response).length == 0 || response.materialStocks == null || response.materialStocks.length == 0) {
-     			initBarChart('materialStocksChart', '', chartLabels, chartData);
-     			initBarChart('materialStocksChart2', '', chartLabels, chartData2);
-     			document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
-				}
-     		else {
-
-	     		totalWeightGram = 0.0;
-	     		totalStockCnt = 0;
-	     		response.materialStocks.forEach((obj, idx) => {
-	     			chartLabels.push(checkNullVal(codemap[obj.materialcd]));
-	     			chartData.push(Number(checkNullValR(obj.stockcnt,'0')));
-	     			chartData2.push(Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100);
-	     			html += `
-	     				<tr>
-	     			    <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
-	     			    <td class="text-center">` + Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100 + `g</td>
-	     			    <td class="text-center">` + checkNullValR(obj.stockcnt,'0') + `</td>
-	     			  </tr>
-	          `;
-	         	totalWeightGram += Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100;
-	         	totalStockCnt += Number(checkNullValR(obj.stockcnt,'0'));
-	     		});
-	     		html += `
-	     			<tr>
-	     		    <th>합계</th>
-	     		    <th>`+totalWeightGram.toFixed(2)+`g</th>
-	     		    <th>`+totalStockCnt+`</th>
-	     		  </tr>
-	     		`;
-	     		initCanvas('materialStocksChart');
-	     		initCanvas('materialStocksChart2');
-	     		barChart('materialStocksChart', '개수', chartLabels, chartData);
-	     		barChart('materialStocksChart2', '중량', chartLabels, chartData2);
-					document.getElementById('matStockList').innerHTML = html;
-     		}
-			});
-		}
-
-		function materialStocksStats(val){
-			var params = {
-			  searchyear: val
-			};
-			getJson('/api/main/material/stocks', params).then(response => {
-				//재질별 재고현황
-     		chartLabels = new Array();
-     		chartData = new Array();
-     		chartData2 = new Array();
-
-     		if (response.materialStocks == null || response.materialStocks.length == 0) {
-		 			initBarChart('materialStocksChart', '', chartLabels, chartData);
-		 			initBarChart('materialStocksChart2', '', chartLabels, chartData2);
-     			document.getElementById('matStockList').innerHTML = '<td colspan="3" class="text-center">No Data</th>';
-     			return false;
-				}
-
-				let html = '';
-
-				totalWeightGram = 0.0;
-     		totalStockCnt = 0;
-     		response.materialStocks.forEach((obj, idx) => {
-     			chartLabels.push(checkNullVal(codemap[obj.materialcd]));
-     			chartData.push(Number(checkNullValR(obj.stockcnt,'0')));
-     			chartData2.push(Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100);
-     			html += `
-     				<tr>
-     			    <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
-     			    <td class="text-center">` + Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100 + `g</td>
-     			    <td class="text-center">` + checkNullValR(obj.stockcnt,'0') + `</td>
-     			  </tr>
+          totalWeightGram = 0.0;
+          totalStockCnt = 0;
+          response.materialStocks.forEach((obj, idx) => {
+            chartLabels.push(checkNullVal(codemap[obj.materialcd]));
+            chartData.push(Number(checkNullValR(obj.stockcnt,'0')));
+            chartData2.push(Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100);
+            html += `
+              <tr>
+                <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
+                <td class="text-center">` + Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100 + `g</td>
+                <td class="text-center">` + checkNullValR(obj.stockcnt,'0') + `</td>
+              </tr>
+            `;
+            totalWeightGram += Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100;
+            totalStockCnt += Number(checkNullValR(obj.stockcnt,'0'));
+          });
+          html += `
+            <tr>
+              <th>합계</th>
+              <th>`+totalWeightGram.toFixed(2)+`g</th>
+              <th>`+totalStockCnt+`</th>
+            </tr>
           `;
-         	totalWeightGram += Math.round(Number(checkNullValR(obj.perweightgram,'0.0'))*100)/100;
-         	totalStockCnt += Number(checkNullValR(obj.stockcnt,'0'));
-     		});
-     		html += `
-     			<tr>
-     		    <th>합계</th>
-     		    <th>`+totalWeightGram.toFixed(2)+`g</th>
-     		    <th>`+totalStockCnt+`</th>
-     		  </tr>
-     		`;
-     		initCanvas('materialStocksChart');
-     		initCanvas('materialStocksChart2');
-     		barChart('materialStocksChart', '개수', chartLabels, chartData);
-     		barChart('materialStocksChart2', '중량', chartLabels, chartData2);
-				document.getElementById('matStockList').innerHTML = html;
-			});
-		}
+          initCanvas('materialStocksChart');
+          initCanvas('materialStocksChart2');
+          barChart('materialStocksChart', '개수', chartLabels, chartData);
+          barChart('materialStocksChart2', '중량', chartLabels, chartData2);
+          document.getElementById('matStockList').innerHTML = html;
+        });
+      }
 
-		function salePriceStats(val){
-			var params = {
-			  searchyear: val
-			};
+      function salePriceStats(val){
+        var params = {
+          searchyear: val
+        };
 
-			getJson('/api/main/monthly/sale/price', params).then(response => {
-				var salePriceData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-				if (!Object.keys(response).length || response.salePriceMonthly == null || response.salePriceMonthly.length == 0) {
-					initLineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
-					return false;
-				}
+        getJson('/api/main/monthly/sale/price', params).then(response => {
+          var salePriceData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          if (!Object.keys(response).length || response.salePriceMonthly == null || response.salePriceMonthly.length == 0) {
+            initLineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
+            return false;
+          }
 
-				salePriceData = new Array();
-	     		response.salePriceMonthly.forEach((obj, idx) => {
-	     			salePriceData.push(obj);
-     			});
+          salePriceData = new Array();
+            response.salePriceMonthly.forEach((obj, idx) => {
+              salePriceData.push(obj);
+            });
 
-	     		initCanvas('monthlySalePriceChart');
-	     		lineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
-			});
-		}
+            initCanvas('monthlySalePriceChart');
+            lineChart('monthlySalePriceChart', salePriceLineChartLabels, salePriceData);
+        });
+      }
 
-		function materialOrdersStats(val){
-			var params = {
-			  searchyear: val
-			};
+      function materialOrdersStats(val){
+        var params = {
+          searchyear: val
+        };
 
-			getJson('/api/main/material/orders', params).then(response => {
-				if (!Object.keys(response).length || response.materialOrders == null || response.materialOrders.length == 0) {
-					initPieChart('materialOrdersPieChart');
-					return false;
-				}
+        getJson('/api/main/material/orders', params).then(response => {
+          if (!Object.keys(response).length || response.materialOrders == null || response.materialOrders.length == 0) {
+            initPieChart('materialOrdersPieChart');
+            return false;
+          }
 
-				var chartLabels = new Array();
-	     		var bgColor = ['#f6c23e', '#20c9a6', '#4e73df', '#e83e95', '#e3e6f0'];
-	     		var hoverBgColor = ['#fd7e14', '#36b9cc', '#36b9cc', '#e74a3b', '#858796'];
-	     		var chartData = new Array();
+          var chartLabels = new Array();
+          var bgColor = ['#f6c23e', '#20c9a6', '#4e73df', '#e83e95', '#e3e6f0'];
+          var hoverBgColor = ['#fd7e14', '#36b9cc', '#36b9cc', '#e74a3b', '#858796'];
+          var chartData = new Array();
 
-	     		let pieChartHtml = '';
+          let pieChartHtml = '';
 
-	     		response.materialOrders.forEach((obj, idx) => {
-	     			chartLabels.push(checkNullVal(codemap[obj.materialcd]));
-	     			chartData.push(Number(checkNullValR(obj.ordercnt,'0')));
-	     			pieChartHtml += `
-	   					<span class="mr-2">
-			            	<i class="fas fa-circle " style="color: `+bgColor[idx]+` !important;"></i> `+ checkNullVal(codemap[obj.materialcd]) + `
-			          	</span>
-		          	`;
-	     		});
+          response.materialOrders.forEach((obj, idx) => {
+            chartLabels.push(checkNullVal(codemap[obj.materialcd]));
+            chartData.push(Number(checkNullValR(obj.ordercnt,'0')));
+            pieChartHtml += `
+              <span class="mr-2">
+                    <i class="fas fa-circle " style="color: `+bgColor[idx]+` !important;"></i> `+ checkNullVal(codemap[obj.materialcd]) + `
+                  </span>
+                `;
+          });
 
-	     		initCanvas('materialOrdersPieChart');
-	     		pieChart('materialOrdersPieChart', chartLabels, bgColor, hoverBgColor, chartData);
+          initCanvas('materialOrdersPieChart');
+          pieChart('materialOrdersPieChart', chartLabels, bgColor, hoverBgColor, chartData);
 
-	     		document.getElementById('materialOrdersPieChart-Div').innerHTML = pieChartHtml;
-			});
-		}
+          document.getElementById('materialOrdersPieChart-Div').innerHTML = pieChartHtml;
+        });
+      }
 
-		function initLineChart(id, labels, data){
-			initCanvas(id);
-   		lineChart(id, labels, data);
-		}
-		function initBarChart(id, label, labels, data){
-			initCanvas(id);
-			barChart(id, label, labels, data);
-		}
-		function initPieChart(id){
-			initCanvas(id);
-			pieChart(id, null, null, null, null);
- 			document.getElementById(id+'-Div').innerHTML = 'No Data';
-		}
-		function initCanvas(id){
-			$('#'+id).remove(); // this is my <canvas> element
-		  $('#'+id+'Div').append('<canvas id="'+id+'"><canvas>');
-		}
-	/*]]>*/
+      function initLineChart(id, labels, data){
+        initCanvas(id);
+        lineChart(id, labels, data);
+      }
+      function initBarChart(id, label, labels, data){
+        initCanvas(id);
+        barChart(id, label, labels, data);
+      }
+      function initPieChart(id){
+        initCanvas(id);
+        pieChart(id, null, null, null, null);
+        document.getElementById(id+'-Div').innerHTML = 'No Data';
+      }
+      function initCanvas(id){
+        $('#'+id).remove(); // this is my <canvas> element
+        $('#'+id+'Div').append('<canvas id="'+id+'"><canvas>');
+      }
+    /*]]>*/
   </script>
 </th:block>
 </html>

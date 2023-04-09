@@ -52,6 +52,7 @@
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {
@@ -59,7 +60,7 @@
 						throw new Error('Request Failed...');
 					}
 					alert('저장되었습니다.');
-					location.href = '/code/list';
+					goPage('/code/list');
 				}).catch(error => {
 					alert('오류가 발생하였습니다.');
 				});

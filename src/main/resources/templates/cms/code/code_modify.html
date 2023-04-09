@@ -55,12 +55,17 @@
 		    	return false;
 		    }
 
-				fetch(`/api/code/`+cdid).then(response => {
+				fetch(`/api/code/`+cdid, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+          }
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
 		    	return response.json();
-
 		   	}).then(json => {
 		   		const form = document.getElementById('form');
 		   		form.cd_id.value = json.cdid;
@@ -75,17 +80,23 @@
 			}
 
 			function modify(){
+
+				const cdid = /*[[${cdid}]]*/;
+				if ( !cdid ) {
+		    	return false;
+		    }
+
 				const form = document.getElementById('form');
 				const params = {
 					cd_nm : form.cd_nm.value,
 					use_yn : form.use_yn.value,
 				};
 
-				const cdid = /*[[${cdid}]]*/;
-				fetch(`/api/code/`+cdid, {
+        fetch(`/api/code/`+cdid, {
 					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {
@@ -115,16 +126,21 @@
 
 			//코드 삭제
 			function remove() {
+        const cdid = /*[[${cdid}]]*/;
+				if ( !cdid ) {
+		    	return false;
+		    }
 
       	if ( !confirm(`코드를 삭제하시겠습니까?`) ) {
       		return false;
       	}
 
-				const cdid = /*[[${cdid}]]*/;
       	fetch(`/api/code/`+cdid, {
 					method: 'DELETE',
-        	headers: { 'Content-Type': 'application/json' },
-
+        	headers: {
+        	  'Content-Type': 'application/json',
+						'Authorization': getToken()
+          }
       	}).then(response => {
       		if (!response.ok) {
          		throw new Error('Request failed...');

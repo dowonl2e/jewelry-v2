@@ -3,25 +3,23 @@ package com.jewelry.cms.code;
 import com.jewelry.cms.code.domain.CodeTO;
 import com.jewelry.cms.code.domain.CodeVO;
 import com.jewelry.cms.code.service.CodeService;
+import com.jewelry.config.provider.JwtTokenProvider;
 import com.jewelry.response.ResponseCode;
-import com.jewelry.user.entity.CustomUserDetails;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/code")
+@RequiredArgsConstructor
 public class CodeApiController {
 
-	@Autowired
-	private CodeService codeService;
-	
-	@Autowired
-    private HttpSession session;
-	
+	private final CodeService codeService;
+
+	private final JwtTokenProvider jwtTokenProvider;
+
 	@GetMapping("/list")
 	public Map<String, Object> findAll(final CodeTO to){
 		to.setCd_depth(1);
@@ -29,8 +27,10 @@ public class CodeApiController {
 	}
 	
 	@PostMapping("/write")
-	public ResponseEntity<Object> write(@RequestBody final CodeTO to) {
-		to.setInpt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> write(
+			@RequestHeader("Authorization") String accessToken,
+			@RequestBody final CodeTO to) {
+		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = codeService.insertCode(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -44,8 +44,11 @@ public class CodeApiController {
 	}
 	
 	@PatchMapping("/{cdid}")
-	public ResponseEntity<Object> modify(@PathVariable final String cdid, @RequestBody final CodeTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> modify(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final String cdid,
+			@RequestBody final CodeTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setCd_id(cdid);
 		String result = codeService.updateCode(to);
 		

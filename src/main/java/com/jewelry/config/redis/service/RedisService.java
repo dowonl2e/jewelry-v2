@@ -19,15 +19,20 @@ public class RedisService {
     redisTemplate.opsForValue().set(key, value);
   }
 
-  // 만료시간 설정 -> 자동 삭제
+  /**
+   * 만료시간 설정
+   * @param key
+   * @param value
+   * @param timeout
+   */
   @Transactional
   public void setValuesWithTimeout(String key, String value, long timeout){
     redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.MILLISECONDS);
   }
 
   public String getValues(String key){
-        return redisTemplate.opsForValue().get(key);
-    }
+    return redisTemplate.opsForValue().get(key);
+  }
 
   @Transactional
   public void deleteValues(String key) {

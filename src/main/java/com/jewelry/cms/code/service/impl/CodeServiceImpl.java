@@ -1,23 +1,22 @@
 package com.jewelry.cms.code.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jewelry.cms.code.domain.CodeTO;
 import com.jewelry.cms.code.domain.CodeVO;
 import com.jewelry.cms.code.mapper.CodeMapper;
 import com.jewelry.cms.code.service.CodeService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CodeServiceImpl implements CodeService {
 	
-	@Autowired
-	private CodeMapper codeMapper;
+	private final CodeMapper codeMapper;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -68,6 +67,7 @@ public class CodeServiceImpl implements CodeService {
 	public String deleteCode(String cdid) {
 		int res = 0;
 		try {
+			codeMapper.deleteLowCodeByCdId(cdid);
 			res = codeMapper.deleteCode(cdid);
 		}
 		catch (Exception e) {

@@ -1,9 +1,9 @@
 package com.jewelry.user.service;
 
-import java.util.Map;
-
 import com.jewelry.user.domain.UserTO;
 import com.jewelry.user.domain.UserVO;
+
+import java.util.Map;
 
 public interface UserService {
 	
@@ -12,6 +12,8 @@ public interface UserService {
 	String insertUser(UserTO to);
 	
 	UserVO findUser(String userid);
+
+	UserVO findUserByToken(String accessToken);
 
 	String updateUser(UserTO to);
 	

@@ -89,6 +89,11 @@
 		DELETE FROM tb_code
 		WHERE cd_id = #{cd_id}
 	</delete>
+
+	<delete id="deleteLowCodeByCdId" parameterType="String">
+		DELETE FROM tb_code
+		WHERE LEFT(up_cd_id,LENGTH(#{cd_id})) = #{cd_id}
+	</delete>
 	
 	<select id="selectCodeListByUpCdId" parameterType="CodeTO" resultType="CodeVO">
 		SELECT cd_id, cd_nm, cd_ord

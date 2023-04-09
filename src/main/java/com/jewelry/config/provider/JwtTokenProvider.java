@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Key;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,29 +61,29 @@ public class JwtTokenProvider {
 		
 		Date now = new Date();
 		
-		Date accessTokenExpiresIn = new Date(now.getTime() + accessTokenValidityInMilliseconds);
+		Date accessTokenExpioresIn = new Date(now.getTime() + accessTokenValidityInMilliseconds);
 		//AccessToken 생성
 		String accessToken = Jwts.builder()
 				.setSubject(authentication.getName()) 		// payload "sub": "name"
 				.setIssuedAt(now)
 				.claim(JwtHeader.AUTHORITY_TYPE_HEADER.getValue(), authorities)		// payload "Authorization": "ROLE_ADMIN" OR "ROLE_MANAGER"
-				.setExpiration(accessTokenExpiresIn)		// payload "exp": 1516239022 (예시)
+				.setExpiration(accessTokenExpioresIn)		// payload "exp": 1516239022 (예시)
 				.signWith(key, SignatureAlgorithm.HS512)	// header "alg": "HS512"
 				.compact();
 		
 		
-		Date refreshTokenExpiredIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
+		Date refreshTokeExpioresIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
 		String refreshToken = Jwts.builder()
-				.setExpiration(refreshTokenExpiredIn)
+				.setExpiration(refreshTokeExpioresIn)
 				.signWith(key, SignatureAlgorithm.HS512)
 				.compact();
 		
 		return TokenVO.builder()
 				.grantType(JwtHeader.GRANT_TYPE_PREFIX.getValue())
 				.accessToken(accessToken)
-				.accessTokenExpioresIn(accessTokenExpiresIn.getTime())
+				.accessTokenExpioresIn(accessTokenExpioresIn.getTime())
 				.refreshToken(refreshToken)
-				.refreshExpiredDate(refreshTokenExpiredIn.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+				.refreshTokeExpioresIn(refreshTokeExpioresIn.getTime())
 				.build();
 	}
     
@@ -100,29 +99,29 @@ public class JwtTokenProvider {
 		
 		Date now = new Date();
 		
-		Date accessTokenExpiresIn = new Date(now.getTime() + accessTokenValidityInMilliseconds);
+		Date accessTokenExpioresIn = new Date(now.getTime() + accessTokenValidityInMilliseconds);
 		//AccessToken 생성
 		String accessToken = Jwts.builder()
 				.setSubject(userDetails.getUsername()) 		// payload "sub": "name"
 				.setIssuedAt(now)
 				.claim(JwtHeader.AUTHORITY_TYPE_HEADER.getValue(), authorities)		// payload "Authorization": "ROLE_ADMIN" OR "ROLE_MANAGER"
-				.setExpiration(accessTokenExpiresIn)		// payload "exp": 1516239022 (예시)
+				.setExpiration(accessTokenExpioresIn)		// payload "exp": 1516239022 (예시)
 				.signWith(key, SignatureAlgorithm.HS512)	// header "alg": "HS512"
 				.compact();
 		
 		
-		Date refreshTokenExpiredIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
+		Date refreshTokeExpioresIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
 		String refreshToken = Jwts.builder()
-				.setExpiration(refreshTokenExpiredIn)
+				.setExpiration(refreshTokeExpioresIn)
 				.signWith(key, SignatureAlgorithm.HS512)
 				.compact();
 		
 		return TokenVO.builder()
 				.grantType(JwtHeader.GRANT_TYPE_PREFIX.getValue())
 				.accessToken(accessToken)
-				.accessTokenExpioresIn(accessTokenExpiresIn.getTime())
+				.accessTokenExpioresIn(accessTokenExpioresIn.getTime())
 				.refreshToken(refreshToken)
-				.refreshExpiredDate(refreshTokenExpiredIn.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+				.refreshTokeExpioresIn(refreshTokeExpioresIn.getTime())
 				.build();
 	}
 
@@ -140,9 +139,9 @@ public class JwtTokenProvider {
 				.compact();
 
 
-		Date refreshTokenExpiredIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
+		Date refreshTokeExpioresIn = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
 		String refreshToken = Jwts.builder()
-				.setExpiration(refreshTokenExpiredIn)
+				.setExpiration(refreshTokeExpioresIn)
 				.signWith(key, SignatureAlgorithm.HS512)
 				.compact();
 
@@ -151,7 +150,7 @@ public class JwtTokenProvider {
 				.accessToken(accessToken)
 				.accessTokenExpioresIn(accessTokenExpiresIn.getTime())
 				.refreshToken(refreshToken)
-				.refreshExpiredDate(refreshTokenExpiredIn.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+				.refreshTokeExpioresIn(refreshTokeExpioresIn.getTime())
 				.build();
 	}
 
@@ -235,6 +234,11 @@ public class JwtTokenProvider {
 	/**RefreshToken 유효성 검증 */
 	public boolean validateRefreshToken(String refreshToken){
 		try{
+			if (redisService.getValues(refreshToken) != null // NPE 방지
+					&& redisService.getValues(refreshToken).equals("logout")) { // 로그아웃 했을 경우
+				return false;
+			}
+
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken);
 			return true;
 		}
@@ -253,14 +257,9 @@ public class JwtTokenProvider {
 	}
 
 	/**token 유효성 검증 */
-	public boolean validateToken(String refreshToken){
+	public boolean validateToken(String accessToken){
 		try{
-			if (redisService.getValues(refreshToken) != null // NPE 방지
-					&& redisService.getValues(refreshToken).equals("logout")) { // 로그아웃 했을 경우
-				return false;
-			}
-
-			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken);
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken);
 			return true;
 		}catch(io.jsonwebtoken.security.SecurityException | MalformedJwtException e){
 			log.info("잘못된 JWT 서명입니다.");

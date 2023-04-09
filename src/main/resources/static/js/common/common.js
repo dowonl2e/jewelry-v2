@@ -111,10 +111,19 @@ function getLocalStorage(name){
 	return localStorage.getItem(name);
 }
 
+function initStorageValue(){
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('access_token_expiores_in');
+  goSigninPage();
+}
+function getToken(){
+  return 'Bearer ' + getLocalStorage('access_token');
+}
+
 /*
  * 토큰 만료시간이 현시간보다 30초 밑으로 차이나면 토큰 갱신 필요
  */
-function validateExpioresIn(){
+function validateTokenExpioresIn(){
   const accessTokenExpioresIn = getLocalStorage('access_token_expiores_in');
   if(accessTokenExpioresIn == '' || accessTokenExpioresIn == 0 || accessTokenExpioresIn == 'undefined'){
     return false;
@@ -131,16 +140,14 @@ function validateExpioresIn(){
  * 조회 API 호출
  */
 async function getJson(uri, params) {
-
   if (params) {
     uri = uri + '?' + new URLSearchParams(params).toString();
   }
 
-	const accessToken = 'Bearer ' + getLocalStorage('access_token');
   const response = await fetch(uri, {
     method: 'GET',
     headers: {
-        'Authorization': accessToken
+        'Authorization': getToken()
     }
   });
 
@@ -151,7 +158,6 @@ async function getJson(uri, params) {
   }
 
   return await response.json();
-
 }
 
 function setQueryStringParams() {

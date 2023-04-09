@@ -1,7 +1,5 @@
 package com.jewelry.authentication.jwt.entity;
 
-import java.time.LocalDateTime;
-
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,6 +11,6 @@ public class TokenVO {
 	private String accessToken;
 	private String refreshToken;
 	private Long accessTokenExpioresIn;
-	private LocalDateTime refreshExpiredDate;
+	private Long refreshTokeExpioresIn;
 	
 }

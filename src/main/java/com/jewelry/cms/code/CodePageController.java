@@ -37,7 +37,7 @@ public class CodePageController {
 	public String writePopup(@PathVariable("upcdid") final String upcdid, @PathVariable("cddepth") final Integer cddepth, Model model) {
 		model.addAttribute("upcdid", upcdid);
 		model.addAttribute("cddepth", cddepth);
-		return "cms/code/popup/codeWrite";
+		return "cms/code/popup/code_write";
 	}
 
 	@GetMapping("/popup/modify/{cdid}/{cddepth}")

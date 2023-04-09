@@ -103,7 +103,6 @@
 					return false;
 				}
 
-
 				useYn = $("input:radio[name=use_yn]:checked").val();
 				const form = document.getElementById('form');
 				const params = {
@@ -120,6 +119,7 @@
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {
