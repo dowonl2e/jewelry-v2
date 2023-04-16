@@ -116,6 +116,17 @@ function initStorageValue(){
   localStorage.removeItem('access_token_expiores_in');
   goSigninPage();
 }
+
+function setReissueToken(header){
+  const token = header.get('Authorization');
+  if(token == null || token == ''){
+    initStorageValue();
+  }
+  setLocalStorage("access_token", token);
+  setLocalStorage("access_token_expiores_in", header.get('ExpioresIn'));
+  console.log('토큰 재발급 완료');
+}
+
 function getToken(){
   return 'Bearer ' + getLocalStorage('access_token');
 }
@@ -135,11 +146,86 @@ function validateTokenExpioresIn(){
   return true;
 }
 
+async function isValidToken(){
+  if(validateTokenExpioresIn()){
+    return true;
+  }
+  else {
+    const response = await fetch('/api/jauth/reissue', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': getToken()
+      }
+    });
+
+    if (!response.ok) {
+      alert('로그인 후 이용해주세요.');
+      initStorageValue();
+      return false;
+    }
+    else {
+      setReissueToken(response.headers);
+      return true;
+    }
+  }
+}
+
+async function isValidTokenInPopup(){
+  if(validateTokenExpioresIn()){
+    return true;
+  }
+  else {
+    const response = await fetch('/api/jauth/reissue', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': getToken()
+      }
+    });
+
+    if (!response.ok) {
+      alert('로그인 후 이용해주세요.');
+      initStorageValue();
+      fncClose();
+      goParentSigninPage();
+      return false;
+    }
+    else {
+      setReissueToken(response.headers);
+      return true;
+    }
+  }
+}
+
+async function getJson(uri, params) {
+  if(validateTokenExpioresIn()){
+    return getJsonData(uri, params);
+  }
+  else {
+    const response = await fetch('/api/jauth/reissue', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': getToken()
+      }
+    });
+
+    if (!response.ok) {
+      alert('로그인 후 이용해주세요.');
+      initStorageValue();
+    }
+    else {
+      setReissueToken(response.headers);
+      return getJsonData(uri, params);
+    }
+  }
+}
 
 /**
- * 조회 API 호출
+ * 목록 API 호출
  */
-async function getJson(uri, params) {
+async function getJsonData(uri, params){
   if (params) {
     uri = uri + '?' + new URLSearchParams(params).toString();
   }
@@ -147,7 +233,7 @@ async function getJson(uri, params) {
   const response = await fetch(uri, {
     method: 'GET',
     headers: {
-        'Authorization': getToken()
+      'Authorization': getToken()
     }
   });
 
@@ -178,6 +264,11 @@ function setQueryStringParams() {
 //부모창 새로고침
 function fncParentRefresh(){
   window.opener.refresh();
+}
+
+//부모창 새로고침
+function goParentSigninPage(){
+  window.opener.location.href = '/signin';
 }
 
 //팝업 닫기
