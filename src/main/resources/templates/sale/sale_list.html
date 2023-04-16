@@ -468,6 +468,8 @@
       }
 
       function fncSaleToStocks(){
+        if(!isValidToken())
+          return false;
 
         var salecheckcnt = 0;
         $(".form-check").each(function(){
@@ -508,6 +510,9 @@
 
           fetch('/api/sale/sales/stock/modify', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

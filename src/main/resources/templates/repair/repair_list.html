@@ -250,6 +250,9 @@
       }
 
       function fncRepairComplete(){
+        if(!isValidToken())
+          return false;
+
         var checkcnt = 0;
         $(".form-check").each(function(){
           if($(this).is(":checked")){
@@ -273,6 +276,9 @@
 
           fetch('/api/repair/repairs/complete', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){
@@ -287,6 +293,8 @@
       }
 
       function fncRemove(){
+        if(!isValidToken())
+          return false;
 
         var checkcnt = 0;
         $(".form-check").each(function(){
@@ -311,6 +319,9 @@
 
           fetch('/api/repair/repairs/remove', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

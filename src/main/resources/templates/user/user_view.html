@@ -64,6 +64,8 @@
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const userid = /*[[${userid}]]*/;
 				if ( !userid ) {

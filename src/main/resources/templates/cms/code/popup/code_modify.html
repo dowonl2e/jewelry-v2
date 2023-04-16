@@ -47,6 +47,9 @@
 
 			function find() {
 
+        if(!isValidToken())
+			    return false;
+
 				const cdid = /*[[${cdid}]]*/;
 				if ( !cdid ) {
 		    	return false;
@@ -78,6 +81,8 @@
 			}
 
 			function modify(){
+        if(!isValidToken())
+			    return false;
 
         const cdid = /*[[${cdid}]]*/;
 				if ( !cdid ) {
@@ -124,6 +129,9 @@
 
 			//코드 삭제
 			function remove() {
+        if(!isValidToken())
+			    return false;
+
 			  const cdid = /*[[${cdid}]]*/;
 				if ( !cdid ) {
 		    	return false;

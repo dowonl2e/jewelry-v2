@@ -130,10 +130,32 @@
   </div>
 
   <script th:inline="javascript">
-
     $(document).ready(function(){
-      findMyInfo();
-			findMenu();
+      if(validateTokenExpioresIn() == true){
+        findMyInfo();
+			  findMenu();
+      }
+      else {
+        fetch('/api/jauth/reissue', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          }
+        }).then(response => {
+          if(!response.ok){
+            alert('로그인 후 이용해주세요.');
+            initStorageValue();
+          }
+          else {
+            setReissueToken(response.headers);
+            findMyInfo();
+			      findMenu();
+          }
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
+      }
 		});
 
     function findMyInfo(){

@@ -182,6 +182,8 @@
       }
 
       function fncSave(customerno, customernm, customercel){
+        if(!isValidToken())
+          return false;
 
         if(confirm('\'' + customernm + '\' 고객으로 변경하시겠습니까?')){
           var salesno = /*[[${param.salesno}]]*/;
@@ -198,13 +200,16 @@
 
           fetch('/api/sale/sales/customer/modify', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){
               throw new Error('Request Failed...');
             }
             alert('변경 되었습니다.');
-            window.opener.refresh();
+            fncParentRefresh()
             fncClose();
           }).catch(error => {
             alert('오류가 발생하였습니다.');

@@ -171,6 +171,9 @@
       }
 
       function fncModify(customerno){
+        if(!isValidToken())
+          return false;
+
         if(confirm('변경하시겠습니까?')){
           var orderno = /*[[${ordersno}]]*/;
           var order_no_arr = orderno.split(',');
@@ -185,6 +188,9 @@
 
           fetch('/api/order/customer/modify', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

@@ -109,130 +109,129 @@
         </div>
     </div>
 
-    <script th:inline="javascript">
+  <script th:inline="javascript">
 		/*<![CDATA[*/
 			var codemap = {
-                [# th:each="code, loop : ${cdmapper}"]
-                    "[(${code.cdid})]": "[(${code.cdnm})]",
-                [/]
+        [# th:each="code, loop : ${cdmapper}"]
+            "[(${code.cdid})]": "[(${code.cdnm})]",
+        [/]
 			};
 
 			window.onload = () => {
-				find();
-	  	    }
+	      find();
+      }
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const catalogno = /*[[${catalogno}]]*/;
 				if ( !catalogno ) {
-                    return false;
+            return false;
+        }
+
+        fetch(`/api/catalog/`+catalogno, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+					}
+				}).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
+          return response.json();
+        }).then(json => {
+            var filelist = json.filelist;
+            var filepath = '';
+            var filenm = '';
+
+            if(filelist != null && filelist.length > 0){
+                for(var i = 0 ; i < filelist.length ; i++){
+                    if(filelist[i].fileord == 1){
+                        filepath = checkNullVal(filelist[i].filepath);
+                        filenm = checkNullVal(filelist[i].filenm);
+                    }
                 }
+            }
+            if(filenm == '')
+                document.getElementById('catalog_img').src = '/img/no-image.png';
+            else
+                document.getElementById('catalog_img').src = '/file/image/display?filePath='+filepath+'&fileName='+filenm;
+            document.getElementById('vender_div').innerHTML = checkNullVal(json.vendernm);
+            document.getElementById('model_id_div').innerHTML = checkNullVal(json.modelid);
+            document.getElementById('model_nm_div').innerHTML = checkNullVal(json.modelnm);
+            document.getElementById('stdd_material_div').innerHTML = checkNullVal(codemap[json.stddmaterialcd]);
+            document.getElementById('stdd_weight_div').innerHTML = checkNullVal(json.stddweight);
+            document.getElementById('stdd_color_div').innerHTML = checkNullVal(codemap[json.stddcolorcd]);
+            document.getElementById('stdd_size_div').innerHTML = checkNullVal(json.stddsize);
+            document.getElementById('odr_notice_div').innerHTML = checkNullVal(json.odrnotice);
+            document.getElementById('reg_dt_div').innerHTML = checkSubstringNullVal(json.regdt,0,10);
+            document.getElementById('basic_idst_div').innerHTML = priceWithComma(json.basicidst);
+            document.getElementById('main_price_div').innerHTML = priceWithComma(json.mainprice);
+            document.getElementById('sub_price_div').innerHTML = priceWithComma(json.subprice);
+            totalPriceVal = Number(checkNullValR(json.basicidst,'0'));
+            totalPriceVal += Number(checkNullValR(json.mainprice,'0'));
+            totalPriceVal += Number(checkNullValR(json.subprice,'0'));
+            document.getElementById('total_price_div').innerHTML = priceWithComma(totalPriceVal);
 
-                fetch(`/api/catalog/`+catalogno).then(response => {
-                    if (!response.ok) {
-                            throw new Error('Request failed...');
-                    }
-                    return response.json();
+            var stonelist = json.stonelist;
+            var html = ``;
+            if(stonelist == null || stonelist.length == 0){
+                html += `
+                    <tr class="border-bottom">
+                        <td colspan="7" class="text-center" style="line-height:60px;">등록된 스톤정보가 없습니다.</td>
+                    </tr>
+                `;
+            }
+            else {
+                var total_bead_cnt = 0;
+                var total_purchase_price = 0;
+                for(var i = 0 ; i < stonelist.length ; i++){
+                    bead_cnt = Number(stonelist[i].beadcnt);
+                    purchase_price_sum = (Number(stonelist[i].beadcnt)*Number(stonelist[i].purchaseprice));
+                    html += `
+                        <tr>
+                            <td class="text-center border-right">`+(i+1)+`</td>
+                            <td class="text-center border-right">`+checkNullVal(codemap[stonelist[i].stonetype])+`</td>
+                            <td class="text-center border-right">`+checkNullVal(stonelist[i].stonenm)+`</td>
+                            <td class="text-center border-right">`+checkNullVal(bead_cnt)+`</td>
+                            <td class="text-center border-right">`+checkNullVal(stonelist[i].purchaseprice)+`</td>
+                            <td class="text-center border-right">`+purchase_price_sum+`</td>
+                            <td class="text-center">`+checkNullVal(stonelist[i].stonedesc)+`</td>
+                        </tr>
+                    `;
+                    total_bead_cnt += bead_cnt;
+                    total_purchase_price += purchase_price_sum;
+                }
+                html += `
+                    <tr>
+                        <td colspan="3" class="text-right border-right border-bottom">소계</td>
+                        <td id="total_bead_cnt_txt" class="bg-yellow text-center border-right border-bottom">`+total_bead_cnt+`</td>
+                        <td class="border-right border-bottom"></td>
+                        <td id="total_price_txt" class="bg-yellow text-center border-right border-bottom">`+total_purchase_price+`</td>
+                        <td class="border-bottom"></td>
+                    </tr>
+                `;
 
-                }).then(json => {
-                    var filelist = json.filelist;
-                    var filepath = '';
-                    var filenm = '';
+            }
+          document.getElementById('stonelist').innerHTML = html;
 
-                    if(filelist != null && filelist.length > 0){
-                        for(var i = 0 ; i < filelist.length ; i++){
-                            if(filelist[i].fileord == 1){
-                                filepath = checkNullVal(filelist[i].filepath);
-                                filenm = checkNullVal(filelist[i].filenm);
-                            }
-                        }
-                    }
-                    if(filenm == '')
-                        document.getElementById('catalog_img').src = '/img/no-image.png';
-                    else
-                        document.getElementById('catalog_img').src = '/file/image/display?filePath='+filepath+'&fileName='+filenm;
-                    document.getElementById('vender_div').innerHTML = checkNullVal(json.vendernm);
-                    document.getElementById('model_id_div').innerHTML = checkNullVal(json.modelid);
-                    document.getElementById('model_nm_div').innerHTML = checkNullVal(json.modelnm);
-                    document.getElementById('stdd_material_div').innerHTML = checkNullVal(codemap[json.stddmaterialcd]);
-                    document.getElementById('stdd_weight_div').innerHTML = checkNullVal(json.stddweight);
-                    document.getElementById('stdd_color_div').innerHTML = checkNullVal(codemap[json.stddcolorcd]);
-                    document.getElementById('stdd_size_div').innerHTML = checkNullVal(json.stddsize);
-                    document.getElementById('odr_notice_div').innerHTML = checkNullVal(json.odrnotice);
-                    document.getElementById('reg_dt_div').innerHTML = checkSubstringNullVal(json.regdt,0,10);
-                    document.getElementById('basic_idst_div').innerHTML = priceWithComma(json.basicidst);
-                    document.getElementById('main_price_div').innerHTML = priceWithComma(json.mainprice);
-                    document.getElementById('sub_price_div').innerHTML = priceWithComma(json.subprice);
-                    totalPriceVal = Number(checkNullValR(json.basicidst,'0'));
-                    totalPriceVal += Number(checkNullValR(json.mainprice,'0'));
-                    totalPriceVal += Number(checkNullValR(json.subprice,'0'));
-                    document.getElementById('total_price_div').innerHTML = priceWithComma(totalPriceVal);
-
-                    var stonelist = json.stonelist;
-                    var html = ``;
-                    if(stonelist == null || stonelist.length == 0){
-                        html += `
-                            <tr class="border-bottom">
-                                <td colspan="7" class="text-center" style="line-height:60px;">등록된 스톤정보가 없습니다.</td>
-                            </tr>
-                        `;
-                    }
-                    else {
-                        var total_bead_cnt = 0;
-                        var total_purchase_price = 0;
-                        for(var i = 0 ; i < stonelist.length ; i++){
-                            bead_cnt = Number(stonelist[i].beadcnt);
-                            purchase_price_sum = (Number(stonelist[i].beadcnt)*Number(stonelist[i].purchaseprice));
-                            html += `
-                                <tr>
-                                        <td class="text-center border-right">`+(i+1)+`</td>
-                                        <td class="text-center border-right">`+checkNullVal(codemap[stonelist[i].stonetype])+`</td>
-                                        <td class="text-center border-right">`+checkNullVal(stonelist[i].stonenm)+`</td>
-                                        <td class="text-center border-right">`+checkNullVal(bead_cnt)+`</td>
-                                        <td class="text-center border-right">`+checkNullVal(stonelist[i].purchaseprice)+`</td>
-                                        <td class="text-center border-right">`+purchase_price_sum+`</td>
-                                        <td class="text-center">`+checkNullVal(stonelist[i].stonedesc)+`</td>
-                                    </tr>
-                            `;
-                            total_bead_cnt += bead_cnt;
-                            total_purchase_price += purchase_price_sum;
-                        }
-                        html += `
-                                <tr>
-                                    <td colspan="3" class="text-right border-right border-bottom">소계</td>
-                                    <td id="total_bead_cnt_txt" class="bg-yellow text-center border-right border-bottom">`+total_bead_cnt+`</td>
-                                    <td class="border-right border-bottom"></td>
-                                    <td id="total_price_txt" class="bg-yellow text-center border-right border-bottom">`+total_purchase_price+`</td>
-                                    <td class="border-bottom"></td>
-                                </tr>
-                        `;
-
-                    }
-                    document.getElementById('stonelist').innerHTML = html;
-
-                }).catch(error => {
-                    alert('카다로그 정보를 찾을 수 없습니다.');
-                    fncParentRefresh();
-                    fncClose();
-                });
+        }).catch(error => {
+            alert('카다로그 정보를 찾을 수 없습니다.');
+            fncParentRefresh();
+            fncClose();
+        });
 			}
 
 			/**
 			 * 수정하기
 			 */
 			function goModify() {
-			    const catalogno = /*[[${catalogno}]]*/
-		        location.href = '/catalog/popup/modify/+catalogno';
-			}
-
-			function fncParentRefresh(){
-				fncParentRefresh();
-			}
-
-			function fncClose(){
-				self.close();
+			  const catalogno = /*[[${catalogno}]]*/
+        location.href = '/catalog/popup/modify/+catalogno';
 			}
 		/*]]>*/
-    </script>
+  </script>
 </th:block>
 </html>

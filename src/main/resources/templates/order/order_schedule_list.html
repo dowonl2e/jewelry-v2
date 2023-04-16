@@ -296,6 +296,8 @@
       }
 
       function fncOrderToStock(){
+        if(!isValidToken())
+          return false;
 
         var orderscheckcnt = 0;
         $(".form-check").each(function(){
@@ -319,6 +321,9 @@
 
           fetch('/api/order/stock/write', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){
@@ -354,6 +359,8 @@
       }
 
       function fncRemove(){
+        if(!isValidToken())
+          return false;
 
         var orderscheckcnt = 0;
         $(".form-check").each(function(){
@@ -377,6 +384,9 @@
 
           fetch('/api/order/orders/remove', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

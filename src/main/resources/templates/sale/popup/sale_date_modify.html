@@ -38,6 +38,8 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 			  if($("#sale_dt").val() == ''){
 				  alert('변경할 거래일을 선택해주세요.');
@@ -60,6 +62,9 @@
 
 					fetch('/api/sale/sales/date/modify', {
 						method: 'PATCH',
+						headers: {
+						  'Authorization': getToken()
+						},
 						body: formData
 					}).then(response => {
 						if(!response.ok){

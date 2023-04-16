@@ -40,30 +40,33 @@
   <script>
 		/*<![CDATA[*/
 			function save(){
-				const form = document.getElementById('form');
-				const params = {
-					cd_id : form.cd_id.value,
-					cd_nm : form.cd_nm.value,
-					use_yn : form.use_yn.value,
-					up_cd_id : '00'
-				};
+			  if(!isValidToken())
+          return false;
 
-				fetch('/api/code/write', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': getToken()
-					},
-					body: JSON.stringify(params)
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('저장되었습니다.');
-					goPage('/code/list');
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
+        const form = document.getElementById('form');
+        const params = {
+          cd_id : form.cd_id.value,
+          cd_nm : form.cd_nm.value,
+          use_yn : form.use_yn.value,
+          up_cd_id : '00'
+        };
+
+        fetch('/api/code/write', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: JSON.stringify(params)
+        }).then(response => {
+          if(!response.ok){
+            throw new Error('Request Failed...');
+          }
+          alert('저장되었습니다.');
+          goPage('/code/list');
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
 			}
 
 			function fncChangeUpperCase(obj){

@@ -45,7 +45,9 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			window.onload = () => {
-				find();
+			  if(isValidToken()){
+			  	find();
+				}
 	  	}
 
 			function find() {
@@ -80,35 +82,36 @@
 			}
 
 			function modify(){
+        if(isValidToken()){
+          const cdid = /*[[${cdid}]]*/;
+          if ( !cdid ) {
+            return false;
+          }
 
-				const cdid = /*[[${cdid}]]*/;
-				if ( !cdid ) {
-		    	return false;
-		    }
+          const form = document.getElementById('form');
+          const params = {
+            cd_nm : form.cd_nm.value,
+            use_yn : form.use_yn.value,
+          };
 
-				const form = document.getElementById('form');
-				const params = {
-					cd_nm : form.cd_nm.value,
-					use_yn : form.use_yn.value,
-				};
+          fetch(`/api/code/`+cdid, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': getToken()
+            },
+            body: JSON.stringify(params)
+          }).then(response => {
+            if(!response.ok){
+              throw new Error('Request Failed...');
+            }
 
-        fetch(`/api/code/`+cdid, {
-					method: 'PATCH',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': getToken()
-					},
-					body: JSON.stringify(params)
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-
-					alert('수정되었습니다.');
-					goList();
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
+            alert('수정되었습니다.');
+            goList();
+          }).catch(error => {
+            alert('오류가 발생하였습니다.');
+          });
+        }
 			}
 
 			function fncChangeUpperCase(obj){
@@ -126,32 +129,35 @@
 
 			//코드 삭제
 			function remove() {
+			  if(!isValidToken())
+          return false;
+
         const cdid = /*[[${cdid}]]*/;
-				if ( !cdid ) {
-		    	return false;
-		    }
+        if ( !cdid ) {
+          return false;
+        }
 
-      	if ( !confirm(`코드를 삭제하시겠습니까?`) ) {
-      		return false;
-      	}
+        if ( !confirm(`코드를 삭제하시겠습니까?`) ) {
+          return false;
+        }
 
-      	fetch(`/api/code/`+cdid, {
-					method: 'DELETE',
-        	headers: {
-        	  'Content-Type': 'application/json',
-						'Authorization': getToken()
+        fetch(`/api/code/`+cdid, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
           }
-      	}).then(response => {
-      		if (!response.ok) {
-         		throw new Error('Request failed...');
-        	}
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
 
-        	alert('삭제되었습니다.');
-        	goList();
+          alert('삭제되었습니다.');
+          goList();
 
-      	}).catch(error => {
-      		alert('오류가 발생하였습니다.');
-      	});
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
 	  	}
 
 			function goList(){

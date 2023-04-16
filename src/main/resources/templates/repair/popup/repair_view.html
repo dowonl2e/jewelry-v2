@@ -79,13 +79,20 @@
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const repairno = /*[[${repairno}]]*/;
 				if ( !repairno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/repair/`+repairno).then(response => {
+				fetch(`/api/repair/`+repairno, {
+				  method: 'GET',
+				  headers: {
+            'Authorization': getToken()
+          }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }

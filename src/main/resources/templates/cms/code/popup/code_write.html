@@ -40,10 +40,14 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			window.onload = () => {
-				find();
+			  if(isValidToken()){
+				  find();
 	  	}
 
 			function find() {
+
+        if(!isValidToken())
+          return false;
 
 				const upcdid = /*[[${upcdid}]]*/;
 				if ( !upcdid ) {
@@ -72,37 +76,40 @@
 			}
 
 			function save(){
-				if($("#cd_nm").val() == ''){
-					alert('코드명을 입력해주세요.');
-					$("#cd_nm").focus();
-					return false;
-				}
+			  if(!isValidToken())
+			    return false;
 
-				const form = document.getElementById('form');
-				const params = {
-					cd_id : form.cd_id.value,
-					cd_nm : form.cd_nm.value,
-					use_yn : form.use_yn.value,
-					up_cd_id : /*[[${upcdid}]]*/,
-					cd_depth : /*[[${cddepth}]]*/,
-				};
+        if($("#cd_nm").val() == ''){
+          alert('코드명을 입력해주세요.');
+          $("#cd_nm").focus();
+          return false;
+        }
 
-				fetch('/api/code/write', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': getToken()
-					},
-					body: JSON.stringify(params)
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('저장되었습니다.');
-					goList();
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
+        const form = document.getElementById('form');
+        const params = {
+          cd_id : form.cd_id.value,
+          cd_nm : form.cd_nm.value,
+          use_yn : form.use_yn.value,
+          up_cd_id : /*[[${upcdid}]]*/,
+          cd_depth : /*[[${cddepth}]]*/,
+        };
+
+        fetch('/api/code/write', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: JSON.stringify(params)
+        }).then(response => {
+          if(!response.ok){
+            throw new Error('Request Failed...');
+          }
+          alert('저장되었습니다.');
+          goList();
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
 			}
 
 			function fncChangeUpperCase(obj){

@@ -38,6 +38,9 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
 			  if($("#reg_dt").val() == ''){
 				  alert('변경할 등록일를 선택해주세요.');
 				  $("#reg_dt").focus();
@@ -60,6 +63,9 @@
 					}
 					fetch('/api/stock/reg-date/modify', {
 						method: 'PATCH',
+						headers: {
+						  'Authorization': getToken()
+						},
 						body: formData
 					}).then(response => {
 						if(!response.ok){

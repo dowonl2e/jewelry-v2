@@ -98,17 +98,25 @@
 			};
 
 			window.onload = () => {
-				find();
+        find();
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const customerno = /*[[${customerno}]]*/;
 				if ( !customerno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/customer/`+customerno).then(response => {
+				fetch(`/api/customer/`+customerno, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          }
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }

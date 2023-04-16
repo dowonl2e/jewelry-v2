@@ -182,9 +182,8 @@
 			});
 
 			function fncSave(){
-				/* if( !isValid() ){
-					return false;
-				} */
+				if(!isValidToken())
+          return false;
 
 				if($("#store_cd").val() == ''){
 					alert('관리매장을 선택해주세요.');
@@ -226,6 +225,9 @@
 
 					fetch('/api/cash/write', {
 						method: 'POST',
+						headers: {
+						  'Authorization': getToken()
+						},
 						body: formData
 					}).then(response => {
 						if(!response.ok){
@@ -259,18 +261,16 @@
 				var html = '<option value="">선택</option>';
 				if(val != ''){
 				    [# th:each="rs2 : ${rslist2}"]
-				    "[(${rs2.cdid})]"
+				      "[(${rs2.cdid})]"
 					    if("[('${#strings.substring(rs2.cdid,0,4)})]" == val){
 						    html += '<option value="${rs2.cdid}">${rs2.cdnm}</option>';
 					    }
-                    [/]
+            [/]
 				}
 				$("#cash_type_cd2_"+idx).append(html);
 			}
 
-			function fncClose(){
-				self.close();
-			}
 		/*]]>*/
     </script>
+</th:block>
 </html>

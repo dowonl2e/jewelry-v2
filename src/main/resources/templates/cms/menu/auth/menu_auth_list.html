@@ -188,137 +188,140 @@
 		 * 하위코드 팝업
 		 */
 		function fncAuthMenuList(userid, username) {
-			if(userid == ''){
-				alert('사용자 아이디가 없습니다.');
-				return false;
-			}
+		  if(!isValidToken())
+        return false;
 
-			fetch('/api/menuauth/menus/'+userid, {
+      if(userid == ''){
+        alert('사용자 아이디가 없습니다.');
+        return false;
+      }
+
+      fetch('/api/menuauth/menus/'+userid, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': getToken()
         }
       }).then(response => {
-	    	if (!response.ok) {
-					throw new Error('Request failed...');
-		    }
-	    	return response.json();
-	   	}).then(json => {
-				if (!Object.keys(json).length || json.list == null || json.list.length == 0) {
-					alert('메뉴가 없습니다.');
-					$("#authMenuTbl").remove();
-					return false;
-				}
+        if (!response.ok) {
+          throw new Error('Request failed...');
+        }
+        return response.json();
+      }).then(json => {
+        if (!Object.keys(json).length || json.list == null || json.list.length == 0) {
+          alert('메뉴가 없습니다.');
+          $("#authMenuTbl").remove();
+          return false;
+        }
 
-				//const writeAuth = '${sessionScope.WRITE_AUTH}';
-				//const modifyAuth = '${sessionScope.MODIFY_AUTH}';
-				const writeAuth = 'Y';
-				const modifyAuth = 'Y';
+        //const writeAuth = '${sessionScope.WRITE_AUTH}';
+        //const modifyAuth = '${sessionScope.MODIFY_AUTH}';
+        const writeAuth = 'Y';
+        const modifyAuth = 'Y';
 
-				let html = ``;
-				html += `
-					<table class="table table-hover border-bottom" id="authMenuTbl">
-						<colgroup>
-							<col />
-							<col width="13%"/>
-							<col width="13%"/>
-							<col width="13%"/>
-							<col width="13%"/>
-							<col width="13%"/>
-							<col width="15%"/>
-						</colgroup>
-						<thead>
-							<tr>
-								<th colspan="6">`+username+`(`+userid+`) 메뉴 권한</th>
-								<th class="text-right">
-				`;
-				if(writeAuth == 'Y' && modifyAuth == 'Y'){
-					html += `				<a href="javascript:void(0)" onclick="fncSaveAll(\'`+userid+`\',\'`+username+`\'); return false;" class="btn btn-primary">전체저장</a>`;
-				}
-				html += `
-										<span class="ml5"><a href="javascript:void(0)" onclick="fncCloseAuthMenuTbl(); return false;" class="btn btn-secondary">닫기</a></span>
-								</th>
-							</tr>
-							<tr>
-								<th class="text-center">메뉴명</th>
-								<th class="text-center"><label for="accessChecked">접근권한</label><br/><input type="checkbox" id="accessChecked" onchange="fncChangeAuth(this, 'accessAuthArr');"></th>
-								<th class="text-center"><label for="writeChecked">등록권한</label><br/><input type="checkbox" id="writeChecked" onchange="fncChangeAuth(this, 'writeAuthArr');"></th>
-								<th class="text-center"><label for="viewChecked">조회권한</label><br/><input type="checkbox" id="viewChecked" onchange="fncChangeAuth(this, 'viewAuthArr');"></th>
-								<th class="text-center"><label for="modifyChecked">수정권한</label><br/><input type="checkbox" id="modifyChecked" onchange="fncChangeAuth(this, 'modifyAuthArr');"></th>
-								<th class="text-center"><label for="removeChecked">삭제권한</label><br/><input type="checkbox" id="removeChecked" onchange="fncChangeAuth(this, 'removeAuthArr');"></th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody id="menuList">
-						</tbody>
-					</table>
-				`;
+        let html = ``;
+        html += `
+          <table class="table table-hover border-bottom" id="authMenuTbl">
+            <colgroup>
+              <col />
+              <col width="13%"/>
+              <col width="13%"/>
+              <col width="13%"/>
+              <col width="13%"/>
+              <col width="13%"/>
+              <col width="15%"/>
+            </colgroup>
+            <thead>
+              <tr>
+                <th colspan="6">`+username+`(`+userid+`) 메뉴 권한</th>
+                <th class="text-right">
+        `;
+        if(writeAuth == 'Y' && modifyAuth == 'Y'){
+          html += `				<a href="javascript:void(0)" onclick="fncSaveAll(\'`+userid+`\',\'`+username+`\'); return false;" class="btn btn-primary">전체저장</a>`;
+        }
+        html += `
+                    <span class="ml5"><a href="javascript:void(0)" onclick="fncCloseAuthMenuTbl(); return false;" class="btn btn-secondary">닫기</a></span>
+                </th>
+              </tr>
+              <tr>
+                <th class="text-center">메뉴명</th>
+                <th class="text-center"><label for="accessChecked">접근권한</label><br/><input type="checkbox" id="accessChecked" onchange="fncChangeAuth(this, 'accessAuthArr');"></th>
+                <th class="text-center"><label for="writeChecked">등록권한</label><br/><input type="checkbox" id="writeChecked" onchange="fncChangeAuth(this, 'writeAuthArr');"></th>
+                <th class="text-center"><label for="viewChecked">조회권한</label><br/><input type="checkbox" id="viewChecked" onchange="fncChangeAuth(this, 'viewAuthArr');"></th>
+                <th class="text-center"><label for="modifyChecked">수정권한</label><br/><input type="checkbox" id="modifyChecked" onchange="fncChangeAuth(this, 'modifyAuthArr');"></th>
+                <th class="text-center"><label for="removeChecked">삭제권한</label><br/><input type="checkbox" id="removeChecked" onchange="fncChangeAuth(this, 'removeAuthArr');"></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="menuList">
+            </tbody>
+          </table>
+        `;
 
-				document.getElementById('menuListDiv').innerHTML = html;
+        document.getElementById('menuListDiv').innerHTML = html;
 
-				html = ``;
-				json.list.forEach((obj, idx) => {
-     			html += `
-      			<tr>
-  						<td class="text-center"><input type="hidden" name="menuIdArr" class="form-data" value="`+obj.menuId+`"/>`+obj.menuNm+`</td>
-  						<td class="text-center">
-					`;
-  				accessChecked = '';
-  				if(checkNullVal(obj.accessAuth) == 'Y'){
-  					accessChecked = 'checked';
-  				}
-  				html += `<input type="checkbox" name="accessAuthArr" class="form-check form-data" `+accessChecked+` onchange="fncChangeAccessAuth(this, \'`+idx+`\');"/>
-  						</td>
-  						<td class="text-center">
-					`;
-	 				writeChecked = '';
-	 				if(checkNullVal(obj.writeAuth) == 'Y'){
-	 					writeChecked = 'checked';
-	 				}
-	 				html += `<input type="checkbox" name="writeAuthArr" class="form-check form-data" `+writeChecked+`/>
-							</td>
-  						<td class="text-center">
-					`;
-	 				viewChecked = '';
-	 				if(checkNullVal(obj.viewAuth) == 'Y'){
-	 					viewChecked = 'checked';
-	 				}
-	 				html += `<input type="checkbox" name="viewAuthArr" class="form-check form-data" `+viewChecked+`/>
-							</td>
-  						<td class="text-center">
-					`;
-	 				modifyChecked = '';
-	 				if(checkNullVal(obj.modifyAuth) == 'Y'){
-	 					modifyChecked = 'checked';
-	 				}
-	 				html += `<input type="checkbox" name="modifyAuthArr" class="form-check form-data" `+modifyChecked+`/>
-							</td>
-  						<td class="text-center">
-					`;
-	 				removeChecked = '';
-	 				if(checkNullVal(obj.removeAuth) == 'Y'){
-	 					removeChecked = 'checked';
-	 				}
-	 				html += `<input type="checkbox" name="removeAuthArr" class="form-check form-data" `+removeChecked+`/>
-							</td>
-							<td class="text-center">
-					`;
-	 				if(writeAuth == 'Y' && modifyAuth == 'Y'){
-						html += `		<a href="javascript:void(0)" onclick="fncSaveEach(\'`+userid+`\',\'`+username+`\',\'`+idx+`\',\'`+obj.menuNm+`\'); return false;" class="btn btn-primary">저장</a>`;
-	 				}
-	 				html += `
-							</td>
-  					</tr>
-					`;
-     		});
+        html = ``;
+        json.list.forEach((obj, idx) => {
+          html += `
+            <tr>
+              <td class="text-center"><input type="hidden" name="menuIdArr" class="form-data" value="`+obj.menuId+`"/>`+obj.menuNm+`</td>
+              <td class="text-center">
+          `;
+          accessChecked = '';
+          if(checkNullVal(obj.accessAuth) == 'Y'){
+            accessChecked = 'checked';
+          }
+          html += `<input type="checkbox" name="accessAuthArr" class="form-check form-data" `+accessChecked+` onchange="fncChangeAccessAuth(this, \'`+idx+`\');"/>
+              </td>
+              <td class="text-center">
+          `;
+          writeChecked = '';
+          if(checkNullVal(obj.writeAuth) == 'Y'){
+            writeChecked = 'checked';
+          }
+          html += `<input type="checkbox" name="writeAuthArr" class="form-check form-data" `+writeChecked+`/>
+              </td>
+              <td class="text-center">
+          `;
+          viewChecked = '';
+          if(checkNullVal(obj.viewAuth) == 'Y'){
+            viewChecked = 'checked';
+          }
+          html += `<input type="checkbox" name="viewAuthArr" class="form-check form-data" `+viewChecked+`/>
+              </td>
+              <td class="text-center">
+          `;
+          modifyChecked = '';
+          if(checkNullVal(obj.modifyAuth) == 'Y'){
+            modifyChecked = 'checked';
+          }
+          html += `<input type="checkbox" name="modifyAuthArr" class="form-check form-data" `+modifyChecked+`/>
+              </td>
+              <td class="text-center">
+          `;
+          removeChecked = '';
+          if(checkNullVal(obj.removeAuth) == 'Y'){
+            removeChecked = 'checked';
+          }
+          html += `<input type="checkbox" name="removeAuthArr" class="form-check form-data" `+removeChecked+`/>
+              </td>
+              <td class="text-center">
+          `;
+          if(writeAuth == 'Y' && modifyAuth == 'Y'){
+            html += `		<a href="javascript:void(0)" onclick="fncSaveEach(\'`+userid+`\',\'`+username+`\',\'`+idx+`\',\'`+obj.menuNm+`\'); return false;" class="btn btn-primary">저장</a>`;
+          }
+          html += `
+              </td>
+            </tr>
+          `;
+        });
 
-				document.getElementById('menuList').innerHTML = html;
+        document.getElementById('menuList').innerHTML = html;
 
-	   	}).catch(error => {
-				$("#authMenuTbl").remove();
-	    	alert('오류가 발생하였습니다.');
-	   	});
+      }).catch(error => {
+        $("#authMenuTbl").remove();
+        alert('오류가 발생하였습니다.');
+      });
 		}
 
 		function fncCloseAuthMenuTbl(){
@@ -326,105 +329,111 @@
 		}
 
 		function fncSaveAll(userId, userName){
-			var checkedCnt = 0;
+      if(!isValidToken())
+        return false;
 
-			$("input[name=accessAuthArr]").each(function(){
-				if($(this).is(":checked")) checkedCnt++;
-			});
-			$("input[name=writeAuthArr]").each(function(){
-				if($(this).is(":checked")) checkedCnt++;
-			});
-			$("input[name=viewAuthArr]").each(function(){
-				if($(this).is(":checked")) checkedCnt++;
-			});
-			$("input[name=modifyAuthArr]").each(function(){
-				if($(this).is(":checked")) checkedCnt++;
-			});
-			$("input[name=removeAuthArr]").each(function(){
-				if($(this).is(":checked")) checkedCnt++;
-			});
-			if(checkedCnt == 0){
-				alert('권한을 설정해주세요.');
-				return false;
-			}
+      var checkedCnt = 0;
 
-			if(confirm('\'' + userName + '\'의 전체 권한을 저장하시겠습니까?')){
-				const formData = new FormData();
-				formData.append("user_id", userId);
-				$("input[name=menuIdArr]").each(function(){
-					formData.append("menuIdArr[]", checkNullVal($(this).val()));
-				});
-				$("input[name=accessAuthArr]").each(function(){
-					formData.append("accessAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
-				});
-				$("input[name=writeAuthArr]").each(function(){
-					formData.append("writeAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
-				});
-				$("input[name=viewAuthArr]").each(function(){
-					formData.append("viewAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
-				});
-				$("input[name=modifyAuthArr]").each(function(){
-					formData.append("modifyAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
-				});
-				$("input[name=removeAuthArr]").each(function(){
-					formData.append("removeAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
-				});
+      $("input[name=accessAuthArr]").each(function(){
+        if($(this).is(":checked")) checkedCnt++;
+      });
+      $("input[name=writeAuthArr]").each(function(){
+        if($(this).is(":checked")) checkedCnt++;
+      });
+      $("input[name=viewAuthArr]").each(function(){
+        if($(this).is(":checked")) checkedCnt++;
+      });
+      $("input[name=modifyAuthArr]").each(function(){
+        if($(this).is(":checked")) checkedCnt++;
+      });
+      $("input[name=removeAuthArr]").each(function(){
+        if($(this).is(":checked")) checkedCnt++;
+      });
+      if(checkedCnt == 0){
+        alert('권한을 설정해주세요.');
+        return false;
+      }
 
-				fetch('/api/menuauth/menus', {
-					method: 'POST',
-					headers: {
-					  'Authorization': getToken()
-					},
-					body: formData
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('저장되었습니다.');
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
-			}
+      if(confirm('\'' + userName + '\'의 전체 권한을 저장하시겠습니까?')){
+        const formData = new FormData();
+        formData.append("user_id", userId);
+        $("input[name=menuIdArr]").each(function(){
+          formData.append("menuIdArr[]", checkNullVal($(this).val()));
+        });
+        $("input[name=accessAuthArr]").each(function(){
+          formData.append("accessAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
+        });
+        $("input[name=writeAuthArr]").each(function(){
+          formData.append("writeAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
+        });
+        $("input[name=viewAuthArr]").each(function(){
+          formData.append("viewAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
+        });
+        $("input[name=modifyAuthArr]").each(function(){
+          formData.append("modifyAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
+        });
+        $("input[name=removeAuthArr]").each(function(){
+          formData.append("removeAuthArr[]", $(this).is(":checked") ? 'Y' : 'N');
+        });
+
+        fetch('/api/menuauth/menus', {
+          method: 'POST',
+          headers: {
+            'Authorization': getToken()
+          },
+          body: formData
+        }).then(response => {
+          if(!response.ok){
+            throw new Error('Request Failed...');
+          }
+          alert('저장되었습니다.');
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
+      }
 		}
 
 		function fncSaveEach(userId, userNm, idx, menuNm){
-			var checkedCnt = 0;
-			if($("input[name=accessAuthArr]").eq(idx).is(":checked")) checkedCnt++;
-			if($("input[name=writeAuthArr]").eq(idx).is(":checked")) checkedCnt++;
-			if($("input[name=viewAuthArr]").eq(idx).is(":checked")) checkedCnt++;
-			if($("input[name=modifyAuthArr]").eq(idx).is(":checked")) checkedCnt++;
-			if($("input[name=removeAuthArr]").eq(idx).is(":checked")) checkedCnt++;
+		  if(!isValidToken())
+        return false;
 
-			if(checkedCnt == 0){
-				alert(menuNm+'의 권한을 설정해주세요.');
-				return false;
-			}
+      var checkedCnt = 0;
+      if($("input[name=accessAuthArr]").eq(idx).is(":checked")) checkedCnt++;
+      if($("input[name=writeAuthArr]").eq(idx).is(":checked")) checkedCnt++;
+      if($("input[name=viewAuthArr]").eq(idx).is(":checked")) checkedCnt++;
+      if($("input[name=modifyAuthArr]").eq(idx).is(":checked")) checkedCnt++;
+      if($("input[name=removeAuthArr]").eq(idx).is(":checked")) checkedCnt++;
 
-			if(confirm('\'' + menuNm + '\' 메뉴의 권한을 저장하시겠습니까?')){
-				const formData = new FormData();
-				formData.append("user_id", userId);
-				formData.append("menu_id", $("input[name=menuIdArr]").eq(idx).val());
-				formData.append("access_auth", $("input[name=accessAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
-				formData.append("write_auth", $("input[name=writeAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
-				formData.append("view_auth", $("input[name=viewAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
-				formData.append("modify_auth", $("input[name=modifyAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
-				formData.append("remove_auth", $("input[name=removeAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+      if(checkedCnt == 0){
+        alert(menuNm+'의 권한을 설정해주세요.');
+        return false;
+      }
 
-				fetch('/api/menuauth/menu', {
-					method: 'POST',
-					headers: {
-					  'Authorization': getToken()
-					},
-					body: formData
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('저장되었습니다.');
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
-			}
+      if(confirm('\'' + menuNm + '\' 메뉴의 권한을 저장하시겠습니까?')){
+        const formData = new FormData();
+        formData.append("user_id", userId);
+        formData.append("menu_id", $("input[name=menuIdArr]").eq(idx).val());
+        formData.append("access_auth", $("input[name=accessAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+        formData.append("write_auth", $("input[name=writeAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+        formData.append("view_auth", $("input[name=viewAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+        formData.append("modify_auth", $("input[name=modifyAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+        formData.append("remove_auth", $("input[name=removeAuthArr]").eq(idx).is(":checked") ? 'Y' : 'N');
+
+        fetch('/api/menuauth/menu', {
+          method: 'POST',
+          headers: {
+            'Authorization': getToken()
+          },
+          body: formData
+        }).then(response => {
+          if(!response.ok){
+            throw new Error('Request Failed...');
+          }
+          alert('저장되었습니다.');
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
+      }
 		}
 
 		function fncChangeAccessAuth(obj, idx){

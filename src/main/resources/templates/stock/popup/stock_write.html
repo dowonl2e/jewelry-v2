@@ -367,6 +367,8 @@
 			}
 
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 				if($("#reg_dt").val() == ''){
 					alert('등록일을 입력해주세요.');
@@ -409,6 +411,9 @@
 
 				fetch('/api/stock/write', {
 					method: 'POST',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){

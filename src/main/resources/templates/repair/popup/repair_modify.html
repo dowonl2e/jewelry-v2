@@ -98,13 +98,20 @@
 	  	});
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const repairno = /*[[${repairno}]]*/;
 				if ( !repairno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/repair/`+repairno).then(response => {
+				fetch(`/api/repair/`+repairno, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
@@ -162,21 +169,9 @@
 			  }
 			}
 
-			/* function readURL(obj) {
-			  if (obj.files && obj.files[0]) {
-			    var reader = new FileReader();
-			    reader.onload = function(e) {
-			      document.getElementById('preview').src = e.target.result;
-			    };
-			    reader.readAsDataURL(obj.files[0]);
-			    document.getElementById('file-label').innerHTML = obj.files[0].name;
-			  } else {
-			    document.getElementById('preview').src = "";
-			    document.getElementById('file-label').innerHTML = '파일 첨부하기';
-			  }
-			} */
-
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 				if($("#repair_nm").val() == ''){
 					alert('수리품명을 입력해주세요.');
@@ -198,6 +193,9 @@
         const repairno = /*[[${repairno}]]*/;
 				fetch('/api/repair/modify/'+repairno, {
 					method: 'PATCH',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){

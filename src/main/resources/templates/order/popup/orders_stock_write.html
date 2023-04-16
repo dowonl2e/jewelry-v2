@@ -365,6 +365,8 @@
 			});
 
 			function findAll() {
+        if(!isValidToken())
+          return false;
 
 				const ordersno = /*[[${ordersno}]]*/;
 				if(!ordersno){
@@ -380,6 +382,9 @@
 
 				fetch('/api/order/list/nos', {
 					method: 'POST',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 		    	if (!response.ok) {
@@ -429,6 +434,9 @@
 			}
 
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
 				if($("#customer_no").val() == ''){
 					alert('고객을 선택해주세요.');
 					$("#customer_nm").focus();

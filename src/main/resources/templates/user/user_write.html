@@ -78,6 +78,8 @@
 		/*<![CDATA[*/
 
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 				if($("#user_id").val() == ''){
 					alert('아이디를 입력해주세요.');

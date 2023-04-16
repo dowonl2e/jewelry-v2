@@ -110,6 +110,8 @@
 			}
 
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 				if($("#repair_nm").val() == ''){
 					alert('수리품명을 입력해주세요.');
@@ -131,6 +133,9 @@
 
 				fetch('/api/repair/write', {
 					method: 'POST',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){

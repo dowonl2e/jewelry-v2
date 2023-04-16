@@ -129,6 +129,9 @@
 			});
 
 			/* function find() {
+			  if(!isValidToken())
+          return false;
+
 				const stocksno = /*[[${stocksno}]]*/;
 				if ( !stocksno ) {
 		    	return false;
@@ -137,7 +140,12 @@
 				var stocknoarr = stocksno.split(',');
 				if(stocknoarr.length == 1){
 					var stockno = stocknoarr[0];
-					fetch(`/api/stock/customer/`+stockno).then(response => {
+					fetch(`/api/stock/customer/`+stockno, {
+					  method: 'GET',
+					  headers: {
+					    'Authorization': getToken()
+					  }
+					}).then(response => {
 			    	if (!response.ok) {
 							throw new Error('Request failed...');
 				    }
@@ -151,6 +159,8 @@
 			} */
 
 			function fncSave(){
+        if(!isValidToken())
+          return false;
 
 			  if($("#customer_no").val() == ''){
 				  alert('고객을 선택해주세요.');
@@ -181,6 +191,9 @@
 
 					fetch('/api/stock/stocks/sale', {
 						method: 'PATCH',
+						headers: {
+						  'Authorization': getToken()
+						},
 						body: formData
 					}).then(response => {
 						if(!response.ok){

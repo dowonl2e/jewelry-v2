@@ -90,7 +90,7 @@
                 // 페이지 번호
                 for (let i = startpage ; i < endpage ; i++) {
                     const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
-            html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
+                    html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
                 }
 
                 // 다음 페이지, 마지막 페이지
@@ -232,14 +232,7 @@
                     opener.document.getElementById("material_cd_"+/*[[$${param.openeridx}]]*/).value = materialcd;
                     opener.document.getElementById("color_cd_"+/*[[$${param.openeridx}]]*/).value = colorcd;
                 }
-                self.close();
-            }
-
-            //새로고침
-            function fncRefresh(){
-                $("#adv-search").find("input").val('');
-                $("#adv-search").find("select").val('');
-                findAll(0);
+                fncClose();
             }
         /*]]>*/
 	</script>

@@ -41,11 +41,15 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
 			  if($("#stock_type_cd").val() == ''){
 				  alert('변경할 재고구분을 선택해주세요.');
 				  $("#stock_type_cd").focus();
 				  return false;
 			  }
+
 				if(confirm('변경하시겠습니까?')){
 					var stocksno = /*[[${param.stocksno}]]*/;
 					var stock_no_arr = stocksno.split(',');
@@ -62,6 +66,9 @@
 					}
 					fetch('/api/stock/type/modify', {
 						method: 'PATCH',
+						headers: {
+						  'Authorization': getToken()
+						},
 						body: formData
 					}).then(response => {
 						if(!response.ok){

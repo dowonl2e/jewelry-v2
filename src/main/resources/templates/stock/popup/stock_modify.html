@@ -356,13 +356,20 @@
 			});
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const stockno = /*[[${stockno}]]*/;
 				if ( !stockno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/stock/`+stockno).then(response => {
+				fetch(`/api/stock/`+stockno, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
@@ -470,22 +477,9 @@
 			  }
 			}
 
-			/* function readURL(obj) {
-			  if (obj.files && obj.files[0]) {
-			    var reader = new FileReader();
-			    reader.onload = function(e) {
-			      document.getElementById('preview').src = e.target.result;
-			    };
-			    reader.readAsDataURL(obj.files[0]);
-			  } else {
-			    document.getElementById('preview').src = "";
-			  }
-			} */
-
 			function fncSave(){
-				/* if( !isValid() ){
-					return false;
-				} */
+				if(!isValidToken())
+          return false;
 
 				if($("#reg_dt").val() == ''){
 					alert('등록일을 입력해주세요.');
@@ -528,6 +522,9 @@
 				const stockno = /*[[${stockno}]]*/;
 				fetch('/api/stock/modify/'+stockno, {
 					method: 'PATCH',
+					headers: {
+					  'Authorization': getToken()
+					},
 					body: formData
 				}).then(response => {
 					if(!response.ok){

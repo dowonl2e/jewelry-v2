@@ -113,7 +113,9 @@
   <script th:inline="javascript">
 		/*<![CDATA[*/
 			window.onload = () => {
-				find();
+			  if(isValidToken()){
+				  find();
+        }
 	  	}
 
 			function find() {
@@ -123,12 +125,17 @@
 		    	return false;
 		    }
 
-				fetch(`/api/customer/`+customerno).then(response => {
+				fetch(`/api/customer/`+customerno, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          }
+        }).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
 		    	return response.json();
-
 		   	}).then(json => {
 		   		const form = document.getElementById('form');
 		   		form.reg_dt.value = checkSubstringNullVal(json.regdt,0,10);
@@ -153,82 +160,89 @@
 			}
 
 			function modify(){
+        if(isValidToken()){
+          if($("#reg_dt").val() == ''){
+            alert('등록일을 입력해주세요.');
+            $("#reg_dt").focus();
+            return false;
+          }
+          if($("#store_cd").val() == ''){
+            alert('매장을 선택해주세요.');
+            $("#store_cd").focus();
+            return false;
+          }
+          if($("#contract_cd").val() == ''){
+            alert('계약구분을 선택해주세요.');
+            $("#contract_cd").focus();
+            return false;
+          }
 
-				if($("#reg_dt").val() == ''){
-					alert('등록일을 입력해주세요.');
-					$("#reg_dt").focus();
-					return false;
-				}
-				if($("#store_cd").val() == ''){
-					alert('매장을 선택해주세요.');
-					$("#store_cd").focus();
-					return false;
-				}
-				if($("#contract_cd").val() == ''){
-					alert('계약구분을 선택해주세요.');
-					$("#contract_cd").focus();
-					return false;
-				}
+          const form = document.getElementById('form');
+          const params = {
+            reg_dt : form.reg_dt.value,
+            store_cd : form.store_cd.value,
+            contract_cd : form.contract_cd.value,
+            contractor_nm : form.contractor_nm.value,
+            contractor_gen : form.contractor_gen.value,
+            contractor_cel : form.contractor_cel.value,
+            contractor_birth : form.contractor_birth.value,
+            contractor_lunar : form.contractor_lunar.value,
+            contractor_email : form.contractor_email.value,
+            zipcode : form.zipcode.value,
+            address1 : form.address1.value,
+            address2 : form.address2.value,
+            etc : form.etc.value
+          };
 
-				const form = document.getElementById('form');
-				const params = {
-					reg_dt : form.reg_dt.value,
-					store_cd : form.store_cd.value,
-					contract_cd : form.contract_cd.value,
-					contractor_nm : form.contractor_nm.value,
-					contractor_gen : form.contractor_gen.value,
-					contractor_cel : form.contractor_cel.value,
-					contractor_birth : form.contractor_birth.value,
-					contractor_lunar : form.contractor_lunar.value,
-					contractor_email : form.contractor_email.value,
-					zipcode : form.zipcode.value,
-					address1 : form.address1.value,
-					address2 : form.address2.value,
-					etc : form.etc.value
-				};
+          const customerno = /*[[${customerno}]]*/;
 
-				const customerno = /*[[${customerno]]*/;
-
-				fetch(`/api/customer/`+customerno, {
-					method: 'PATCH',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(params)
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('수정되었습니다.');
-					fncParentRefresh();
-					fncClose();
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
+          fetch(`/api/customer/`+customerno, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': getToken()
+            },
+            body: JSON.stringify(params)
+          }).then(response => {
+            if(!response.ok){
+              throw new Error('Request Failed...');
+            }
+            alert('수정되었습니다.');
+            fncParentRefresh();
+            fncClose();
+          }).catch(error => {
+            alert('오류가 발생하였습니다.');
+          });
+        }
 			}
 
 			//고객 삭제
 			function remove() {
-      	if ( !confirm(`고객을 삭제하시겠습니까?`) ) {
-      		return false;
-      	}
+			  if(!isValidToken())
+          return false;
 
-				const customerno = /*[[${customerno]]*/;
+        if ( !confirm(`고객을 삭제하시겠습니까?`) ) {
+          return false;
+        }
 
-      	fetch(`/api/customer/`+customerno, {
-					method: 'DELETE',
-        	headers: { 'Content-Type': 'application/json' },
+        const customerno = /*[[${customerno}]]*/;
 
-      	}).then(response => {
-      		if (!response.ok) {
-         		throw new Error('Request failed...');
-        	}
-        	alert('삭제되었습니다.');
-        	fncParentRefresh();
-					fncClose();
-      	}).catch(error => {
-      		alert('오류가 발생하였습니다.');
-      	});
+        fetch(`/api/customer/`+customerno, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          }
+        }).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
+          alert('삭제되었습니다.');
+          fncParentRefresh();
+          fncClose();
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
 	  	}
 		/*]]>*/
   </script>

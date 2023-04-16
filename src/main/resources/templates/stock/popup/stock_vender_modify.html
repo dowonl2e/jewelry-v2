@@ -181,42 +181,10 @@
         });
       }
 
-      /**
-       * 조회 API 호출
-       */
-      async function getJson(uri, params) {
-
-        if (params) {
-          uri = uri + '?' + new URLSearchParams(params).toString();
-        }
-
-        const response = await fetch(uri);
-
-        if (!response.ok) {
-          await response.json().then(error => {
-            throw error;
-          });
-        }
-
-        return await response.json();
-      }
-
-      function setQueryStringParams() {
-
-        if ( !location.search ) {
-          return false;
-        }
-
-        const form = document.getElementById('searchForm');
-
-        new URLSearchParams(location.search).forEach((value, key) => {
-          if (form[key]) {
-            form[key].value = value;
-          }
-        });
-      }
-
       function fncModify(venderno){
+        if(!isValidToken())
+          return false;
+
         if(confirm('변경하시겠습니까?')){
           var orderno = /*[[${stocksno}]]*/;
           var order_no_arr = orderno.split(',');
@@ -231,6 +199,9 @@
 
           fetch('/api/stock/vender/modify', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

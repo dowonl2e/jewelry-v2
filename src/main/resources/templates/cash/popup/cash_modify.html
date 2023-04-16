@@ -154,7 +154,7 @@
         </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
 		/*<![CDATA[*/
 			$(document).ready(function(){
 				find();
@@ -185,13 +185,20 @@
 			});
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const cashno = /*[[${cashno}]]*/;
 				if ( !cashno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/cash/`+cashno).then(response => {
+				fetch(`/api/cash/`+cashno, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
@@ -225,11 +232,15 @@
 					}
 		   	}).catch(error => {
 		    	alert('금/현금 정보를 찾을 수 없습니다.');
-		    	/* fncParentRefresh();
-		    	fncClose(); */
+		    	fncParentRefresh();
+		    	fncClose();
 		   	});
 			}
+
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
 				if($("#store_cd").val() == ''){
 					alert('관리매장을 선택해주세요.');
 					$("#store_cd").focus();
@@ -260,7 +271,7 @@
 				}
 
 				if(confirm('수정하시겠습니까?')){
-				    const cashno = /*[[${cashno}]]*/;
+          const cashno = /*[[${cashno}]]*/;
 					const formData = new FormData();
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));
@@ -312,9 +323,6 @@
 				$("#cash_type_cd2_"+idx).append(html);
 			}
 
-			function fncClose(){
-				self.close();
-			}
 		/*]]>*/
     </script>
 </th:block>

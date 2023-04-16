@@ -4,7 +4,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
-    <!-- DataTales Example -->
     <div class="card shadow mt-4 mb-4">
         <div class="card-header py-3 text-center">
             <h6 class="m-0 font-weight-bold text-primary">카다로그 등록</h6>
@@ -182,7 +181,7 @@
         </div>
     </div>
 
-    <script th:inline="javascript">
+  <script th:inline="javascript">
 		/*<![CDATA[*/
 			$(document).ready(function(){
 				const inputElement = document.getElementById("file");
@@ -238,7 +237,7 @@
 
 					});
 					$("#total_price_txt").text(totalprice == 0 ? '' : (totalprice+''));
-		        });
+        });
 			});
 
 			function readURL() {
@@ -256,6 +255,9 @@
 			}
 
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
 				if($("#model_id").val() == ''){
 					alert('모델번호를 입력해주세요.');
 					$("#model_id").focus();
@@ -288,32 +290,32 @@
 				//배열 데이터 넣기
 				formData.append("file", fileField.files[0]);
 
-				fetch('/api/catalog/write', {
-					method: 'POST',
-					body: formData
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('저장되었습니다.');
-					fncParentRefresh();
-					fncClose();
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
+        fetch('/api/catalog/write', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': getToken()
+          },
+          body: formData
+        }).then(response => {
+          if(!response.ok){
+            throw new Error('Request Failed...');
+          }
+          alert('저장되었습니다.');
+          fncParentRefresh();
+          fncClose();
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+        });
 			}
 
 			function fncVenderListPop(){
-                var url = "/vender/popup/list?openeridx=-1";
-                var name = "venderListPopup";
-                var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
-                window.open(url, name, option);
+        var url = "/vender/popup/list?openeridx=-1";
+        var name = "venderListPopup";
+        var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
 			}
-
-			function fncClose(){
-				self.close();
-			}
-        /*]]>*/
-    </script>
+    /*]]>*/
+  </script>
 </th:block>
 </html>

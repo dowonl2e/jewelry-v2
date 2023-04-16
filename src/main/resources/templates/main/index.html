@@ -148,26 +148,7 @@
       };
 
       window.onload = () => {
-        if(validateTokenExpioresIn() == true){
-          findAll();
-        }
-        else {
-          fetch('/api/jauth/reissue', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': getToken()
-            }
-          }).then(response => {
-            if(!response.ok){
-              alert('로그인 후 이용해주세요.');
-              goSigninPage();
-            }
-            else {
-              findAll();
-            }
-          }).catch(error => {});
-        }
+        findAll();
       }
 
       /**

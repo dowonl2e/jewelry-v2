@@ -248,6 +248,7 @@
         var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);
       }
+
       function fncCustomerOrderListPopup(customerno){
         var url = "/customer/popup/order/list/"+customerno;
         var name = "customeOrderListPopup";
@@ -268,16 +269,11 @@
         var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);
       }
-      //새로고침
-      function fncRefresh(){
-        $("#adv-search").find("input").val('');
-        $("#adv-search").find("select").val('');
-        findAll(0);
-      }
 
       function refresh(){
         findAll(/*[[${param.currentpage}]]*/);
       }
+
 		/*]]>*/
 	</script>
 </th:block>

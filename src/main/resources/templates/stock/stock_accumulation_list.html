@@ -305,6 +305,8 @@
       }
 
       function fncRemove(){
+        if(!isValidToken())
+          return false;
 
         var orderscheckcnt = 0;
         $(".form-check").each(function(){
@@ -328,6 +330,9 @@
 
           fetch('/api/stock/stocks/remove', {
             method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){

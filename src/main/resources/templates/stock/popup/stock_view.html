@@ -145,13 +145,20 @@
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const stockno = /*[[${stockno}]]*/;
 				if ( !stockno ) {
 		    	return false;
 		    }
 
-				fetch(`/api/stock/`+stockno).then(response => {
+				fetch(`/api/stock/`+stockno, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }

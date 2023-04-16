@@ -82,6 +82,8 @@
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
 				const userid = /*[[${userid}]]*/;
 				if ( !userid ) {
@@ -118,6 +120,9 @@
 			}
 
 			function fncSave(){
+			  if(!isValidToken())
+          return false;
+
         const userid = /*[[${userid}]]*/;
         if( !userid ){
           return false;

@@ -71,7 +71,7 @@
     </div>
   </div>
 
-  <script>
+  <script th:inline="javascript">
     /*<![CDATA[*/
 
       var minNumberLen = 1;
@@ -217,41 +217,6 @@
       }
 
       /**
-       * 조회 API 호출
-       */
-      async function getJson(uri, params) {
-
-        if (params) {
-          uri = uri + '?' + new URLSearchParams(params).toString();
-        }
-
-        const response = await fetch(uri);
-
-        if (!response.ok) {
-          await response.json().then(error => {
-            throw error;
-          });
-        }
-
-        return await response.json();
-      }
-
-      function setQueryStringParams() {
-
-        if ( !location.search ) {
-          return false;
-        }
-
-        const form = document.getElementById('searchForm');
-
-        new URLSearchParams(location.search).forEach((value, key) => {
-          if (form[key]) {
-            form[key].value = value;
-          }
-        });
-      }
-
-      /**
        * 수정하기
        */
       function fncPopupView(orderno, ordertype) {
@@ -260,6 +225,7 @@
         var option = "width = 1150, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);
       }
+
       /**
        * 수정하기
        */
@@ -294,6 +260,10 @@
 
           fetch('/api/order/orders/remove', {
             method: 'PATCH',
+            headers {
+              'Content-Type': 'application/json',
+              'Authorization': getToken()
+            },
             body: formData
           }).then(response => {
             if(!response.ok){
@@ -305,17 +275,6 @@
             alert('오류가 발생하였습니다.');
           });
         }
-      }
-
-      //새로고침
-      function fncRefresh(){
-        $("#adv-search").find("input").val('');
-        $("#adv-search").find("select").val('');
-        findAll(0);
-      }
-
-      function refresh(){
-        findAll(/*[[${param.currentpage}]]*/);
       }
 		/*]]>*/
 	</script>
