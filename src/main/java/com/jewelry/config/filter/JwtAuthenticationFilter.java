@@ -20,14 +20,13 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
-	//private final LogoutJwtRedisRepository logoutJwtRedisRepository;
 
   @Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-    	log.info("RequestUrl : " + request.getRequestURI());
-    	if(request.getRequestURI().startsWith("/api")) {
+		log.info("RequestUrl : " + request.getRequestURI());
+		if(request.getRequestURI().startsWith("/api")) {
 			String token = resolveToken(request);
 			if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
 				Authentication authentication = jwtTokenProvider.getAuthentication(token);
@@ -38,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				log.info("유효한 토큰이 없습니다.");
 //				return;
 			}
-    	}
+		}
 		
 		filterChain.doFilter(request, response);
 	}

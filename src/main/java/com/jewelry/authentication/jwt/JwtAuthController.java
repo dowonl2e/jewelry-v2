@@ -59,23 +59,26 @@ public class JwtAuthController {
 	@PostMapping("/reissue")
 	public ResponseEntity<?> reissue(@CookieValue(name = "refresh-token") String requestRefreshToken,
 																	 @RequestHeader("Authorization") String requestAccessToken) {
-		TokenVO reissuedTokenVo = jwtAuthService.reIssue(requestAccessToken, requestRefreshToken);
+		TokenVO reissueTokenVo = jwtAuthService.reIssue(requestAccessToken, requestRefreshToken);
 
-		if (reissuedTokenVo != null) { // 토큰 재발급 성공
+		if (reissueTokenVo != null) { // 토큰 재발급 성공
 			// RT 저장
-			ResponseCookie responseCookie = ResponseCookie.from("refresh-token", reissuedTokenVo.getRefreshToken())
+			ResponseCookie responseCookie = ResponseCookie.from("refresh-token", reissueTokenVo.getRefreshToken())
 					.maxAge(COOKIE_EXPIRATION)
 					.httpOnly(true)
 					.secure(true)
 					.sameSite("Lax")
 					.build();
+
+			System.out.println("체크 토큰 : " + reissueTokenVo.getAccessToken());
 			return ResponseEntity
 					.status(HttpStatus.OK)
 					.header(HttpHeaders.SET_COOKIE, responseCookie.toString())
 					// AT 저장
-					.header(HttpHeaders.AUTHORIZATION, "Bearer " + reissuedTokenVo.getAccessToken())
+					.header(HttpHeaders.AUTHORIZATION, reissueTokenVo.getAccessToken())
+					.header("ExpioresIn", reissueTokenVo.getAccessTokenExpioresIn()+"")
+					.header("GrantType", reissueTokenVo.getGrantType())
 					.build();
-
 		} else { // Refresh Token 탈취 가능성
 			// Cookie 삭제 후 재로그인 유도
 			ResponseCookie responseCookie = ResponseCookie.from("refresh-token", "")

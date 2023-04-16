@@ -96,7 +96,7 @@ public class JwtAuthService {
       return null; // -> 재로그인 요청
     }
 
-    // 요청된 RefreshToken의 유효성 검사 & Redis에 저장되어 있는 Ref크reshToken의 같은지 비교
+    // 요청된 RefreshToken의 유효성 검사 & Redis에 저장되어 있는 RefreshToken의 같은지 비교
     if(!refreshTokenInRedis.equals(refreshToken)
         || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
       log.info("JwtAuthService.reIssue : 토큰이 유효하지 않음");
