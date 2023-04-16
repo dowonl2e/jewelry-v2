@@ -34,7 +34,7 @@ spring:
       max-lifetime: 1800000
       maximum-pool-size: 10
       minimum-idle: 1
-      username: { db-id }
+      username: { db-username }
       password: { db-password }
   servlet:
     multipart:
