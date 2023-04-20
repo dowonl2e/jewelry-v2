@@ -165,7 +165,6 @@
 					$("#total_price").val(totalPurchasePrice);
 				});
 
-
         find();
 			});
 
@@ -174,9 +173,8 @@
           return false;
 
 				const catalogno = /*[[${catalogno}]]*/;
-				if ( !catalogno ) {
+				if ( !catalogno )
           return false;
-        }
 
 				fetch(`/api/catalog/`+catalogno, {
 					method: 'GET',
@@ -272,6 +270,7 @@
 
                 var total_bead_cnt = 0;
                 var total_purchase_price = 0;
+                let ttlist = [[${ttlist}]];
                 for(var i = 0 ; i < 10 ; i++){
                     if(i <= stonelist.length-1){
                         bead_cnt = Number(stonelist[i].beadcnt);
@@ -283,15 +282,15 @@
                                     <select name="stone_type_cd_arr" class="form-control mtb5">
                                         <option value="">선택</option>
                         `;
-                        /*[# th:each="code : ${ttlist}"]*/
-                            stone_type_cd_check = '';
-                            if(checkNullVal(stonelist[i].stonetypecd) != '' && /*[[${code.cdid}]]*/ == checkNullVal(stonelist[i].stonetypecd)){
-                                stone_type_cd_check = 'selected';
-                            }
-                            html += `
-                                <option th:value="${code.cdid}" `+stone_type_cd_check+` th:text="${code.cdnm}"></option>
-                            `;
-                        /*[/]*/
+                        ttlist.forEach(function(item){
+                          stone_type_cd_check = '';
+                          if(item.cdid == checkNullVal(stonelist[i].stonetypecd)){
+                            stone_type_cd_check = 'selected';
+                          }
+                          html += `
+                            <option value="`+item.cdid+`" `+stone_type_cd_check+`>`+item.cdnm+`</option>
+                          `;
+                        });
                         html += `
                                     </select>
                                 </td>
@@ -322,7 +321,13 @@
                                 <td class="text-center border-right">
                                     <select name="stone_type_cd_arr" id="stone_type_cd_`+i+`" class="form-control mtb5">
                                         <option value="">선택</option>
-                                        <option th:each="cditem : ${ttlist}" th:value="${cditem.cdid}" th:text="${cditem.cdnm}"></option>
+                        `;
+                        ttlist.forEach(function(item){
+                          html += `
+                            <option value="`+item.cdid+`">`+item.cdnm+`</option>
+                          `;
+                        });
+                        html += `
                                     </select>
                                 </td>
                                 <td class="text-center border-right">
@@ -358,9 +363,10 @@
             addStoneListener();
 
         }).catch(error => {
+            console.log(error);
             alert('카다로그 정보를 찾을 수 없습니다.');
-            fncParentRefresh();
-            fncClose();
+            //fncParentRefresh();
+            //fncClose();
         });
 			}
 
@@ -383,10 +389,10 @@
           return false;
 
         const catalogno = /*[[${catalogno}]]*/;
-        const fileField = document.querySelector('input[type="file"]');
-        const form = document.getElementById('form');
-        const writeForm = new FormData(form);
+        if( !catalogno )
+          return false;
 
+        const fileField = document.querySelector('input[type="file"]');
         const formData = new FormData();
         $(".form-data").each(function(){
           formData.append($(this).attr("name"), checkNullVal($(this).val()));
@@ -412,7 +418,6 @@
         fetch('/api/catalog/modify/'+catalogno, {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': getToken()
           },
           body: formData

@@ -41,16 +41,12 @@ public class UserApiController {
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
 		return new ResponseEntity<>(response.getStatus());
 	}
-	
+
 	@GetMapping("/{userid}")
 	public UserVO findUser(@PathVariable final String userid) {
 		return userService.findUser(userid);
 	}
 
-	@PostMapping("/info")
-	public UserVO findUserWithToken(@RequestHeader("Authorization") String accessToken) {
-		return userService.findUserByToken(accessToken);
-	}
 	@PatchMapping("/modify/{userid}")
 	public ResponseEntity<Object> modify(
 			@RequestHeader("Authorization") String accessToken,

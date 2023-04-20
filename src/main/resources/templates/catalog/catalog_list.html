@@ -56,9 +56,9 @@
          */
 
         var codemap = {
-            [# th:each="code, loop : ${cdmapper}"]
-                "[(${code.cdid})]": "[(${code.cdnm})]",
-            [/]
+          [# th:each="code, loop : ${cdmapper}"]
+            "[(${code.cdid})]": "[(${code.cdnm})]",
+          [/]
         };
 
         window.onload = () => {
@@ -120,7 +120,6 @@
          * 게시글 리스트 조회
          */
         function findAll(page) {
-
             const pageParams = Number(new URLSearchParams(location.search).get('page'));
             page = page ? page : (pageParams ? pageParams : 1);
 
@@ -292,11 +291,11 @@
                 },
                 body: formData
             }).then(response => {
-                if(!response.ok){
-                    throw new Error('Request Failed...');
-                }
-                alert('삭제되었습니다.');
-                findAll();
+              if(!response.ok){
+                  throw new Error('Request Failed...');
+              }
+              alert('삭제되었습니다.');
+              findAll();
             }).catch(error => {
                 alert('오류가 발생하였습니다.');
             });

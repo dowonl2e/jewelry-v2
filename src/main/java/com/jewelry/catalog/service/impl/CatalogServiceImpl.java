@@ -1,16 +1,5 @@
 package com.jewelry.catalog.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.ObjectUtils;
-
 import com.jewelry.catalog.domain.CatalogTO;
 import com.jewelry.catalog.domain.CatalogVO;
 import com.jewelry.catalog.domain.StoneTO;
@@ -19,18 +8,26 @@ import com.jewelry.catalog.service.CatalogService;
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.mapper.FileMapper;
 import com.jewelry.file.service.AmazonS3Service;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CatalogServiceImpl implements CatalogService {
 
-	@Autowired
-	private CatalogMapper catalogMapper;
+	private final CatalogMapper catalogMapper;
 	
-	@Autowired
-	private AmazonS3Service amazonS3Service;
+	private final AmazonS3Service amazonS3Service;
 	
-	@Autowired
-	private FileMapper fileMapper;
+	private final FileMapper fileMapper;
 	
 	
 	@Transactional(readOnly = true)

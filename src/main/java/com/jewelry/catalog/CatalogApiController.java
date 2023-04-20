@@ -1,46 +1,38 @@
 package com.jewelry.catalog;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpSession;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.jewelry.catalog.domain.CatalogTO;
 import com.jewelry.catalog.domain.CatalogVO;
 import com.jewelry.catalog.service.CatalogService;
+import com.jewelry.config.provider.JwtTokenProvider;
 import com.jewelry.response.ResponseCode;
-import com.jewelry.user.entity.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/catalog")
+@RequiredArgsConstructor
 public class CatalogApiController {
 
-	@Autowired
-	private CatalogService catalogService;
-	
-	@Autowired
-    private HttpSession session;
-	
+	private final CatalogService catalogService;
+
+	private final JwtTokenProvider jwtTokenProvider;
+
 	@GetMapping("/list")
 	public Map<String, Object> list(final CatalogTO to){
 		return catalogService.findAllCatalog(to);
 	}
 	
 	@PostMapping("/write")
-	public ResponseEntity<Object> write(final CatalogTO to,
-			@RequestPart(value = "file", required = false) MultipartFile file){
+	public ResponseEntity<Object> write(
+			@RequestHeader("Authorization") String accessToken,
+			@RequestPart(value = "file", required = false) MultipartFile file,
+			final CatalogTO to){
 		to.setCatalogfile(file);
-		to.setInpt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = catalogService.insertCatalog(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -53,9 +45,11 @@ public class CatalogApiController {
 	}
 	
 	@PatchMapping("/modify/{catalogno}")
-	public ResponseEntity<Object> modify(@PathVariable final Long catalogno, CatalogTO to,
+	public ResponseEntity<Object> modify(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long catalogno, CatalogTO to,
 			@RequestPart(value = "file", required = false) MultipartFile file){
-		String userid = ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername();
+		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		to.setCatalogfile(file);
 		to.setCatalog_no(catalogno);
 		to.setInpt_id(userid);
@@ -67,8 +61,10 @@ public class CatalogApiController {
 	}
 
 	@PatchMapping("/catalogs/remove")
-	public ResponseEntity<Object> repairsRemove(final CatalogTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> repairsRemove(
+			@RequestHeader("Authorization") String accessToken,
+			final CatalogTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = catalogService.updateCatalogsToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

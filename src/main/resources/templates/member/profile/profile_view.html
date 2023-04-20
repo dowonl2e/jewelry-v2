@@ -61,13 +61,15 @@
 	  	}
 
 			function find() {
+        if(!isValidToken())
+          return false;
 
-				const userid = /*[[${userid}]]*/;
-				if ( !userid ) {
-		    	return false;
-		    }
-
-				fetch(`/api/user/`+userid).then(response => {
+				fetch(`/api/member/profile`, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }

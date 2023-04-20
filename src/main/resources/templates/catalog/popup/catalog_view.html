@@ -113,7 +113,7 @@
 		/*<![CDATA[*/
 			var codemap = {
         [# th:each="code, loop : ${cdmapper}"]
-            "[(${code.cdid})]": "[(${code.cdnm})]",
+          "[(${code.cdid})]": "[(${code.cdnm})]",
         [/]
 			};
 
@@ -126,12 +126,11 @@
           return false;
 
 				const catalogno = /*[[${catalogno}]]*/;
-				if ( !catalogno ) {
-            return false;
-        }
+				if ( !catalogno )
+          return false;
 
         fetch(`/api/catalog/`+catalogno, {
-					method: 'PATCH',
+					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',
 						'Authorization': getToken()
@@ -193,7 +192,7 @@
                     html += `
                         <tr>
                             <td class="text-center border-right">`+(i+1)+`</td>
-                            <td class="text-center border-right">`+checkNullVal(codemap[stonelist[i].stonetype])+`</td>
+                            <td class="text-center border-right">`+checkNullVal(codemap[stonelist[i].stonetypecd])+`</td>
                             <td class="text-center border-right">`+checkNullVal(stonelist[i].stonenm)+`</td>
                             <td class="text-center border-right">`+checkNullVal(bead_cnt)+`</td>
                             <td class="text-center border-right">`+checkNullVal(stonelist[i].purchaseprice)+`</td>
@@ -229,7 +228,7 @@
 			 */
 			function goModify() {
 			  const catalogno = /*[[${catalogno}]]*/
-        location.href = '/catalog/popup/modify/+catalogno';
+        location.href = '/catalog/popup/modify/'+catalogno;
 			}
 		/*]]>*/
   </script>

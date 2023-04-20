@@ -72,7 +72,7 @@
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="user-name"></span>
-                <img class="img-profile rounded-circle" id="user-profile-img" alt="프로필 이미지">
+                <img class="img-profile rounded-circle" id="user-profile-img" alt="프로필 이미지" src="/img/undraw_profile.svg">
               </a>
               <!-- Dropdown - User Information -->
               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -121,9 +121,9 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-primary" href="javascript:void(0)" onclick="fncLogout(); return false;">로그아웃</a>
-          <form action="/signout" method="post">
-            <button type="submit" style="display:none;" id="logoutSubmitBtn">Logout</button>
-          </form>
+<!--          <form action="/signout" method="post">-->
+<!--            <button type="submit" style="display:none;" id="logoutSubmitBtn">Logout</button>-->
+<!--          </form>-->
         </div>
       </div>
     </div>
@@ -131,35 +131,18 @@
 
   <script th:inline="javascript">
     $(document).ready(function(){
-      if(validateTokenExpioresIn() == true){
-        findMyInfo();
-			  findMenu();
-      }
-      else {
-        fetch('/api/jauth/reissue', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': getToken()
-          }
-        }).then(response => {
-          if(!response.ok){
-            alert('로그인 후 이용해주세요.');
-            initStorageValue();
-          }
-          else {
-            setReissueToken(response.headers);
-            findMyInfo();
-			      findMenu();
-          }
-        }).catch(error => {
-          alert('오류가 발생하였습니다.');
-        });
-      }
+      init();
 		});
 
+    async function init(){
+      if(await isValidToken()){
+        findMyInfo();
+        findMenu();
+      }
+    }
+
     function findMyInfo(){
-      fetch(`/api/user/info`, {
+      fetch(`/api/member/profile/info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

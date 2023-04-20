@@ -171,53 +171,13 @@ async function isValidToken(){
   }
 }
 
-async function isValidTokenInPopup(){
-  if(validateTokenExpioresIn()){
-    return true;
+async function getJson(uri, params, isReissued) {
+  if(isReissued != 'undefined' && isReissued){
+    return getJsonOnly(uri, params);
   }
   else {
-    const response = await fetch('/api/jauth/reissue', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': getToken()
-      }
-    });
-
-    if (!response.ok) {
-      alert('로그인 후 이용해주세요.');
-      initStorageValue();
-      fncClose();
-      goParentSigninPage();
-      return false;
-    }
-    else {
-      setReissueToken(response.headers);
-      return true;
-    }
-  }
-}
-
-async function getJson(uri, params) {
-  if(validateTokenExpioresIn()){
-    return getJsonData(uri, params);
-  }
-  else {
-    const response = await fetch('/api/jauth/reissue', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': getToken()
-      }
-    });
-
-    if (!response.ok) {
-      alert('로그인 후 이용해주세요.');
-      initStorageValue();
-    }
-    else {
-      setReissueToken(response.headers);
-      return getJsonData(uri, params);
+    if(await isValidToken()){
+      return getJsonOnly(uri, params);
     }
   }
 }
@@ -225,7 +185,7 @@ async function getJson(uri, params) {
 /**
  * 목록 API 호출
  */
-async function getJsonData(uri, params){
+async function getJsonOnly(uri, params){
   if (params) {
     uri = uri + '?' + new URLSearchParams(params).toString();
   }

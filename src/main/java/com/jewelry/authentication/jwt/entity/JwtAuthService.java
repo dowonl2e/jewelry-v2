@@ -92,14 +92,14 @@ public class JwtAuthService {
 
     String refreshTokenInRedis = redisService.getValues(REDIS_REFRESH_TOKEN_SERVER+":" + principal);
     if (ObjectUtils.isEmpty(refreshTokenInRedis)) { // Redis에 저장되어 있는 RefreshToken이 없을 경우
-      log.info("JwtAuthService.reIssue : 토큰이 없음");
+      log.info("JwtAuthService.reIssue : 토큰 없음");
       return null; // -> 재로그인 요청
     }
 
     // 요청된 RefreshToken의 유효성 검사 & Redis에 저장되어 있는 RefreshToken의 같은지 비교
     if(!refreshTokenInRedis.equals(refreshToken)
         || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
-      log.info("JwtAuthService.reIssue : 토큰이 유효하지 않음");
+      log.info("JwtAuthService.reIssue : 토큰 유효하지 않음");
       redisService.deleteValues(REDIS_REFRESH_TOKEN_SERVER+":" + principal); // 탈취 가능성 -> 삭제
       return null; // -> 재로그인 요청
     }
@@ -112,7 +112,7 @@ public class JwtAuthService {
     TokenVO tokenVo = jwtTokenProvider.generateToken(principal, authorities);
     saveRefreshToken(principal, tokenVo.getRefreshToken(), tokenVo.getRefreshTokeExpioresIn());
 
-    log.info("JwtAuthService.reIssue : 토큰이 재발급 완료");
+    log.info("JwtAuthService.reIssue : 토큰 재발급 완료");
 
     return tokenVo;
   }

@@ -79,13 +79,15 @@
 	  	}
 
 			function find() {
+			  if(!isValidToken())
+			    return false;
 
-				const userid = /*[[${userid}]]*/;
-				if ( !userid ) {
-		    	return false;
-		    }
-
-				fetch(`/api/user/`+userid).then(response => {
+				fetch(`/api/member/profile`, {
+				  method: 'GET',
+				  headers: {
+				    'Authorization': getToken()
+				  }
+				}).then(response => {
 		    	if (!response.ok) {
 						throw new Error('Request failed...');
 			    }
@@ -110,6 +112,8 @@
 			}
 
 			function fncSave(){
+        if(!isValidToken())
+			    return false;
 
 				if($("#user_pwd").val() != '' && $("#user_pwd_chk").val() == ''){
 					alert('비밀번호를 확인해주세요.');
@@ -142,10 +146,11 @@
 				};
 
 				const userid = /*[[${userid}]]*/;
-				fetch('/api/user/modify/'+userid, {
+				fetch('/api/member/profile/modify/', {
 					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json',
+						'Authorization': getToken()
 					},
 					body: JSON.stringify(params)
 				}).then(response => {
@@ -168,6 +173,7 @@
 					}
 				}
 			}
+
 			function checkPwd(obj){
 				if($("#user_pwd").val() == $("#user_pwd_chk").val()){
 					$("#pwd_equal_txt").text('비밀번호가 일치합니다.');

@@ -218,7 +218,7 @@
 					});
 					$("#total_bead_cnt_txt").text(totalbeadcnt == 0 ? '' : (totalbeadcnt+''));
 					$("#total_price_txt").text(totalprice == 0 ? '' : (totalprice+''));
-		        });
+        });
 
 				$('.purchaseprice').on('change keyup', function() {
 
@@ -265,9 +265,6 @@
 				}
 
 				const fileField = document.querySelector('input[type="file"]');
-				const form = document.getElementById('form');
-				const writeForm = new FormData(form);
-
 				const formData = new FormData();
 				$(".form-data").each(function(){
 					formData.append($(this).attr("name"), checkNullVal($(this).val()));
@@ -293,7 +290,6 @@
         fetch('/api/catalog/write', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': getToken()
           },
           body: formData

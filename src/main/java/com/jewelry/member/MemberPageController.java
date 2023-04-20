@@ -1,6 +1,5 @@
 package com.jewelry.member;
 
-import com.jewelry.user.entity.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -18,13 +17,11 @@ public class MemberPageController {
 	
 	@GetMapping("/profile")
 	public String profile(ModelMap model) {
-		model.addAttribute("userid", ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
 		return "member/profile/profile_view";
 	}
 	
 	@GetMapping("/profile/modify")
 	public String profileModify(ModelMap model) {
-		model.addAttribute("userid", ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
 		return "member/profile/profile_modify";
 	}
 }
