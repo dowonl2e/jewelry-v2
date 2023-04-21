@@ -1,46 +1,38 @@
 package com.jewelry.order;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpSession;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
+import com.jewelry.config.provider.JwtTokenProvider;
 import com.jewelry.order.domain.OrderTO;
 import com.jewelry.order.domain.OrderVO;
 import com.jewelry.order.service.OrderService;
 import com.jewelry.response.ResponseCode;
-import com.jewelry.user.entity.CustomUserDetails;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/order")
+@RequiredArgsConstructor
 public class OrderApiController {
 	
-	@Autowired
-	private OrderService orderService;
+	private final OrderService orderService;
 
-	@Autowired
-    private HttpSession session;
-	
+	private final JwtTokenProvider jwtTokenProvider;
+
 	@GetMapping("/list")
 	public Map<String, Object> list(final OrderTO to){
 		return orderService.findAllOrder(to);
 	}
 	
 	@PostMapping("/write")
-	public ResponseEntity<Object> write(final OrderTO to,
-			@RequestPart(value = "file", required = false) MultipartFile file){
+	public ResponseEntity<Object> write(
+			@RequestHeader("Authorization") String accessToken,
+			@RequestPart(value = "file", required = false) MultipartFile file,
+			final OrderTO to){
 		to.setOrderfile(file);
-		to.setInpt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = orderService.insertOrder(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -53,9 +45,11 @@ public class OrderApiController {
 	}
 	
 	@PatchMapping("/modify/{orderno}")
-	public ResponseEntity<Object> modify(@PathVariable final Long orderno, final OrderTO to,
+	public ResponseEntity<Object> modify(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long orderno, final OrderTO to,
 			@RequestPart(value = "file", required = false) MultipartFile file){
-		String userid = ((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername();
+		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		to.setOrder_no(orderno);
 		to.setOrderfile(file);
 		to.setInpt_id(userid);
@@ -67,8 +61,10 @@ public class OrderApiController {
 	}
 	
 	@PatchMapping("/step/modify")
-	public ResponseEntity<Object> stepModify(final OrderTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> stepModify(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = orderService.updateOrdersStep(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -76,8 +72,10 @@ public class OrderApiController {
 	}
 
 	@PatchMapping("/orders/remove")
-	public ResponseEntity<Object> ordersRemove(final OrderTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> ordersRemove(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = orderService.updateOrdersToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -97,8 +95,10 @@ public class OrderApiController {
 	}
 
 	@PatchMapping("/customer/modify")
-	public ResponseEntity<Object> customerModify(final OrderTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> customerModify(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = orderService.updateOrdersCustomer(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -106,8 +106,10 @@ public class OrderApiController {
 	}	
 
 	@PatchMapping("/vender/modify")
-	public ResponseEntity<Object> venderModify(final OrderTO to){
-		to.setUpdt_id(((CustomUserDetails)session.getAttribute("USER_INFO")).getUsername());
+	public ResponseEntity<Object> venderModify(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = orderService.updateOrdersVender(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

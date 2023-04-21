@@ -18,7 +18,7 @@
                             <option value="1">제조사1</option>
                             <option value="2">제조사2</option>
                         </select>
-                        <input type="text" id="searchword" class="form-control mlr5" placeholder="모델명 입력" style="width: auto;" />
+                        <input type="text" id="searchword" class="form-control mlr5" placeholder="모델번호/품명 입력" style="width: auto;" />
                         <button type="button" onclick="findAll(0);" class="btn btn-secondary">
                             <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
                         </button>
@@ -150,17 +150,17 @@
                                         <div class="col">
                                             <div class="m5 rounded">
                         `;
-                      if(checkNullVal(obj.filepath) == ''){
+                        if(checkNullVal(obj.filepath) == ''){
                           html += `
                                     <img src="/img/no-image.png" width="100%" style="height:200px;"/>
                                 `;
-                      }
-                      else {
+                        }
+                        else {
                             html += `
                                     <img src="/file/image/display?filePath=`+checkNullVal(obj.filepath)+`&fileName=`+checkNullVal(obj.filenm)+`" width="100%" style="height:200px;"/>
                                 `;
-                      }
-                            html += `
+                        }
+                        html += `
                                             </div>
                                         </div>
                                     </div>
@@ -224,13 +224,13 @@
             }
 
             function fncSelect(catalogno, modelid, venderno, vendernm, materialcd, colorcd){
-                opener.document.getElementById("catalog_no_"+/*[[$${param.openeridx}]]*/).value = catalogno;
-                opener.document.getElementById("model_id_"+/*[[$${param.openeridx}]]*/).value = modelid;
+                opener.document.getElementById("catalog_no_"+/*[[${param.openeridx}]]*/).value = catalogno;
+                opener.document.getElementById("model_id_"+/*[[${param.openeridx}]]*/).value = modelid;
                 if(/*[[${param.reqtype}]]*/ == 'all'){
-                    opener.document.getElementById("vender_no_"+/*[[$${param.openeridx}]]*/).value = venderno;
-                    opener.document.getElementById("vender_nm_"+/*[[$${param.openeridx}]]*/).value = vendernm;
-                    opener.document.getElementById("material_cd_"+/*[[$${param.openeridx}]]*/).value = materialcd;
-                    opener.document.getElementById("color_cd_"+/*[[$${param.openeridx}]]*/).value = colorcd;
+                    opener.document.getElementById("vender_no_"+/*[[${param.openeridx}]]*/).value = venderno;
+                    opener.document.getElementById("vender_nm_"+/*[[${param.openeridx}]]*/).value = vendernm;
+                    opener.document.getElementById("material_cd_"+/*[[${param.openeridx}]]*/).value = materialcd;
+                    opener.document.getElementById("color_cd_"+/*[[${param.openeridx}]]*/).value = colorcd;
                 }
                 fncClose();
             }
