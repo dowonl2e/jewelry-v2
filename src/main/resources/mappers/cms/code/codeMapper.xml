@@ -100,7 +100,14 @@
 		FROM tb_code
 		WHERE up_cd_id = #{up_cd_id}
 		AND cd_depth = #{cd_depth}
-		AND use_yn = 'Y'
+		<if test='use_yn == null or use_yn.equals("")'>
+			AND use_yn = 'Y'
+		</if>
+		<if test='use_yn != null and !use_yn.equals("")'>
+			<if test='!use_yn.equals("ALL")'>
+				AND use_yn = #{use_yn}
+			</if>
+		</if>
 		ORDER BY cd_ord ASC
 	</select>
 	

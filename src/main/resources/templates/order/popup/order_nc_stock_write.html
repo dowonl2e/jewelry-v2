@@ -360,12 +360,8 @@
 					return false;
 				}
 
-				var order_no_arr = ordersno.split(',');
-
 				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
+        formData.append("order_no_arr[]", ordersno);
 
 				fetch('/api/order/list/nos', {
 					method: 'POST',
@@ -449,13 +445,9 @@
 					return false;
 				}
 
-				var order_no_arr = ordersno.split(',');
-
 				const fileField = document.querySelector('input[type="file"]');
 				const formData = new FormData();
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append("order_no_arr[]", checkNullVal(order_no_arr[i]));
-				}
+        formData.append("order_no_arr[]", ordersno);
 
 				$(".form-data").each(function(){
 					formData.append($(this).attr("name"), checkNullVal($(this).val()));

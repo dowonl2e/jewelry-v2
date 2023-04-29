@@ -174,17 +174,14 @@
         if(!isValidToken())
           return false;
 
-        if(confirm('변경하시겠습니까?')){
-          var orderno = /*[[${ordersno}]]*/;
-          var order_no_arr = orderno.split(',');
-          const form = document.getElementById('searchForm');
-          const writeForm = new FormData(form);
+        const ordersno = /*[[${ordersno}]]*/;
+        if(!ordersno)
+          return false;
 
+        if(confirm('변경하시겠습니까?')){
           const formData = new FormData();
           formData.append('customer_no', customerno);
-          for(var i = 0 ; i < order_no_arr.length ; i++){
-            formData.append('order_no_arr[]',order_no_arr[i]);
-          }
+          formData.append('order_no_arr[]', ordersno);
 
           fetch('/api/order/customer/modify', {
             method: 'PATCH',

@@ -4,12 +4,12 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
-<div class="card shadow mt-4 mb-4">
-  <div class="card-header py-3 text-center">
-    <h6 class="m-0 font-weight-bold text-primary">단계 변경</h6>
-  </div>
-  <div class="card-body">
-    <form id="form" class="form-horizontal">
+  <div class="card shadow mt-4 mb-4">
+    <div class="card-header py-3 text-center">
+      <h6 class="m-0 font-weight-bold text-primary">단계 변경</h6>
+    </div>
+    <div class="card-body">
+      <form id="form" class="form-horizontal">
         <div class="table-responsive clearfix">
           <table class="table">
             <colgroup>
@@ -17,16 +17,16 @@
               <col />
             </colgroup>
             <tbody>
-            <tr class="border-bottom">
-              <td class="bg-light border-right text-center">단계<span class="important"> *</span></td>
-              <td rowspan="2" class="text-center border-right">
-                <select name="order_step" id="order_step" class="form-control form-data ml5">
-                  <option value="">선택</option>
-                  <option value="A">주문등록</option>
-                  <option value="B">주문접수</option>
-                </select>
-              </td>
-            </tr>
+              <tr class="border-bottom">
+                <td class="bg-light border-right text-center">단계<span class="important"> *</span></td>
+                <td rowspan="2" class="text-center border-right">
+                  <select name="order_step" id="order_step" class="form-control form-data ml5">
+                    <option value="">선택</option>
+                    <option value="A">주문등록</option>
+                    <option value="B">주문접수</option>
+                  </select>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

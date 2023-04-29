@@ -1,16 +1,5 @@
 package com.jewelry.stock.service.impl;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.domain.FileVO;
 import com.jewelry.file.mapper.FileMapper;
@@ -24,6 +13,17 @@ import com.jewelry.stock.service.StockService;
 import com.jewelry.util.Utils;
 import com.jewelry.vender.domain.VenderVO;
 import com.jewelry.vender.mapper.VenderMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class StockServiceImpl implements StockService {
@@ -563,8 +563,8 @@ public class StockServiceImpl implements StockService {
 	public Map<String, Object> isSameCustomer(String stocksno) {
 		Map<String, Object> map = new HashMap<>();
 		if(ObjectUtils.isEmpty(stocksno)) {
-			map.put("result", "fail");
-			map.put("message", "판매할 재고를 선택해주세요.");
+			map.put("result", "fail1");
+			//map.put("msg", "판매할 재고를 선택해주세요.");
 		}
 		else {
 			Long[] stockNoArr = Arrays.stream(stocksno.split(","))
@@ -576,8 +576,8 @@ public class StockServiceImpl implements StockService {
 			to.setStock_no_arr(stockNoArr);
 			List<StockVO> list = stockMapper.selectStockListByStockNos(to);
 			if(CollectionUtils.isEmpty(list)) {
-				map.put("result", "fail");
-				map.put("message", "재고내역이 없습니다.");
+				map.put("result", "fail2");
+				//map.put("msg", "재고내역이 없습니다.");
 			}
 			else {
 				int i = 0, orderCnt = 0, stockCnt = 0;
@@ -607,13 +607,13 @@ public class StockServiceImpl implements StockService {
 					i++;
 				}
 				if(isDupType) {
-					map.put("result", "fail");
-					map.put("message", "주문재고와 일반재고는 별도로 판매 가능합니다.");
+					map.put("result", "fail3");
+					//map.put("msg", "주문재고와 일반재고는 별도로 판매 가능합니다.");
 				}
 				else {
 					if(isNotSameCustomer) {
-						map.put("result", "fail");
-						map.put("message", "주문재고는 동일 고객의 재고만 판매 가능합니다.");
+						map.put("result", "fail4");
+						//map.put("msg", "주문재고는 동일 고객의 재고만 판매 가능합니다.");
 					}
 					else {
 						map.put("result", "success");

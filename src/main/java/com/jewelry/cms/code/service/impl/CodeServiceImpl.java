@@ -79,9 +79,16 @@ public class CodeServiceImpl implements CodeService {
 	@Transactional(readOnly = true)
 	@Override
 	public List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth) {
+		return findAllByUpCdId(upcdid, cddepth, "Y");
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth, String useyn) {
 		CodeTO to = new CodeTO();
 		to.setUp_cd_id(upcdid);
 		to.setCd_depth(cddepth);
+		to.setUse_yn(useyn);
 		return codeMapper.selectCodeListByUpCdId(to);
 	}
 

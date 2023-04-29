@@ -180,9 +180,6 @@
 				}
 
 				const fileField = document.querySelector('input[type="file"]');
-				const form = document.getElementById('form');
-				const writeForm = new FormData(form);
-
 				const formData = new FormData();
 				$(".form-data").each(function(){
 					formData.append($(this).attr("name"), checkNullVal($(this).val()));

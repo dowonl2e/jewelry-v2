@@ -315,7 +315,7 @@
               throw new Error('Request Failed...');
             }
             alert('삭제되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
             alert('오류가 발생하였습니다.');
           });

@@ -369,14 +369,13 @@
             orderscheckcnt++;
           }
         });
+
         if(orderscheckcnt == 0){
           alert('삭제할 주문이력을 선택해주세요.');
           return false;
         }
-        if(confirm('삭제하시겠습니까?')){
-          const form = document.getElementById('searchForm');
-          const writeForm = new FormData(form);
 
+        if(confirm('삭제하시겠습니까?')){
           const formData = new FormData();
           $(".form-check").each(function(){
             if($(this).is(":checked"))
@@ -394,12 +393,17 @@
               throw new Error('Request Failed...');
             }
             alert('삭제되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
             alert('오류가 발생하였습니다.');
           });
         }
       }
+
+      function refresh(){
+        findAll(/*[[${param.currentpage}]]*/);
+      }
+
     /*]]>*/
 	</script>
 </th:block>

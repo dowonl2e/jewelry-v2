@@ -76,7 +76,7 @@
             <a href="javascript: void(0);" onclick="fncPopupRegDateModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">등록일 변경</span></a>
             <a href="javascript: void(0);" onclick="fncPopupTypeModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고구분변경</span></a>
             <a href="javascript: void(0);" onclick="fncPopupVenderModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">매입처변경</span></a>
-            <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고이동</span></a>
+            <a href="javascript: alert('준비중입니다.');" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고이동</span></a>
 <!--          </th:block>-->
 <!--          <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
             <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
@@ -363,14 +363,13 @@
             stockscheckcnt++;
           }
         });
+
         if(stockscheckcnt == 0){
           alert('삭제할 재고이력을 선택해주세요.');
           return false;
         }
-        if(confirm('삭제하시겠습니까?')){
-          const form = document.getElementById('searchForm');
-          const writeForm = new FormData(form);
 
+        if(confirm('삭제하시겠습니까?')){
           const formData = new FormData();
           $(".form-check").each(function(){
             if($(this).is(":checked"))
@@ -388,7 +387,7 @@
               throw new Error('Request Failed...');
             }
             alert('삭제되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
             alert('오류가 발생하였습니다.');
           });
@@ -463,7 +462,7 @@
           if($(this).is(":checked")){
             if(stocksno != '')
               stocksno += ',';
-            stocksno += $(this).val();
+            stocksno += $(this).val();동
           }
         });
 
@@ -477,6 +476,11 @@
         var option = "width = 500, height = 300, top = 100, left = 200, location = no";
         window.open(url, name, option);
       }
+
+      function refresh(){
+        findAll(/*[[${param.currentpage}]]*/);
+      }
+
     /*]]>*/
 	</script>
 </th:block>

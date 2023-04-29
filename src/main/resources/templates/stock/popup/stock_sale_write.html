@@ -99,11 +99,17 @@
 
   <script th:inline="javascript">
 		/*<![CDATA[*/
-			$(document).ready(function(){
+			window.onload = () => {
         const result = /*[[${customer.result}]]*/;
 				if(result != 'success'){
-          const message = /*[[${customer.message}]]*/;
-					alert(message);
+          if(result == 'fail1')
+            alert('판매할 재고를 선택해주세요.');
+          else if(result == 'fail2')
+            alert('재고내역이 없습니다.');
+          else if(result == 'fail3')
+            alert('주문재고와 일반재고는 별도로 판매 가능합니다.');
+          else if(result == 'fail4')
+            alert('주문재고는 동일 고객의 재고만 판매 가능합니다.');
 					fncClose();
 				}
 				else {
@@ -126,40 +132,14 @@
 						$("#total_sale_price_td").text((totalSalePriceTd == 0 ? '' : totalSalePriceTd));
 					});
 				});
-			});
-
-			/* function find() {
-			  if(!isValidToken())
-          return false;
-
-				const stocksno = /*[[${stocksno}]]*/;
-				if ( !stocksno ) {
-		    	return false;
-		    }
-
-				var stocknoarr = stocksno.split(',');
-				if(stocknoarr.length == 1){
-					var stockno = stocknoarr[0];
-					fetch(`/api/stock/customer/`+stockno, {
-					  method: 'GET',
-					  headers: {
-					    'Authorization': getToken()
-					  }
-					}).then(response => {
-			    	if (!response.ok) {
-							throw new Error('Request failed...');
-				    }
-			    	return response.json();
-
-			   	}).then(json => {
-			   		document.getElementById('customer_no').value = checkNullVal(json.customerno) == '0' ? '' : checkNullVal(json.customerno);
-			   		document.getElementById('customer_nm').value = checkNullVal(json.customernm);
-			   	});
-				}
-			} */
+			}
 
 			function fncSave(){
         if(!isValidToken())
+          return false;
+
+        var stocksno = /*[[${param.stocksno}]]*/;
+        if(!stocksno)
           return false;
 
 			  if($("#customer_no").val() == ''){
@@ -175,19 +155,12 @@
 			  }
 
 				if(confirm('판매하시겠습니까?')){
-					var stocksno = /*[[${param.stocksno}]]*/;
-					var stock_no_arr = stocksno.split(',');
-					const form = document.getElementById('form');
-					const writeForm = new FormData(form);
 
 					const formData = new FormData();
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));
 					});
-
-					for(var i = 0 ; i < stock_no_arr.length ; i++){
-						formData.append('stock_no_arr[]',stock_no_arr[i]);
-					}
+          formData.append('stock_no_arr[]', stocksno);
 
 					fetch('/api/stock/stocks/sale', {
 						method: 'PATCH',

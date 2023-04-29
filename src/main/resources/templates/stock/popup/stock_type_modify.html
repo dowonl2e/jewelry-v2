@@ -44,6 +44,10 @@
 			  if(!isValidToken())
           return false;
 
+        const stocksno = /*[[${param.stocksno}]]*/;
+        if(!stocksno)
+          return false;
+
 			  if($("#stock_type_cd").val() == ''){
 				  alert('변경할 재고구분을 선택해주세요.');
 				  $("#stock_type_cd").focus();
@@ -51,19 +55,12 @@
 			  }
 
 				if(confirm('변경하시겠습니까?')){
-					var stocksno = /*[[${param.stocksno}]]*/;
-					var stock_no_arr = stocksno.split(',');
-					const form = document.getElementById('form');
-					const writeForm = new FormData(form);
-
 					const formData = new FormData();
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));
 					});
+          formData.append('stock_no_arr[]', stocksno);
 
-					for(var i = 0 ; i < stock_no_arr.length ; i++){
-						formData.append('stock_no_arr[]',stock_no_arr[i]);
-					}
 					fetch('/api/stock/type/modify', {
 						method: 'PATCH',
 						headers: {

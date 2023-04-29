@@ -80,64 +80,87 @@
                 <th class="bg-light text-center border-right small">배수</th>
                 <th class="bg-light text-center border-right small">TAG가</th>
               </tr>
-              <th:block th:each="idx : ${#numbers.sequence(0,2)}">
+              <th:block th:each="stock, idx : ${prevstocklist}">
                 <tr>
-                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#string.substring(prevstocklist[idx].regdt,0,10)}"></td>
-                  <td class="text-center border-right small" th:id="'prev_model_id_'+${idx}" th:text="${prevstocklist[idx].modelid}"></td>
+                  <td class="text-center border-right small" th:id="'prev_reg_dt_'+${idx}" th:text="${#strings.substring(stock.regdt,0,10)}"></td>
+                  <td class="text-center border-right small" th:id="'prev_model_id_'+${idx}" th:text="${stock.modelid}"></td>
                   <td class="text-center border-right small" th:id="'prev_stock_type_cd_'+${idx}">
                     <th:block th:each="oc : ${oclist}">
-                      <th:block th:if="${prevstocklist[idx].stocktypecd == oc.cdid}" th:text="${oc.cdnm}"></th:block>
+                      <span th:if="${stock.stocktypecd == oc.cdid}" th:text="${oc.cdnm}"></span>
                     </th:block>
                   </td>
-                  <td class="text-center border-right small" id="prev_material_cd_${idx}">
+                  <td class="text-center border-right small" th:id="'prev_material_cd_'+${idx}">
                     <th:block th:each="sm : ${smlist}">
-                      <th:block th:if="${prevstocklist[idx].materialcd == sm.cdid}" th:text="${sm.cdnm}"></th:block>
+                      <span th:if="${stock.materialcd == sm.cdid}" th:text="${sm.cdnm}"></span>
                     </th:block>
                   </td>
-                  <td class="text-center border-right small" id="prev_color_cd_${idx}">
+                  <td class="text-center border-right small" th:id="'prev_color_cd_'+${idx}">
                     <th:block th:each="sc : ${sclist}">
-                      <th:block th:if="${prevstocklist[idx].colorcd == sc.cdid}" th:text="${sc.cdnm}"></th:block>
+                      <span th:if="${stock.colorcd == sc.cdid}" th:text="${sc.cdnm}"></span>
                     </th:block>
                   </td>
-                  <td class="text-center border-right small" th:id="'prev_main_stone_type_'+${idx}" th:text="${prevstocklist[idx].mainstonetype}"></td>
-                  <td class="text-center border-right small" th:id="'prev_sub_stone_type_'+${idx}" th:text="${prevstocklist[idx].substonetype}"></td>
-                  <td class="text-center border-right small" th:id="'prev_size_'+${idx}" th:text="${prevstocklist[idx].size}"></td>
-                  <td class="text-center border-right small" th:id="'prev_stock_desc_'+${idx}" th:text="${prevstocklist[idx].stockdesc}"></td>
-                  <td class="text-center border-right small" th:id="'prev_per_weight_gram_'+${idx}" th:text="${prevstocklist[idx].perweightgram}"></td>
-                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}">
-                    <th:block th:with="prevPerPrice = ${prevstocklist[idx].perpricemain}"/>
-                    <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricesub}"/>
-                    <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpricebasic}"/>
-                    <th:block th:with="prevPerPrice = ${prevPerPrice+prevstocklist[idx].perpriceadd}"/>
+                  <td class="text-center border-right small" th:id="'prev_main_stone_type_'+${idx}" th:text="${stock.mainstonetype}"></td>
+                  <td class="text-center border-right small" th:id="'prev_sub_stone_type_'+${idx}" th:text="${stock.substonetype}"></td>
+                  <td class="text-center border-right small" th:id="'prev_size_'+${idx}" th:text="${stock.size}"></td>
+                  <td class="text-center border-right small" th:id="'prev_stock_desc_'+${idx}" th:text="${stock.stockdesc}"></td>
+                  <td class="text-center border-right small" th:id="'prev_per_weight_gram_'+${idx}" th:text="${stock.perweightgram}"></td>
+                  <td class="text-center border-right small" th:id="'prev_per_price_'+${idx}" th:with="prevPerPrice = ${stock.perpricemain}">
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricesub"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricebasic"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpriceadd"/>
+                    <th:block th:if="${prevPerPrice == 0}">
+                      <th:block th:with="prevPerPrice = ''"></th:block>
+                    </th:block>
+                    <th:block th:if="${prevPerPrice != 0}">
+                      <th:block th:with="prevPerPrice = (prevPerPrice+'')"></th:block>
+                    </th:block>
+                    <span th:text="${prevPerPrice}"/>
+                  </td>
+                  <td class="text-center border-right small" th:id="'prev_per_price_gold_real_'+${idx}" th:with="weight = 0, prevPerPrice = ${stock.perpricemain}">
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricesub"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricebasic"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpriceadd"/>
                     <th:block th:if="${prevPerPrice == 0}">
                       <th:block th:with="prevPerPrice=''"></th:block>
                     </th:block>
                     <th:block th:if="${prevPerPrice != 0}">
-                      <th:block th:with="prevPerPrice = ${(prevPerPrice+'')}"></th:block>
+                      <th:block th:with="prevPerPrice = (prevPerPrice+'')"></th:block>
+                    </th:block>
+                    <th:block th:if="${stock.materialcd == 'SM01'}">
+                      <span th:text="${stock.realpchgoldprice * 0.6435 + prevPerPrice}"/>
+                    </th:block>
+                    <th:block th:if="${stock.materialcd == 'SM02'}">
+                      <span th:text="${stock.realpchgoldprice * 0.825 + prevPerPrice}"/>
+                    </th:block>
+                    <th:block th:if="${stock.materialcd == 'SM03'}">
+                      <span th:text="${stock.realpchgoldprice * 1 + prevPerPrice}"/>
+                    </th:block>
+                  </td>
+                  <td class="text-center border-right small" th:id="'prev_per_price_gold_stdd_'+${idx}"th:with="prevPerPrice = ${stock.perpricemain}">
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricesub"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricebasic"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpriceadd"/>
+                    <th:block th:if="${prevPerPrice == 0}">
+                      <th:block th:with="prevPerPrice = ''"></th:block>
+                    </th:block>
+                    <th:block th:if="${prevPerPrice != 0}">
+                      <th:block th:with="prevPerPrice = (prevPerPrice+'')"></th:block>
                     </th:block>
                     <span th:text="${prevPerPrice}"/>
                   </td>
-                  <td class="text-center border-right small" th:id="prev_per_price_gold_real_${idx}">
-                    <th:block th:with="weight = 0"/>
-                    <th:block th:if="${prevstocklist[idx].materialcd == 'SM01'}">
-                      <th:block th:with="weight = 0.6435"/>
+                  <td class="text-center border-right small" th:id="'prev_multiple_cnt_'+${idx}" th:text="${stock.multiplecnt}"></td>
+                  <td class="text-center small" th:id="'prev_consumer_price_'+${idx}"
+                      th:with="prevConsumerPrice = ${stock.multiplecnt}, prevPerPrice = ${stock.perpricemain}">
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricesub"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpricebasic"/>
+                    <th:block th:with="prevPerPrice = prevPerPrice+stock.perpriceadd"/>
+                    <th:block th:if="${prevPerPrice == 0}">
+                      <th:block th:with="prevPerPrice = ''"></th:block>
                     </th:block>
-                    <th:block th:if="${prevstocklist[idx].materialcd == 'SM012'}">
-                      <th:block th:with="weight = 0.825"/>
+                    <th:block th:if="${prevPerPrice != 0}">
+                      <th:block th:with="prevPerPrice = (prevPerPrice+'')"></th:block>
                     </th:block>
-                    <th:block th:if="${prevstocklist[idx].materialcd == 'SM03'}">
-                      <th:block th:with="weight = 1"/>
-                    </th:block>
-                    <th:block th:with="realPchGoldPrice = ${prevstocklist[idx].realpchgoldprice*weight+prevPerPrice}"/>
-                    <th:block th:with="realPchGoldPrice" value="${realPchGoldPrice == 0 ? '' : (realPchGoldPrice+'')}"/>
-                    <span th:text="${realPchGoldPrice}"/>
-                  </td>
-                  <td class="text-center border-right small" th:id="prev_per_price_gold_stdd_${idx}" th:text="${prevPerPrice}"></td>
-                  <td class="text-center border-right small" th:id="prev_multiple_cnt_${idx}" th:text="${prevstocklist[idx].multiplecnt}"></td>
-                  <td class="text-center small" th:id="'prev_consumer_price_'+${idx}">
-                    <th:block th:with="prevConsumerPrice = ${prevPerPrice*prevstocklist[idx].multiplecnt}"/>
-                    <th:block th:with="prevConsumerPrice = ${prevConsumerPrice eq 0 ? '' : (prevConsumerPrice+'')}"/>
-                    <span th:text="${prevConsumerPrice}"/>
+                    <span th:text="${prevConsumerPrice*prevPerPrice}"></span>
                   </td>
                 </tr>
               </th:block>
@@ -218,7 +241,7 @@
                   <td class="text-center border-right">
                     <input type="hidden" name="vender_no_arr" th:id="'vender_no_'+${idx}" class="form-data form-multi"/>
                     <div class="input-group-append">
-                      <input type="text" name="vender_nm_arr" th:id="'vender_nm_${idx}" class="form-control form-multi mtb5 beadcnt" readonly="readonly"/>
+                      <input type="text" name="vender_nm_arr" th:id="'vender_nm_'+${idx}" class="form-control form-multi mtb5 beadcnt" readonly="readonly"/>
                       <i class="fas fa-search fa-sm ml5 mt15" th:onclick="fncVenderListPop([[${idx}]]); return false;"></i>
                     </div>
                   </td>
@@ -420,7 +443,7 @@
 						throw new Error('Request Failed...');
 					}
 					alert('저장되었습니다.');
-					window.opener.findAll();
+					fncParentRefresh();
 					fncClose();
 				}).catch(error => {
 					alert('오류가 발생하였습니다.');

@@ -1,10 +1,10 @@
 package com.jewelry.cms.code.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jewelry.cms.code.domain.CodeTO;
 import com.jewelry.cms.code.domain.CodeVO;
+
+import java.util.List;
+import java.util.Map;
 
 public interface CodeService {
 	
@@ -19,7 +19,9 @@ public interface CodeService {
 	String deleteCode(String cdid);
 	
 	List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth);
-	
+
+	List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth, String useyn);
+
 	List<CodeVO> findAllByUpCdId(String[] upcdid, Integer cddepth);
 	
 	//********************************하위코드********************************

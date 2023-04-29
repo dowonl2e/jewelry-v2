@@ -106,12 +106,14 @@ public class OrderPageController {
 
 	@GetMapping("/popup/customer/modify")
 	public String customerModifyPopup(@RequestParam(value = "ordersno") String ordersno, ModelMap model) {
+		model.addAttribute("cdmapper", codeService.findAllByUpCdId(new String[] {"ST","CT"}, 2));
 		model.addAttribute("ordersno", ordersno);
 		return "order/popup/order_customer_modify";
 	}
 	
 	@GetMapping("/popup/vender/modify")
 	public String venderModifyPopup(@RequestParam(value = "ordersno") String ordersno, ModelMap model) {
+		model.addAttribute("cdmapper", codeService.findAllByUpCdId(new String[] {"MT","VT"}, 2));
 		model.addAttribute("ordersno", ordersno);
 		return "order/popup/order_vender_modify";
 	}
@@ -122,7 +124,7 @@ public class OrderPageController {
 		model.addAttribute("stlist", codeService.findAllByUpCdId("ST", 2));
 		model.addAttribute("smlist", codeService.findAllByUpCdId("SM", 2));
 		model.addAttribute("sclist", codeService.findAllByUpCdId("SC", 2));
-		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2));
+		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2, "ALL"));
 		model.addAttribute("prevstocklist", stockService.findAllPrevStock());
 		model.addAttribute("ordersno", ordersno);
 		return "order/popup/orders_stock_write";
@@ -134,7 +136,7 @@ public class OrderPageController {
 		model.addAttribute("stlist", codeService.findAllByUpCdId("ST", 2));
 		model.addAttribute("smlist", codeService.findAllByUpCdId("SM", 2));
 		model.addAttribute("sclist", codeService.findAllByUpCdId("SC", 2));
-		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2));
+		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2, "ALL"));
 		model.addAttribute("prevstocklist", stockService.findAllPrevStock());
 		model.addAttribute("ordersno", ordersno);
 		return "order/popup/orders_nc_stock_write";

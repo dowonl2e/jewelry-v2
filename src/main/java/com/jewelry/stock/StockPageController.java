@@ -35,7 +35,7 @@ public class StockPageController {
 		model.addAttribute("stlist", codeService.findAllByUpCdId("ST", 2));
 		model.addAttribute("smlist", codeService.findAllByUpCdId("SM", 2));
 		model.addAttribute("sclist", codeService.findAllByUpCdId("SC", 2));
-		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2));
+		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2, "ALL"));
 		model.addAttribute("prevstocklist", stockService.findAllPrevStock());
 		return "stock/popup/stock_write";
 	}
@@ -53,7 +53,7 @@ public class StockPageController {
 		model.addAttribute("stlist", codeService.findAllByUpCdId("ST", 2));
 		model.addAttribute("smlist", codeService.findAllByUpCdId("SM", 2));
 		model.addAttribute("sclist", codeService.findAllByUpCdId("SC", 2));
-		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2));
+		model.addAttribute("oclist", codeService.findAllByUpCdId("OC", 2, "ALL"));
 		model.addAttribute("prevstocklist", stockService.findAllPrevStock());
 		return "stock/popup/stock_modify";
 	}
@@ -70,7 +70,7 @@ public class StockPageController {
 	@GetMapping("/popup/reg-date/modify")
 	public String stockRegDateModifyPopup(@RequestParam(value = "stocksno") String stocksno, ModelMap model) {
 		model.addAttribute("stocksno", stocksno);
-		return "stock/popup/stock-regdate_modify";
+		return "stock/popup/stock_regdate_modify";
 	}
 
 	@GetMapping("/popup/type/modify")
@@ -83,6 +83,7 @@ public class StockPageController {
 	@GetMapping("/popup/vender/modify")
 	public String venderModifyPopup(@RequestParam(value = "stocksno") String stocksno, ModelMap model) {
 		model.addAttribute("stocksno", stocksno);
+		model.addAttribute("cdmapper", codeService.findAllByUpCdId(new String[] {"MT","VT"}, 2));
 		return "stock/popup/stock_vender_modify";
 	}
 	
@@ -90,7 +91,7 @@ public class StockPageController {
 	public String stockCustomerOrderPopup(@RequestParam(value = "stocksno") String stocksno, ModelMap model) {
 		model.addAttribute("stocksno", stocksno);
 		model.addAttribute("cdmapper", codeService.findAllByUpCdId("CT", 2));
-		return "stock/popup/stock_customer_order_view";
+		return "stock/popup/stock_customer_order_modify";
 	}	
 
 	@GetMapping("/popup/sale")

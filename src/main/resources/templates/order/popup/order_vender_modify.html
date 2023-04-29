@@ -5,7 +5,7 @@
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
   <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 mt-1">
       <h6 class="m-0 font-weight-bold text-primary">주문 제조사 변경</h6>
     </div>
     <div class="card-body">
@@ -24,19 +24,18 @@
         <table class="table">
           <thead>
           <tr>
-            <th rowspan="2" class="">No.</th>
-            <th rowspan="2" class="border-left">구분</th>
-            <th rowspan="2" class="border-left">등록일</th>
-            <th rowspan="2" class="border-left">거래처명</th>
-            <th rowspan="2" class="border-left">사업자명</th>
-            <th colspan="2" class="border-left">대표자연락처</th>
-            <th colspan="5" class="border-left">전화번호</th>
-            <th colspan="2" class="border-left">팩스번호</th>
-            <th rowspan="2" class="border-left">담당자</th>
-            <th rowspan="2" class="border-left">담당자연락처</th>
-            <th rowspan="2" class="border-left">비고</th>
-            <th rowspan="2" class="border-left">VAT</th>
-            <th rowspan="2" class="border-left">해리</th>
+            <th class="">No.</th>
+            <th class="border-left">등록일</th>
+            <th class="border-left">거래처명</th>
+            <th class="border-left">사업자명</th>
+            <th class="border-left">대표자연락처</th>
+            <th class="border-left">전화번호</th>
+            <th class="border-left">팩스번호</th>
+            <th class="border-left">담당자</th>
+            <th class="border-left">담당자연락처</th>
+            <th class="border-left">비고</th>
+            <th class="border-left">VAT</th>
+            <th class="border-left">해리</th>
           </tr>
           </thead>
           <tbody id="list"></tbody>
@@ -131,7 +130,7 @@
 			  currentpage: page
 				, searchrecordcnt: form.searchrecordcnt.value
 				, searchword: form.searchword.value
-				, ordersno: '${ordersno}'
+				, ordersno: /*[[${ordersno}]]*/
 			}
 			checkListNullParams(params);
 
@@ -153,24 +152,22 @@
      			html += `
      				<tr>
 							<td class="text-center">` + (num--) + `</td>
-							<td class="text-center"><input type="checkbox" id="arr_vender_no" value="`+checkNullVal(obj.venderno)+`"/></td>
-							<td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.vendernm)]) +`</td>
+							<td class="text-center">` + checkSubstringNullVal(obj.inptdt,0,10) +`</td>
 							<td class="text-center bold">
-								<a href="javascript: void(0);" onclick="fncModify('`+checkNullVal(obj.venderno)+`'); return false;">`+checkNullVal(obj.venderno)+`</a>
+								<a href="javascript: void(0);" onclick="fncModify('`+checkNullVal(obj.venderno)+`'); return false;">`+checkNullVal(obj.vendernm)+`</a>
 							</td>
-							<td class="text-center">` + checkNullVal(obj.vendernm)+`</td>
-							<td class="text-center">` + checkNullVal(obj.businessnm)+`</td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
-							<td class="text-center"></td>
+							<td class="text-center">`+checkNullVal(obj.businessnm)+`</td>
+							<td class="text-center">`+checkNullVal(obj.agentcel)+`</td>
+							<td class="text-center">`+checkNullVal(obj.vendercel1)+`</td>
+							<td class="text-center">`+checkNullVal(obj.venderfax)+`</td>
+							<td class="text-center">`+checkNullVal(obj.managernm)+`</td>
+							<td class="text-center">`+checkNullVal(obj.managercel)+`</td>
+							<td class="text-center">`+checkNullVal(obj.etc)+`</td>
+							<td class="text-center">`+checkNullVal(codemap[checkNullVal(obj.vatcd)])+`</td>
+							<td class="text-center">`+checkNullVal(codemap[checkNullVal(obj.meltcd)])+`</td>
 	   				</tr>
      			`;
      		});
-
 
 				document.getElementById('list').innerHTML = html;
 				drawPages(response.params);
@@ -178,17 +175,17 @@
 		}
 
 		function fncModify(venderno){
-			if(confirm('변경하시겠습니까?')){
-				var orderno = '${ordersno}';
-				var order_no_arr = orderno.split(',');
-				const form = document.getElementById('searchForm');
-				const writeForm = new FormData(form);
+		  if(!isValidToken())
+          return false;
 
+      const ordersno = /*[[${ordersno}]]*/;
+      if(!ordersno)
+        return false;
+
+			if(confirm('변경하시겠습니까?')){
 				const formData = new FormData();
 				formData.append('vender_no', venderno);
-				for(var i = 0 ; i < order_no_arr.length ; i++){
-					formData.append('order_no_arr[]',order_no_arr[i]);
-				}
+        formData.append('order_no_arr[]', ordersno);
 
 				fetch('/api/order/vender/modify', {
 					method: 'PATCH',
