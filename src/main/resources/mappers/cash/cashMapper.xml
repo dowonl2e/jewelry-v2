@@ -148,7 +148,7 @@
 				) sa
 			) ta
 		) ta2
-		GROUP BY ta2.store_cd, ta2.stats_ord, ta2.bef_yesterday_price, ta2.yesterday_price, ta2.today_price
+		GROUP BY ta2.store_cd, ta2.stats_ord, ta2.stats_cd, ta2.bef_yesterday_price, ta2.yesterday_price, ta2.today_price
 		ORDER BY ta2.stats_cd ASC
 	</select>
 	
