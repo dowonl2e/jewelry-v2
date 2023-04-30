@@ -22,7 +22,7 @@ public class JwtAuthController {
 	private final long COOKIE_EXPIRATION = 7776000; // 90일
 
 	@PostMapping("/login")
-    public ResponseEntity<BasicResponse<TokenResponse>> login(@RequestBody UserTO user) {
+	public ResponseEntity<BasicResponse<TokenResponse>> login(@RequestBody UserTO user) {
 		Optional<TokenVO> resObj = Optional.of(jwtAuthService.login(user.getUser_id(), user.getUser_pwd()));
 
 		// RefreshToken 저장

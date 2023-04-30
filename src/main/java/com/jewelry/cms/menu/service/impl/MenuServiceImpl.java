@@ -1,21 +1,20 @@
 package com.jewelry.cms.menu.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jewelry.cms.menu.domain.MenuTO;
 import com.jewelry.cms.menu.domain.MenuVO;
 import com.jewelry.cms.menu.mapper.MenuMapper;
 import com.jewelry.cms.menu.service.MenuService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
 	
-	@Autowired
-	private MenuMapper menuMapper;
+	private final MenuMapper menuMapper;
 
 	@Transactional(readOnly = true)
 	@Override

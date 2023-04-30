@@ -1,15 +1,5 @@
 package com.jewelry.sale.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-
 import com.jewelry.order.domain.OrderTO;
 import com.jewelry.order.mapper.OrderMapper;
 import com.jewelry.sale.domain.SaleTO;
@@ -17,18 +7,25 @@ import com.jewelry.sale.mapper.SaleMapper;
 import com.jewelry.sale.service.SaleService;
 import com.jewelry.stock.domain.StockTO;
 import com.jewelry.stock.mapper.StockMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SaleServiceImpl implements SaleService {
 
-	@Autowired
-	private SaleMapper saleMapper;
+	private final SaleMapper saleMapper;
 
-	@Autowired
-	private StockMapper stockMapper;
+	private final StockMapper stockMapper;
 
-	@Autowired
-	private OrderMapper orderMapper;
+	private final OrderMapper orderMapper;
 	
 	@Transactional(readOnly = true)
 	@Override
@@ -48,7 +45,7 @@ public class SaleServiceImpl implements SaleService {
 		try {
 			
 			if(to.getSale_no_arr() != null && to.getSale_no_arr().length > 0)
-				return saleMapper.updateSalesToStock(to) > 0 ? "success" : "fail";
+				result = saleMapper.updateSalesToStock(to) > 0 ? "success" : "fail";
 			
 		}
 		catch(Exception e) {
@@ -98,7 +95,7 @@ public class SaleServiceImpl implements SaleService {
 				}
 				
 			}
-			return res > 0 ? "success" : "fail";
+			result = res > 0 ? "success" : "fail";
 			
 		}
 		catch(Exception e) {
@@ -145,7 +142,7 @@ public class SaleServiceImpl implements SaleService {
 				}
 				
 			}
-			return res > 0 ? "success" : "fail";
+			result = res > 0 ? "success" : "fail";
 			
 		}
 		catch(Exception e) {

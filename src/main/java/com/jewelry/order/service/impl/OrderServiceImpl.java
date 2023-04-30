@@ -1,14 +1,5 @@
 package com.jewelry.order.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.ObjectUtils;
-
 import com.jewelry.customer.domain.CustomerVO;
 import com.jewelry.customer.mapper.CustomerMapper;
 import com.jewelry.file.domain.FileTO;
@@ -22,28 +13,30 @@ import com.jewelry.order.service.OrderService;
 import com.jewelry.stock.mapper.StockMapper;
 import com.jewelry.vender.domain.VenderVO;
 import com.jewelry.vender.mapper.VenderMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.ObjectUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 	
-	@Autowired
-	private OrderMapper orderMapper;
+	private final OrderMapper orderMapper;
 	
-	@Autowired
-	private FileMapper fileMapper;
+	private final FileMapper fileMapper;
 	
-	@Autowired
-	private AmazonS3Service amazonS3Service;
+	private final AmazonS3Service amazonS3Service;
 	
-	@Autowired
-	private CustomerMapper customerMapper;
+	private final CustomerMapper customerMapper;
 	
-	@Autowired
-	private VenderMapper venderMapper;
+	private final VenderMapper venderMapper;
 
-	@Autowired
-	private StockMapper stockMapper;
-	
+	private final StockMapper stockMapper;
 
 	@Transactional(readOnly = true)
 	@Override

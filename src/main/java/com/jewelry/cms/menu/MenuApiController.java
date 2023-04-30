@@ -1,12 +1,8 @@
 package com.jewelry.cms.menu;
 
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +14,6 @@ import com.jewelry.cms.menu.service.MenuService;
 import com.jewelry.config.provider.JwtTokenProvider;
 import com.jewelry.response.BasicResponse;
 import com.jewelry.response.ResponseCode;
-import com.jewelry.util.SecurityUtils;
 import com.jewelry.values.JwtHeader;
 
 import lombok.RequiredArgsConstructor;

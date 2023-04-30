@@ -1,14 +1,5 @@
 package com.jewelry.repair.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.ObjectUtils;
-
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.mapper.FileMapper;
 import com.jewelry.file.service.AmazonS3Service;
@@ -16,19 +7,24 @@ import com.jewelry.repair.domain.RepairTO;
 import com.jewelry.repair.domain.RepairVO;
 import com.jewelry.repair.mapper.RepairMapper;
 import com.jewelry.repair.service.RepairService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.ObjectUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class RepairServiceImpl implements RepairService {
 
-	@Autowired
-	private RepairMapper repairMapper;
+	private final RepairMapper repairMapper;
 	
-	@Autowired
-	private AmazonS3Service amazonS3Service;
+	private final AmazonS3Service amazonS3Service;
 	
-	@Autowired
-	private FileMapper fileMapper;
-	
+	private final FileMapper fileMapper;
 	
 	@Transactional(readOnly = true)
 	@Override

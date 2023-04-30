@@ -164,6 +164,6 @@ public class JwtAuthService {
 
     // Redis에 로그아웃 처리한 AT 저장
     long expiration = jwtTokenProvider.getTokenExpirationTime(resolveAccessToken) - new Date().getTime();
-    redisService.setValuesWithTimeout(resolveAccessToken, "logout", expiration);
+    redisService.setValuesWithTimeout(REDIS_REFRESH_TOKEN_SERVER+":" + principal, "logout", expiration);
   }
 }

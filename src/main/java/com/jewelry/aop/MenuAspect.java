@@ -1,22 +1,16 @@
 package com.jewelry.aop;
 
-import javax.servlet.http.HttpServletRequest;
-
+import com.jewelry.cms.menu.service.MenuService;
+import com.jewelry.config.provider.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.jewelry.cms.menu.domain.MenuTO;
-import com.jewelry.cms.menu.service.MenuService;
-import com.jewelry.config.provider.JwtTokenProvider;
-import com.jewelry.util.SecurityUtils;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 //@Aspect

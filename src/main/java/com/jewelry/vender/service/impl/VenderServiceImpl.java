@@ -1,26 +1,25 @@
 package com.jewelry.vender.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-
 import com.jewelry.vender.domain.VenderPayTO;
 import com.jewelry.vender.domain.VenderPayVO;
 import com.jewelry.vender.domain.VenderTO;
 import com.jewelry.vender.domain.VenderVO;
 import com.jewelry.vender.mapper.VenderMapper;
 import com.jewelry.vender.service.VenderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class VenderServiceImpl implements VenderService {
 
-	@Autowired
-	private VenderMapper venderMapper;
+	private final VenderMapper venderMapper;
 	
 	@Transactional(readOnly = true)
 	@Override

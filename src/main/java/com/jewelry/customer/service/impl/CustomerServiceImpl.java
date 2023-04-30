@@ -1,22 +1,21 @@
 package com.jewelry.customer.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.jewelry.customer.domain.CustomerTO;
 import com.jewelry.customer.domain.CustomerVO;
 import com.jewelry.customer.mapper.CustomerMapper;
 import com.jewelry.customer.service.CustomerService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
-	@Autowired
-	private CustomerMapper customerMapper;
+	private final CustomerMapper customerMapper;
 	
 	@Transactional(readOnly = true)
 	@Override

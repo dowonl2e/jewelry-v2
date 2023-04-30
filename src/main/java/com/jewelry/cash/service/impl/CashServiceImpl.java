@@ -1,28 +1,27 @@
 package com.jewelry.cash.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jewelry.cash.domain.CashTO;
+import com.jewelry.cash.domain.CashVO;
+import com.jewelry.cash.mapper.CashMapper;
+import com.jewelry.cash.service.CashService;
+import com.jewelry.util.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import com.jewelry.cash.domain.CashTO;
-import com.jewelry.cash.domain.CashVO;
-import com.jewelry.cash.mapper.CashMapper;
-import com.jewelry.cash.service.CashService;
-import com.jewelry.util.Utils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CashServiceImpl implements CashService {
 
-	@Autowired
-	private CashMapper cashMapper;
+	private final CashMapper cashMapper;
 
 	@Transactional(readOnly = true)
 	@Override

@@ -1,32 +1,30 @@
 package com.jewelry.cms.menu.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-
 import com.jewelry.cms.menu.domain.MenuAuthTO;
 import com.jewelry.cms.menu.domain.MenuAuthVO;
 import com.jewelry.cms.menu.mapper.MenuAuthMapper;
 import com.jewelry.cms.menu.service.MenuAuthService;
 import com.jewelry.user.domain.UserTO;
 import com.jewelry.user.mapper.UserMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class MenuAuthServiceImpl implements MenuAuthService {
 
-	@Autowired
-	private UserMapper userMapper;
+	private final UserMapper userMapper;
 	
-	@Autowired
-	private MenuAuthMapper authMapper;
+	private final MenuAuthMapper authMapper;
 		
 	@Transactional(readOnly = true)
 	@Override

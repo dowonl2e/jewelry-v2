@@ -13,7 +13,7 @@ import com.jewelry.stock.service.StockService;
 import com.jewelry.util.Utils;
 import com.jewelry.vender.domain.VenderVO;
 import com.jewelry.vender.mapper.VenderMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -26,22 +26,18 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class StockServiceImpl implements StockService {
 	
-	@Autowired
-	private StockMapper stockMapper;
+	private final StockMapper stockMapper;
 
-	@Autowired
-	private AmazonS3Service amazonS3Service;
+	private final AmazonS3Service amazonS3Service;
 	
-	@Autowired
-	private FileMapper fileMapper;
+	private final FileMapper fileMapper;
 
-	@Autowired
-	private VenderMapper venderMapper;
-	
-	@Autowired
-	private OrderMapper orderMapper;
+	private final VenderMapper venderMapper;
+
+	private final OrderMapper orderMapper;
 	
 	@Transactional(readOnly = true)
 	@Override

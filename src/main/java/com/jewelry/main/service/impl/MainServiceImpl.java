@@ -1,15 +1,5 @@
 package com.jewelry.main.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
-
 import com.jewelry.main.domain.MainTO;
 import com.jewelry.main.service.MainService;
 import com.jewelry.order.mapper.OrderMapper;
@@ -17,20 +7,26 @@ import com.jewelry.sale.domain.SaleVO;
 import com.jewelry.sale.mapper.SaleMapper;
 import com.jewelry.stock.mapper.StockMapper;
 import com.jewelry.util.Utils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class MainServiceImpl implements MainService {
 
-	@Autowired
-	private SaleMapper saleMapper;
+	private final SaleMapper saleMapper;
 
-	@Autowired
-	private OrderMapper orderMapper;
+	private final OrderMapper orderMapper;
 
-	@Autowired
-	private StockMapper stockMapper;
-	
-	
+	private final StockMapper stockMapper;
+
 	@Transactional(readOnly = true)
 	@Override
 	public Map<String, Object> findAllStats(MainTO to) {
