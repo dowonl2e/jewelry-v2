@@ -177,7 +177,7 @@
             if(response.data != null && response.data.list != null && response.data.list.length > 0){
               let html = ``;
 
-              const uri = "${#httpServletRequest.requestURI}";
+              const uri = /*[[ ${#httpServletRequest.servletPath} ]]*/;
               const uri2 = uri.substring(1, uri.length);
 
               var isSubActive = '';
@@ -192,6 +192,7 @@
                 menuLink = checkNullVal(obj.menulink);
                 childCnt = checkNullVal(obj.childcnt);
                 menuId = checkNullVal(obj.menuid);
+                console.log(isSubActive + ', ' + uri2 + ', ' + menuId + ', ' + topMenuNm);
                 if(isSubActive == '' && uri2.startsWith(menuId) && topMenuNm == ''){
                   topMenuNm = checkNullVal(obj.menunm);
                 }
