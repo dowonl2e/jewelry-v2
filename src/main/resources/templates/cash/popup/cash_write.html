@@ -71,21 +71,21 @@
                             <col />
                         </colgroup>
                         <thead>
-                        <tr>
-                            <th class="text-center border-right">No</th>
-                            <th class="text-center border-right">취소</th>
-                            <th class="text-center border-right">구분</th>
-                            <th class="text-center border-right">계정</th>
-                            <th class="text-center border-right">통장구분</th>
-                            <th class="text-center border-right">거래처</th>
-                            <th class="text-center border-right">내역</th>
-                            <th class="text-center border-right">재질</th>
-                            <th class="text-center border-right">중량(g)</th>
-                            <th class="text-center border-right">수량</th>
-                            <th class="text-center border-right">단가</th>
-                            <th class="text-center border-right">공급가</th>
-                            <th class="text-center">합계금액</th>
-                        </tr>
+                            <tr>
+                                <th class="text-center border-right">No</th>
+                                <th class="text-center border-right">취소</th>
+                                <th class="text-center border-right">구분</th>
+                                <th class="text-center border-right">계정</th>
+                                <th class="text-center border-right">통장구분</th>
+                                <th class="text-center border-right">거래처</th>
+                                <th class="text-center border-right">내역</th>
+                                <th class="text-center border-right">재질</th>
+                                <th class="text-center border-right">중량(g)</th>
+                                <th class="text-center border-right">수량</th>
+                                <th class="text-center border-right">단가</th>
+                                <th class="text-center border-right">공급가</th>
+                                <th class="text-center">합계금액</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <th:block th:each="idx : ${#numbers.sequence(0,29)}">
@@ -153,124 +153,124 @@
     </div>
 
     <script th:inline="javascript">
-		/*<![CDATA[*/
-			$(document).ready(function(){
-				$(".unitprice, .cashtypecd").on('change keyup', function() {
-					var receivedPriceSum = 0;
-					var shipOutPriceSum = 0;
-					$(".unitprice").each(function(idx){
-						if($(this).val() == ''){
-							$(".supplyprice").eq(idx).val('');
-							$(".totalprice").eq(idx).val('');
-						}
-						else {
-							$(".supplyprice").eq(idx).val(priceWithComma($(this).val()));
-							$(".totalprice").eq(idx).val(priceWithComma($(this).val()));
-						}
-						cashTypeCd = $(".cashtypecd").eq(idx).val();
-						if(cashTypeCd == 'RS01'){
-							receivedPriceSum += Number(checkNullValR($(".unitprice").eq(idx).val(),'0'));
-						}
-						if(cashTypeCd == 'RS02'){
-							shipOutPriceSum += Number(checkNullValR($(".unitprice").eq(idx).val(),'0'));
-						}
-					});
-					$("#received_price").val(receivedPriceSum == 0 ? '' : priceWithComma(receivedPriceSum+''));
-					$("#shipout_price").val(shipOutPriceSum == 0 ? '' : priceWithComma(shipOutPriceSum+''));
-					$("#rece_ship_total_price").val((receivedPriceSum-shipOutPriceSum) == 0 ? '' : priceWithComma(receivedPriceSum-shipOutPriceSum)+'');
-				});
-			});
+        /*<![CDATA[*/
+          $(document).ready(function(){
+            $(".unitprice, .cashtypecd").on('change keyup', function() {
+              var receivedPriceSum = 0;
+              var shipOutPriceSum = 0;
+              $(".unitprice").each(function(idx){
+                if($(this).val() == ''){
+                  $(".supplyprice").eq(idx).val('');
+                  $(".totalprice").eq(idx).val('');
+                }
+                else {
+                  $(".supplyprice").eq(idx).val(priceWithComma($(this).val()));
+                  $(".totalprice").eq(idx).val(priceWithComma($(this).val()));
+                }
+                cashTypeCd = $(".cashtypecd").eq(idx).val();
+                if(cashTypeCd == 'RS01'){
+                  receivedPriceSum += Number(checkNullValR($(".unitprice").eq(idx).val(),'0'));
+                }
+                if(cashTypeCd == 'RS02'){
+                  shipOutPriceSum += Number(checkNullValR($(".unitprice").eq(idx).val(),'0'));
+                }
+              });
+              $("#received_price").val(receivedPriceSum == 0 ? '' : priceWithComma(receivedPriceSum+''));
+              $("#shipout_price").val(shipOutPriceSum == 0 ? '' : priceWithComma(shipOutPriceSum+''));
+              $("#rece_ship_total_price").val((receivedPriceSum-shipOutPriceSum) == 0 ? '' : priceWithComma(receivedPriceSum-shipOutPriceSum)+'');
+            });
+          });
 
-			function fncSave(){
-				if(!isValidToken())
-          return false;
+          function fncSave(){
+            if(!isValidToken())
+              return false;
 
-				if($("#store_cd").val() == ''){
-					alert('관리매장을 선택해주세요.');
-					$("#store_cd").focus();
-					return false;
-				}
-				if($("#reg_dt").val() == ''){
-					alert('등록일을 입력해주세요.');
-					$("#reg_dt").focus();
-					return false;
-				}
+            if($("#store_cd").val() == ''){
+              alert('관리매장을 선택해주세요.');
+              $("#store_cd").focus();
+              return false;
+            }
+            if($("#reg_dt").val() == ''){
+              alert('등록일을 입력해주세요.');
+              $("#reg_dt").focus();
+              return false;
+            }
 
-				if($("#cash_type_cd_0").val() == ''){
-					alert('구분을 선택해주세요.');
-					$("#cash_type_cd_0").focus();
-					return false;
-				}
+            if($("#cash_type_cd_0").val() == ''){
+              alert('구분을 선택해주세요.');
+              $("#cash_type_cd_0").focus();
+              return false;
+            }
 
-				if($("#cash_type_cd2_0").val() == ''){
-					alert('계정을 선택해주세요.');
-					$("#cash_type_cd2_0").focus();
-					return false;
-				}
+            if($("#cash_type_cd2_0").val() == ''){
+              alert('계정을 선택해주세요.');
+              $("#cash_type_cd2_0").focus();
+              return false;
+            }
 
-				if($("#bankbook_cd_0").val() == ''){
-					alert('통장구분을 선택해주세요.');
-					$("#bankbook_cd_0").focus();
-					return false;
-				}
+            if($("#bankbook_cd_0").val() == ''){
+              alert('통장구분을 선택해주세요.');
+              $("#bankbook_cd_0").focus();
+              return false;
+            }
 
-				if(confirm('등록하시겠습니까?')){
-					const formData = new FormData();
-					$(".form-data").each(function(){
-						formData.append($(this).attr("name"), checkNullVal($(this).val()));
-					});
-					$(".form-multi").each(function(){
-						formData.append($(this).attr("name")+'[]', checkNullVal($(this).val()));
-					});
+            if(confirm('등록하시겠습니까?')){
+              const formData = new FormData();
+              $(".form-data").each(function(){
+                formData.append($(this).attr("name"), checkNullVal($(this).val()));
+              });
+              $(".form-multi").each(function(){
+                formData.append($(this).attr("name")+'[]', checkNullVal($(this).val()));
+              });
 
-					fetch('/api/cash/write', {
-						method: 'POST',
-						headers: {
-						  'Authorization': getToken()
-						},
-						body: formData
-					}).then(response => {
-						if(!response.ok){
-							throw new Error('Request Failed...');
-						}
-						alert('저장되었습니다.');
-						fncParentRefresh();
-						fncClose();
-					}).catch(error => {
-						alert('오류가 발생하였습니다.');
-					});
-				}
-			}
+              fetch('/api/cash/write', {
+                method: 'POST',
+                headers: {
+                  'Authorization': getToken()
+                },
+                body: formData
+              }).then(response => {
+                if(!response.ok){
+                  throw new Error('Request Failed...');
+                }
+                alert('저장되었습니다.');
+                fncParentRefresh();
+                fncClose();
+              }).catch(error => {
+                alert('오류가 발생하였습니다.');
+              });
+            }
+          }
 
-			function fncValueInit(idx){
-				$("#cash_type_cd_"+idx).val('');
-				$("#cash_type_cd2_"+idx).val('');
-				$("#bankbook_cd_"+idx).val('');
-				$("#vender_nm_"+idx).val('');
-				$("#history_desc_"+idx).val('');
-				$("#material_cd_"+idx).val('');
-				$("#weight_gram_"+idx).val('');
-				$("#quantity_"+idx).val('1');
-				$("#unit_price_"+idx).val('');
-				$("#supply_price_"+idx).val('');
-				$("#total_price_"+idx).val('');
-			}
+          function fncValueInit(idx){
+            $("#cash_type_cd_"+idx).val('');
+            $("#cash_type_cd2_"+idx).val('');
+            $("#bankbook_cd_"+idx).val('');
+            $("#vender_nm_"+idx).val('');
+            $("#history_desc_"+idx).val('');
+            $("#material_cd_"+idx).val('');
+            $("#weight_gram_"+idx).val('');
+            $("#quantity_"+idx).val('1');
+            $("#unit_price_"+idx).val('');
+            $("#supply_price_"+idx).val('');
+            $("#total_price_"+idx).val('');
+          }
 
-			function fncChangeRS(val, idx){
-				$("#cash_type_cd2_"+idx).children().remove();
-				var html = '<option value="">선택</option>';
-				if(val != ''){
-				    [# th:each="rs2 : ${rslist2}"]
-				      "[(${rs2.cdid})]"
-					    if("[('${#strings.substring(rs2.cdid,0,4)})]" == val){
-						    html += '<option value="${rs2.cdid}">${rs2.cdnm}</option>';
-					    }
-            [/]
-				}
-				$("#cash_type_cd2_"+idx).append(html);
-			}
+          function fncChangeRS(val, idx){
+            $("#cash_type_cd2_"+idx).children().remove();
+            var html = '<option value="">선택</option>';
+            if(val != ''){
+              let rslist2 = [[${rslist2}]];
+              rslist2.forEach(function(item){
+                if(item.cdid.substring(0,4) == val){
+                  html += `<option value="`+item.cdid+`">`+item.cdnm+`</option>`;
+                }
+              });
+            }
+            $("#cash_type_cd2_"+idx).append(html);
+          }
 
-		/*]]>*/
+        /*]]>*/
     </script>
 </th:block>
 </html>

@@ -41,6 +41,10 @@
         if(!isValidToken())
           return false;
 
+        const salesno = /*[[${salesno}]]*/;
+        if(!salesno)
+          return false;
+
 			  if($("#sale_dt").val() == ''){
 				  alert('변경할 거래일을 선택해주세요.');
 				  $("#sale_dt").focus();
@@ -48,17 +52,11 @@
 			  }
 
 				if(confirm('변경하시겠습니까?')){
-					var salesno = /*[[${salesno}]]*/;
-					var sale_arr = salesno.split(',');
-
 					const formData = new FormData();
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));
 					});
-
-					for(var i = 0 ; i < sale_arr.length ; i++){
-						formData.append('sale_arr[]',sale_arr[i]);
-					}
+          formData.append('sale_arr[]',salesno);
 
 					fetch('/api/sale/sales/date/modify', {
 						method: 'PATCH',

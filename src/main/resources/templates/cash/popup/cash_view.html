@@ -104,82 +104,81 @@
     </div>
 
     <script th:inline="javascript">
-		/*<![CDATA[*/
-			var codemap = {
-        [# th:each="code, loop : ${cdmapper}"]
-          "[(${code.cdid})]": "[(${code.cdnm})]",
-        [/]
-			};
-			var codemap2 = {
-			  [# th:each="code, loop : ${cdmapper2}"]
-          "[(${code.cdid})]": "[(${code.cdnm})]",
-        [/]
-			};
+        /*<![CDATA[*/
+          var codemap = {
+            [# th:each="code, loop : ${cdmapper}"]
+              "[(${code.cdid})]": "[(${code.cdnm})]",
+            [/]
+          };
+          var codemap2 = {
+            [# th:each="code, loop : ${cdmapper2}"]
+              "[(${code.cdid})]": "[(${code.cdnm})]",
+            [/]
+          };
 
-			window.onload = () => {
-				find();
-      }
-
-			function find() {
-        if(!isValidToken())
-          return false;
-
-				const cashno = /*[[${cashno}]]*/;
-				if ( !cashno ) {
-		    	return false;
-		    }
-
-				fetch(`/api/cash/`+cashno, {
-				  method: 'GET',
-				  headers: {
-				    'Authorization': getToken()
-				  }
-				}).then(response => {
-		    	if (!response.ok) {
-						throw new Error('Request failed...');
-			    }
-		    	return response.json();
-
-		   	}).then(json => {
-		   		document.getElementById('store_cd_td').innerHTML = checkNullVal(codemap[json.storecd]);
-		   		document.getElementById('reg_dt_td').innerHTML = checkSubstringNullVal(json.regdt,0,10);
-		   		document.getElementById('cash_type_cd_td').innerHTML = checkNullVal(codemap[json.cashtypecd]);
-		   		document.getElementById('cash_type_cd2_td').innerHTML = checkNullVal(codemap2[json.cashtypecd2]);
-		   		document.getElementById('bankbook_cd_td').innerHTML = checkNullVal(codemap[json.bankbookcd]);
-		   		document.getElementById('vender_nm_td').innerHTML = checkNullVal(json.vendernm);
-		   		document.getElementById('history_desc_td').innerHTML = checkNullVal(json.historydesc);
-		   		document.getElementById('material_cd_td').innerHTML = checkNullVal(codemap[json.materialcd]);
-		   		document.getElementById('weight_gram_td').innerHTML = checkNullVal(json.weightgram);
-		   		document.getElementById('quantity_td').innerHTML = checkNullVal(json.quantity);
-		   		document.getElementById('unit_price_td').innerHTML = priceWithComma(json.unitprice);
-		   		document.getElementById('supply_price_td').innerHTML = priceWithComma(json.unitprice);
-		   		document.getElementById('total_price_td').innerHTML = priceWithComma(json.unitprice);
-
-		   		typePrice = checkNullValR(json.unitprice,'0');
-          if(checkNullVal(json.cashtypecd) == 'RS01'){
-            document.getElementById('received_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
-            document.getElementById('rece_ship_total_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
+          window.onload = () => {
+            find();
           }
-          else if(checkNullVal(json.cashtypecd) == 'RS02'){
-            document.getElementById('shipout_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
-            document.getElementById('rece_ship_total_price_td').innerHTML = (typePrice == '0' ? '' : ('-'+priceWithComma(typePrice)));
+
+          function find() {
+            if(!isValidToken())
+              return false;
+
+            const cashno = /*[[${cashno}]]*/;
+            if ( !cashno )
+              return false;
+
+            fetch(`/api/cash/`+cashno, {
+              method: 'GET',
+              headers: {
+                'Authorization': getToken()
+              }
+            }).then(response => {
+              if (!response.ok) {
+                throw new Error('Request failed...');
+              }
+              return response.json();
+
+            }).then(json => {
+              document.getElementById('store_cd_td').innerHTML = checkNullVal(codemap[json.storecd]);
+              document.getElementById('reg_dt_td').innerHTML = checkSubstringNullVal(json.regdt,0,10);
+              document.getElementById('cash_type_cd_td').innerHTML = checkNullVal(codemap[json.cashtypecd]);
+              document.getElementById('cash_type_cd2_td').innerHTML = checkNullVal(codemap2[json.cashtypecd2]);
+              document.getElementById('bankbook_cd_td').innerHTML = checkNullVal(codemap[json.bankbookcd]);
+              document.getElementById('vender_nm_td').innerHTML = checkNullVal(json.vendernm);
+              document.getElementById('history_desc_td').innerHTML = checkNullVal(json.historydesc);
+              document.getElementById('material_cd_td').innerHTML = checkNullVal(codemap[json.materialcd]);
+              document.getElementById('weight_gram_td').innerHTML = checkNullVal(json.weightgram);
+              document.getElementById('quantity_td').innerHTML = checkNullVal(json.quantity);
+              document.getElementById('unit_price_td').innerHTML = priceWithComma(json.unitprice);
+              document.getElementById('supply_price_td').innerHTML = priceWithComma(json.unitprice);
+              document.getElementById('total_price_td').innerHTML = priceWithComma(json.unitprice);
+
+              typePrice = checkNullValR(json.unitprice,'0');
+              if(checkNullVal(json.cashtypecd) == 'RS01'){
+                document.getElementById('received_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
+                document.getElementById('rece_ship_total_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
+              }
+              else if(checkNullVal(json.cashtypecd) == 'RS02'){
+                document.getElementById('shipout_price_td').innerHTML = (typePrice == '0' ? '' : priceWithComma(typePrice));
+                document.getElementById('rece_ship_total_price_td').innerHTML = (typePrice == '0' ? '' : ('-'+priceWithComma(typePrice)));
+              }
+            }).catch(error => {
+              alert('금/현금 정보를 찾을 수 없습니다.');
+              fncParentRefresh();
+              fncClose();''
+            });
           }
-		   	}).catch(error => {
-		    	alert('금/현금 정보를 찾을 수 없습니다.');
-		    	fncParentRefresh();
-		    	fncClose();''
-		   	});
-			}
 
-			/**
-			 * 수정하기
-			 */
-			function goModify() {
-			  const cashno = /*[[${cashno}]]*/;
-        location.href = '/cash/popup/modify/'+cashno;
-			}
+          /**
+           * 수정하기
+           */
+          function goModify() {
+            const cashno = /*[[${cashno}]]*/;
+            location.href = '/cash/popup/modify/'+cashno;
+          }
 
-		/*]]>*/
+        /*]]>*/
     </script>
 </th:block>
 </html>

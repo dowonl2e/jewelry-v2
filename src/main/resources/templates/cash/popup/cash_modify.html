@@ -241,6 +241,10 @@
 			  if(!isValidToken())
           return false;
 
+        const cashno = /*[[${cashno}]]*/;
+        if(!cashno)
+          return false;
+
 				if($("#store_cd").val() == ''){
 					alert('관리매장을 선택해주세요.');
 					$("#store_cd").focus();
@@ -271,7 +275,6 @@
 				}
 
 				if(confirm('수정하시겠습니까?')){
-          const cashno = /*[[${cashno}]]*/;
 					const formData = new FormData();
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));
@@ -282,13 +285,16 @@
 
 					fetch('/api/cash/modify/'+cashno, {
 						method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
 						body: formData
 					}).then(response => {
 						if(!response.ok){
 							throw new Error('Request Failed...');
 						}
 						alert('수정되었습니다.');
-						window.opener.refresh();
+						fncParentRefresh();
 						fncClose();
 					}).catch(error => {
 						alert('오류가 발생하였습니다.');
@@ -314,11 +320,12 @@
 				$("#cash_type_cd2_"+idx).children().remove();
 				var html = '<option value="">선택</option>';
 				if(val != ''){
-				    /*[# th:each="code : ${rslist2}"]*/
-					  if(/*[[${#strings:substring(code.cdid,0,4)}]]*/ == val){
-						  html += '<option th:value="${code.cdid}" th:text="${code.cdnm}"></option>';
-					  }
-					/*[/]*/
+          let rslist2 = [[${rslist2}]];
+          rslist2.forEach(function(item){
+            if(item.cdid.substring(0,4) == val){
+              html += `<option value="`+item.cdid+`">`+item.cdnm+`</option>`;
+            }
+          });
 				}
 				$("#cash_type_cd2_"+idx).append(html);
 			}

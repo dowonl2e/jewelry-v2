@@ -110,31 +110,31 @@
         var maxNumberLen = 100;
 
         var codemap = {
-            [# th:each="code, loop : ${cdmapper}"]
-                "[(${code.cdid})]": "[(${code.cdnm})]",
-            [/]
+          [# th:each="code, loop : ${cdmapper}"]
+            "[(${code.cdid})]": "[(${code.cdnm})]",
+          [/]
         };
         var codemap2 = {
-            [# th:each="code, loop : ${cdmapper2}"]
-                "[(${code.cdid})]": "[(${code.cdnm})]",
-            [/]
+          [# th:each="code, loop : ${cdmapper2}"]
+            "[(${code.cdid})]": "[(${code.cdnm})]",
+          [/]
         };
 
         window.onload = () => {
-            setQueryStringParams();
-            findAll();
-            addEnterSearchEvent();
+          setQueryStringParams();
+          findAll();
+          addEnterSearchEvent();
         }
 
         /**
           * 키워드 - 엔터 검색 이벤트 바인딩
           */
         function addEnterSearchEvent() {
-            document.getElementById('searchword').addEventListener('keyup', (e) => {
-                if (e.keyCode === 13) {
-                    findAll(0);
-                }
-            });
+          document.getElementById('searchword').addEventListener('keyup', (e) => {
+            if (e.keyCode === 13) {
+              findAll(0);
+            }
+          });
         }
 
         function drawPages(params) {
@@ -212,7 +212,8 @@
 
                 let html = '';
                 let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-                const viewAuth = '${sessionScope.VIEW_AUTH}';
+                //const viewAuth = '${sessionScope.VIEW_AUTH}';
+                const viewAuth = 'Y';
 
                 recWeightGramSum = 0.0;
                 recQuantitySum = 0;
@@ -226,50 +227,50 @@
                 response.list.forEach((obj, idx) => {
                     fontClass = checkNullVal(obj.cashtypecd) == 'RS02' ? 'blue' : '';
                     html += `
-                        <tr class="small `+fontClass+`">
-                                <td class="text-center">
-                        `;
-                        if(viewAuth == 'Y'){
-                            html += `		<a href="javascript: void(0);" onclick="fncPopupView('`+checkNullVal(obj.cashno)+`'); return false;">` + (num--) + `</a>`;
-                        }
-                        else {
-                            html += (num--);
-                        }
+                      <tr class="small `+fontClass+`">
+                        <td class="text-center">
+                    `;
+                    if(viewAuth == 'Y'){
+                      html += `		<a href="javascript: void(0);" onclick="fncPopupView('`+checkNullVal(obj.cashno)+`'); return false;">` + (num--) + `</a>`;
+                    }
+                    else {
+                        html += (num--);
+                    }
                     html += `
-                            </td>
-                            <td class="text-center"><input type="checkbox" name="cash_no_arr" class="form-check" value="`+checkNullVal(obj.cashno)+`"/></td>
-                            <td class="text-center">` + checkNullVal(codemap[obj.storecd]) + `</td>
-                            <td class="text-center">` + checkNullVal(obj.regday) + ` ` + checkSubstringNullVal(obj.regdt,0,10) + `</td>
-                            <td class="text-center">` + checkNullVal(codemap[obj.cashtypecd]) + `</td>
-                            <td class="text-center">` + checkNullVal(codemap[obj.bankbookcd]) + `</td>
-                            <td class="text-center">` + checkNullVal(codemap2[obj.cashtypecd2]) + `</td>
-                            <td class="text-center">` + checkNullVal(obj.vendernm) + `</td>
-                            <td class="text-left">` + checkNullVal(obj.historydesc) + `</td>
-                            <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
-                            <td class="text-right">` + checkNullVal(obj.weightgram) + `</td>
-                            <td class="text-center">` + checkNullVal(obj.quantity) + `</td>
-                            <td class="text-right">` + priceWithComma(obj.unitprice) + `</td>
-                            <td class="text-right">` + priceWithComma(obj.unitprice) + `</td>
-                            <td></td>
-                        </tr>
+                        </td>
+                        <td class="text-center"><input type="checkbox" name="cash_no_arr" class="form-check" value="`+checkNullVal(obj.cashno)+`"/></td>
+                        <td class="text-center">` + checkNullVal(codemap[obj.storecd]) + `</td>
+                        <td class="text-center">` + checkNullVal(obj.regday) + ` ` + checkSubstringNullVal(obj.regdt,0,10) + `</td>
+                        <td class="text-center">` + checkNullVal(codemap[obj.cashtypecd]) + `</td>
+                        <td class="text-center">` + checkNullVal(codemap[obj.bankbookcd]) + `</td>
+                        <td class="text-center">` + checkNullVal(codemap2[obj.cashtypecd2]) + `</td>
+                        <td class="text-center">` + checkNullVal(obj.vendernm) + `</td>
+                        <td class="text-left">` + checkNullVal(obj.historydesc) + `</td>
+                        <td class="text-center">` + checkNullVal(codemap[obj.materialcd]) + `</td>
+                        <td class="text-right">` + checkNullVal(obj.weightgram) + `</td>
+                        <td class="text-center">` + checkNullVal(obj.quantity) + `</td>
+                        <td class="text-right">` + priceWithComma(obj.unitprice) + `</td>
+                        <td class="text-right">` + priceWithComma(obj.unitprice) + `</td>
+                        <td></td>
+                      </tr>
                     `;
 
 
                     if(checkNullVal(obj.cashtypecd) == 'RS01'){
-                        recWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
-                        recQuantitySum += Number(checkNullValR(obj.quantity,'0'));
-                        recUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
-                        totalWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
-                        totalQuantitySum += Number(checkNullValR(obj.quantity,'0'));
-                        totalUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
+                      recWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
+                      recQuantitySum += Number(checkNullValR(obj.quantity,'0'));
+                      recUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
+                      totalWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
+                      totalQuantitySum += Number(checkNullValR(obj.quantity,'0'));
+                      totalUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
                     }
                     else if(checkNullVal(obj.cashtypecd) == 'RS02'){
-                        shipWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
-                        shipQuantitySum += Number(checkNullValR(obj.quantity,'0'));
-                        shipUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
-                        totalWeightGramSum -= Number(checkNullValR(obj.weightgram,'0'));
-                        totalQuantitySum -= Number(checkNullValR(obj.quantity,'0'));
-                        totalUnitPriceSum -= Number(checkNullValR(obj.unitprice,'0'));
+                      shipWeightGramSum += Number(checkNullValR(obj.weightgram,'0'));
+                      shipQuantitySum += Number(checkNullValR(obj.quantity,'0'));
+                      shipUnitPriceSum += Number(checkNullValR(obj.unitprice,'0'));
+                      totalWeightGramSum -= Number(checkNullValR(obj.weightgram,'0'));
+                      totalQuantitySum -= Number(checkNullValR(obj.quantity,'0'));
+                      totalUnitPriceSum -= Number(checkNullValR(obj.unitprice,'0'));
                     }
             });
             html += `
@@ -404,86 +405,85 @@
          * 수정하기
          */
         function fncPopupModify(customerno) {
-            var url = "/order/popup/modify/"+customerno;
-            var name = "orderModifyPopup";
-            var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
-            window.open(url, name, option);
+          var url = "/order/popup/modify/"+customerno;
+          var name = "orderModifyPopup";
+          var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+          window.open(url, name, option);
         }
 
         function fncRemove(){
           if(!isValidToken())
             return false;
 
-            var checkcnt = 0;
+          var checkcnt = 0;
+          $(".form-check").each(function(){
+            if($(this).is(":checked")){
+              checkcnt++;
+            }
+          });
+          if(checkcnt == 0){
+            alert('삭제할 이력을 선택해주세요.');
+            return false;
+          }
+          if(confirm('삭제하시겠습니까?')){
+            const formData = new FormData();
             $(".form-check").each(function(){
-                if($(this).is(":checked")){
-                    checkcnt++;
-                }
+                if($(this).is(":checked"))
+                    formData.append("cash_no_arr[]", checkNullVal($(this).val()));
             });
-            if(checkcnt == 0){
-                alert('삭제할 이력을 선택해주세요.');
-                return false;
-            }
-            if(confirm('삭제하시겠습니까?')){
-                const form = document.getElementById('searchForm');
-                const writeForm = new FormData(form);
 
-                const formData = new FormData();
-                $(".form-check").each(function(){
-                    if($(this).is(":checked"))
-                        formData.append("cash_no_arr[]", checkNullVal($(this).val()));
-                });
-
-                fetch('/api/cash/cashes/remove', {
-                    method: 'PATCH',
-                    headers: {
-                      'Authorization': getToken()
-                    }
-                    body: formData
-                }).then(response => {
-                    if(!response.ok){
-                        throw new Error('Request Failed...');
-                    }
-                    alert('삭제되었습니다.');
-                    findAll();
-                }).catch(error => {
-                    alert('오류가 발생하였습니다.');
-                });
-            }
+            fetch('/api/cash/cashes/remove', {
+              method: 'PATCH',
+              headers: {
+                'Authorization': getToken()
+              },
+              body: formData
+            }).then(response => {
+              if(!response.ok){
+                throw new Error('Request Failed...');
+              }
+              alert('삭제되었습니다.');
+              refresh();
+            }).catch(error => {
+              alert('오류가 발생하였습니다.');
+            });
+          }
         }
 
         function fncPopupStepModify(){
-            var ordersno = '';
-            $(".form-check").each(function(){
-                if($(this).is(":checked")){
-                    if(ordersno != '')
-                        ordersno += ',';
-                    ordersno += $(this).val();
-                }
-            });
-
-            if(ordersno == ''){
-                alert('주문내역을 선택해주세요.');
-                return false;
+          var ordersno = '';
+          $(".form-check").each(function(){
+            if($(this).is(":checked")){
+             if(ordersno != '')
+               ordersno += ',';
+             ordersno += $(this).val();
             }
+          });
 
-            var url = "/order/popup/step/modify?ordersno="+ordersno;
-            var name = "orderStepModifyPopup";
-            var option = "width = 500, height = 300, top = 100, left = 200, location = no";
-            window.open(url, name, option);
+          if(ordersno == ''){
+            alert('주문내역을 선택해주세요.');
+            return false;
+          }
+
+          var url = "/order/popup/step/modify?ordersno="+ordersno;
+          var name = "orderStepModifyPopup";
+          var option = "width = 500, height = 300, top = 100, left = 200, location = no";
+          window.open(url, name, option);
         }
 
         function fncCheckAll(obj){
-            if($(obj).is(":checked")){
-                $(".form-check").attr("checked", true);
-            }
-            else {
-                $(".form-check").attr("checked", false);
-            }
+          if($(obj).is(":checked")){
+            $(".form-check").attr("checked", true);
+          }
+          else {
+            $(".form-check").attr("checked", false);
+          }
         }
+
         function refresh(){
           findAll(/*[[${param.currentpage}]]*/);
         }
+
 		  /*]]>*/
     </script>
 </th:block>
