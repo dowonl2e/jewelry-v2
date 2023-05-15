@@ -44,13 +44,13 @@
     	#{user_id}, #{user_pwd}, #{user_name}, #{user_role}, #{email}, #{celnum}, #{gender}, #{use_yn}, #{inpt_id}, NOW()
    	)
   </insert>
-  
+
 	<select id="selectUser" parameterType="String" resultType="UserVO">
-		SELECT user_id, user_name, email, celnum, gender, use_yn
-		FROM tb_user
-		WHERE user_id = #{user_id}
+		SELECT A.user_id, A.user_name, A.email, A.celnum, A.gender, A.use_yn, A.user_role
+		FROM tb_user A
+		WHERE A.user_id = #{user_id}
 	</select>
-	
+
 	<update id="updateUser" parameterType="UserTO">
 		UPDATE tb_user
 		SET updt_dt = NOW()

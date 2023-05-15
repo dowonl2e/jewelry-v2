@@ -97,10 +97,8 @@
                 </div>
 
                 <div class="btn_wrap text-center">
-<!--                    <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-                        <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--                    </th:block>-->
-                    <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
+                  <span id="modify-auth"></span>
+                  <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
                 </div>
                 <nav aria-label="Page navigation" class="text-center">
                     <ul class="pagination"></ul>
@@ -141,6 +139,18 @@
           }
           return response.json();
         }).then(json => {
+            if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+              return false;
+            }
+
+            if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+              let modifyAuthBtn = `<a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>`;
+              document.getElementById('modify-auth').innerHTML = modifyAuthBtn;
+            }
+
             var filelist = json.filelist;
             var filepath = '';
             var filenm = '';

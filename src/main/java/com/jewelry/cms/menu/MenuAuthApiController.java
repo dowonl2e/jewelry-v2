@@ -1,6 +1,7 @@
 package com.jewelry.cms.menu;
 
 import com.jewelry.cms.menu.domain.MenuAuthTO;
+import com.jewelry.cms.menu.domain.MenuAuthVO;
 import com.jewelry.cms.menu.service.MenuAuthService;
 import com.jewelry.config.provider.JwtTokenProvider;
 import com.jewelry.response.ResponseCode;
@@ -16,19 +17,19 @@ import java.util.Map;
 @RequestMapping("/api/menuauth")
 public class MenuAuthApiController {
 
-	private final MenuAuthService authService;
+	private final MenuAuthService menuAuthService;
 
 	private final JwtTokenProvider jwtTokenProvider;
 
 	@GetMapping("/managers")
 	public Map<String, Object> managers(final UserTO to){
-		return authService.findAllManager(to);
+		return menuAuthService.findAllManager(to);
 	}
 	
 	@GetMapping("/menus/{userId}")
 	public Map<String, Object> menusByUserId(@PathVariable final String userId, final MenuAuthTO to){
 		to.setUser_id(userId);
-		return authService.findAllMenuAuth(to);
+		return menuAuthService.findAllMenuAuth(to);
 	}
 	
 	@PostMapping("/menus")
@@ -38,11 +39,10 @@ public class MenuAuthApiController {
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		to.setInpt_id(userId);
 		to.setUpdt_id(userId);
-		String result = authService.updateMenusAuth(to);
+		String result = menuAuthService.updateMenusAuth(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
 		return new ResponseEntity<>(response.getStatus());
-
 	}
 	
 	@PostMapping("/menu")
@@ -52,10 +52,17 @@ public class MenuAuthApiController {
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		to.setInpt_id(userId);
 		to.setUpdt_id(userId);
-		String result = authService.updateMenuAuth(to);
+		String result = menuAuthService.updateMenuAuth(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
 		return new ResponseEntity<>(response.getStatus());
+	}
 
+	@PostMapping("/user/auth")
+	public MenuAuthVO userAuth(
+			@RequestHeader("Authorization") String accessToken,
+			final MenuAuthTO to){
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		return menuAuthService.findUserMenuAuth(to);
 	}
 }

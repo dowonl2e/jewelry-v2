@@ -1,8 +1,8 @@
 package com.jewelry.cms.menu.domain;
 
-import java.util.List;
-
 import com.jewelry.common.domain.CommonVO;
+
+import java.util.List;
 
 public class MenuAuthVO extends CommonVO {
 
@@ -17,6 +17,16 @@ public class MenuAuthVO extends CommonVO {
 	private String removeAuth;
 	
 	private List<MenuAuthVO> list;
+
+	public MenuAuthVO(){}
+
+	public MenuAuthVO(String accessAuth, String writeAuth, String viewAuth, String modifyAuth, String removeAuth){
+		this.accessAuth = accessAuth;
+		this.writeAuth = writeAuth;
+		this.viewAuth = viewAuth;
+		this.modifyAuth = modifyAuth;
+		this.removeAuth = removeAuth;
+	}
 
 	public String getUserId() {
 		return userId;

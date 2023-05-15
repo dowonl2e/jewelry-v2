@@ -21,8 +21,14 @@ public class CatalogApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "catalog";
+
 	@GetMapping("/list")
-	public Map<String, Object> list(final CatalogTO to){
+	public Map<String, Object> list(
+			@RequestHeader("Authorization") String accessToken,
+			final CatalogTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return catalogService.findAllCatalog(to);
 	}
 	
@@ -40,15 +46,22 @@ public class CatalogApiController {
 	}
 
 	@GetMapping("/{catalogno}")
-	public CatalogVO catalog(@PathVariable final Long catalogno){
-		return catalogService.findCatalogByNo(catalogno);
+	public CatalogVO catalog(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long catalogno,
+			final CatalogTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setCatalog_no(catalogno);
+		return catalogService.findCatalogByNo(to);
 	}
 	
 	@PatchMapping("/modify/{catalogno}")
 	public ResponseEntity<Object> modify(
 			@RequestHeader("Authorization") String accessToken,
-			@PathVariable final Long catalogno, CatalogTO to,
-			@RequestPart(value = "file", required = false) MultipartFile file){
+			@PathVariable final Long catalogno,
+			@RequestPart(value = "file", required = false) MultipartFile file,
+			final CatalogTO to){
 		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		to.setCatalogfile(file);
 		to.setCatalog_no(catalogno);

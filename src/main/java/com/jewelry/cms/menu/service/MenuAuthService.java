@@ -1,11 +1,11 @@
 package com.jewelry.cms.menu.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jewelry.cms.menu.domain.MenuAuthTO;
 import com.jewelry.cms.menu.domain.MenuAuthVO;
 import com.jewelry.user.domain.UserTO;
+
+import java.util.List;
+import java.util.Map;
 
 public interface MenuAuthService {
 		
@@ -18,4 +18,6 @@ public interface MenuAuthService {
 	String updateMenuAuth(MenuAuthTO to);
 	
 	List<MenuAuthVO> findUserMenusAuth(MenuAuthTO to);
+
+	MenuAuthVO findUserMenuAuth(MenuAuthTO to);
 }

@@ -1,16 +1,15 @@
 package com.jewelry.catalog.service;
 
-import java.util.Map;
-
 import com.jewelry.catalog.domain.CatalogTO;
 import com.jewelry.catalog.domain.CatalogVO;
-import com.jewelry.repair.domain.RepairTO;
+
+import java.util.Map;
 
 public interface CatalogService {
 	
 	Map<String, Object> findAllCatalog(CatalogTO to);
 		
-	CatalogVO findCatalogByNo(Long catalogno);
+	CatalogVO findCatalogByNo(CatalogTO to);
 	
 	String insertCatalog(CatalogTO to);
 	

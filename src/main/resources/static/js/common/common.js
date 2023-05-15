@@ -235,3 +235,11 @@ function goParentSigninPage(){
 function fncClose(){
   self.close();
 }
+
+function removeAuthButton(className){
+  document.getElementsByClassName(className).innerHTML = '';
+}
+
+function altNoAuth(){
+  alert('권한이 없습니다.');
+}

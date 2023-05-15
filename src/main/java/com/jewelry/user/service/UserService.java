@@ -13,8 +13,6 @@ public interface UserService {
 	
 	UserVO findUser(String userid);
 
-	UserVO findUserByToken(String accessToken);
-
 	String updateUser(UserTO to);
 	
 	

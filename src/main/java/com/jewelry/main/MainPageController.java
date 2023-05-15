@@ -1,18 +1,17 @@
 package com.jewelry.main;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jewelry.cms.code.service.CodeService;
+import com.jewelry.util.Utils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.jewelry.cms.code.service.CodeService;
-import com.jewelry.util.Utils;
-
 @Controller
+@RequiredArgsConstructor
 public class MainPageController {
 	
-	@Autowired
-	private CodeService codeService;
+	private final CodeService codeService;
 	
 	@GetMapping("/main")
 	public String main(ModelMap model) {

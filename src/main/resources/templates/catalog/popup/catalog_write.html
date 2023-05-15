@@ -238,6 +238,8 @@
 					});
 					$("#total_price_txt").text(totalprice == 0 ? '' : (totalprice+''));
         });
+
+        checkAuth();
 			});
 
 			function readURL() {
@@ -252,6 +254,39 @@
 			    document.getElementById('preview').src = "";
 			    document.getElementById('file-label').innerHTML = '파일 첨부하기';
 			  }
+			}
+
+      function checkAuth() {
+        if(!isValidToken())
+          return false;
+
+        const params = {
+					'menuId': 'catalog'
+				};
+
+        fetch(`/api/menuauth/user/auth`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+					},
+					body: JSON.stringify(params)
+				}).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
+          return response.json();
+        }).then(json => {
+          if(checkNullValR(json.accessAuth, 'N') != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+          }
+        }).catch(error => {
+        console.log(error);
+          alert('오류가 발생하였습니다.');
+          fncClose();
+        });
 			}
 
 			function fncSave(){

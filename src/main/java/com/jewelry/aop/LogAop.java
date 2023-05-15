@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Aspect
 @Component
-public class LogAspect {
+public class LogAop {
 
 	@Around(
 			"(" +

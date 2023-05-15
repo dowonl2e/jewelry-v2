@@ -20,9 +20,7 @@
                         <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
                     </button>
                     <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-<!--                        <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-                        <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary waves-effect waves-light">단독등록</a>
-<!--                        </th:block>-->
+                    <span id="write-auth1"></span>
                 </div>
             </div>
         </form>
@@ -31,14 +29,8 @@
             </div>
 
             <div class="btn_wrap text-left mt-3">
-<!--                <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-                    <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">기성주문</span></a>
-                    <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">고객주문</span></a>
-                    <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고등록</span></a>
-<!--                </th:block>-->
-<!--                <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-                    <a href="javascript: void(0);" onclick="fncRemove(); return false;" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
-<!--                </th:block>-->
+              <span id="write-auth2"></span>
+              <span id="remove-auth1"></span>
             </div>
 
             <nav aria-label="Page navigation" class="text-center">
@@ -49,6 +41,7 @@
 
     <script th:inline="javascript">
 		  /*<![CDATA[*/
+
         var minNumberLen = 1;
         var maxNumberLen = 100;
         /**
@@ -124,7 +117,6 @@
           page = page ? page : (pageParams ? pageParams : 1);
 
           const form = document.getElementById('searchForm');
-
           var params = {
             currentpage: page
             , searchvender: form.searchvender.value
@@ -138,92 +130,137 @@
           history.replaceState({}, '', replaceUri);
 
           getJson('/api/catalog/list', params).then(response => {
-              if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
-                  document.getElementById('list').innerHTML = '<div class="row row-cols-1" style="line-height:80px;"><div class="col">등록된 카다로그가 없습니다.</div></div>';
-                  drawPages();
-                  return false;
+            let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', removeAuth = 'N';
+            if (!Object.keys(response).length || response.menuAuth == null) {
+              removeAuthButton('write-auth-btn');
+            }
+            else {
+              accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+              if(accessAuth != 'Y'){
+                altNoAuth();
+                goMainPage();
               }
 
-              let html = '';
-              let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-
-              //const viewAuth = '${session.VIEW_AUTH}';
-              const viewAuth =  'Y';
-              response.list.forEach((obj, idx) => {
-              const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
-              if(idx%4 == 0){
-                  html += `<div class="row">`;
-              }
-              html += `
-                  <div class="col-xl-3 col-lg-4 text-center text-black">
-                      <div class="card bg-light shadow rounded m10">
-                          <div class="row row-cols-1">
-                              <div class="col">
-                                  <div class="m5 rounded">
-              `;
-              if(checkNullVal(obj.filepath) == ''){
-                  html += `
-                      <img src="/img/no-image.png" width="100%" style="height:200px;"/>
-                  `;
+              writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+              viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+              removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+              //등록 권한 관련 버튼 체크
+              if(writeAuth == 'Y'){
+                let writeAuthBtn = `
+                  <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary waves-effect waves-light">단독등록</a>
+                `;
+                document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+                writeAuthBtn = `
+                  <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">기성주문</span></a>
+                  <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">고객주문</span></a>
+                  <a href="javascript: alert('준비중입니다.');" onclick="" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고등록</span></a>
+                `;
+                document.getElementById('write-auth2').innerHTML = writeAuthBtn;
               }
               else {
-                  html += `
-                          <img src="/file/image/display?filePath=`+checkNullVal(obj.filepath)+`&fileName=`+checkNullVal(obj.filenm)+`" width="100%" style="height:200px;"/>
-                      `;
+                removeAuthButton('write-auth1');
+                removeAuthButton('write-auth2');
               }
-              html += `
-                          </div>
-                      </div>
-                  </div>
-                  <div class="row row-cols-1 mlr5 mt5">
-                      <div class="col text-center">
-                          <input type="checkbox" id="catalog_no_`+obj.catalogno+`" class="form-check-inline form-check" value="`+obj.catalogno+`"/>
-                          <label for="catalog_no_`+obj.catalogno+`" class="form-label">
-              `;
 
-              if(viewAuth == 'Y'){
-                  html += `
-                              <a href="javascript: void(0);" onclick="fncPopupView(\'`+obj.catalogno+`\'); return false;">
-                              ` + checkNullVal(obj.modelid) + `
-                  `;
-                  if(checkNullVal(obj.modelnm) != ''){
-                      html += `(` + checkNullVal(obj.modelnm) + `)`;
-                  }
-                  html += `
-                              </a>
-                  `;
+              //삭제 권한 관련 버튼 체크
+              if(removeAuth == 'Y'){
+                let removeAuthBtn = `
+                  <a href="javascript: void(0);" onclick="fncRemove(); return false;" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+                `;
+                document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
               }
               else {
-                  html += checkNullVal(obj.modelid);
-                      if(checkNullVal(obj.modelnm) != ''){
-                          html += `(` + checkNullVal(obj.modelnm) + `)`;
-                      }
+                removeAuthButton('remove-auth1');
               }
+            }
 
+            if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
+                document.getElementById('list').innerHTML = '<div class="row row-cols-1" style="line-height:80px;"><div class="col">등록된 카다로그가 없습니다.</div></div>';
+                drawPages();
+                return false;
+            }
+
+            let html = '';
+            let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
+
+            response.list.forEach((obj, idx) => {
+            const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
+            if(idx%4 == 0){
+                html += `<div class="row">`;
+            }
+            html += `
+                <div class="col-xl-3 col-lg-4 text-center text-black">
+                    <div class="card bg-light shadow rounded m10">
+                        <div class="row row-cols-1">
+                            <div class="col">
+                                <div class="m5 rounded">
+            `;
+            if(checkNullVal(obj.filepath) == ''){
+                html += `
+                    <img src="/img/no-image.png" width="100%" style="height:200px;"/>
+                `;
+            }
+            else {
+                html += `
+                        <img src="/file/image/display?filePath=`+checkNullVal(obj.filepath)+`&fileName=`+checkNullVal(obj.filenm)+`" width="100%" style="height:200px;"/>
+                    `;
+            }
+            html += `
+                        </div>
+                    </div>
+                </div>
+                <div class="row row-cols-1 mlr5 mt5">
+                    <div class="col text-center">
+            `;
+            if(writeAuth == 'Y' || removeAuth == 'Y'){
               html += `
-                              </label>
-                          </div>
-                      </div>
-                      <div class="row mlr1 mtb5">
-                          <div class="col text-left small">` + checkNullVal(obj.vendernm) + `</div>
-                          <div class="col text-right small">`+ checkNullValR(codemap[obj.stddmaterialcd], '&nbsp;') + `
+                        <input type="checkbox" id="catalog_no_`+obj.catalogno+`" class="form-check-inline form-check" value="`+obj.catalogno+`"/>
+                        <label for="catalog_no_`+obj.catalogno+`" class="form-label">
               `;
-              if(checkNullVal(obj.stddweight) != ''){
-                  html += `(` + checkNullValR(obj.stddweight, '&nbsp;') + `)`;
-              }
-              html += `
-                              </div>
-                          </div>
-                          <div class="row mlr1 mtb5">
-                              <div class="col text-left small">`+ checkNullValR(obj.stddsize, '&nbsp;')+`</div>
-                              <div class="col text-right small">`+ priceWithComma(obj.basicidst)+`</div>
-                          </div>
-                      </div>
-                  </div>
-              `;
-              if(idx > 0 && (idx+1)%4 == 0){
-                  html += `</div>`;
-              }
+            }
+            if(viewAuth == 'Y'){
+                html += `
+                            <a href="javascript: void(0);" onclick="fncPopupView(\'`+obj.catalogno+`\'); return false;">
+                            ` + checkNullVal(obj.modelid) + `
+                `;
+                if(checkNullVal(obj.modelnm) != ''){
+                    html += `(` + checkNullVal(obj.modelnm) + `)`;
+                }
+                html += `
+                            </a>
+                `;
+            }
+            else {
+                html += checkNullVal(obj.modelid);
+                    if(checkNullVal(obj.modelnm) != ''){
+                        html += `(` + checkNullVal(obj.modelnm) + `)`;
+                    }
+            }
+
+            html += `
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row mlr1 mtb5">
+                        <div class="col text-left small">` + checkNullVal(obj.vendernm) + `</div>
+                        <div class="col text-right small">`+ checkNullValR(codemap[obj.stddmaterialcd], '&nbsp;') + `
+            `;
+            if(checkNullVal(obj.stddweight) != ''){
+                html += `(` + checkNullValR(obj.stddweight, '&nbsp;') + `)`;
+            }
+            html += `
+                            </div>
+                        </div>
+                        <div class="row mlr1 mtb5">
+                            <div class="col text-left small">`+ checkNullValR(obj.stddsize, '&nbsp;')+`</div>
+                            <div class="col text-right small">`+ priceWithComma(obj.basicidst)+`</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if(idx > 0 && (idx+1)%4 == 0){
+                html += `</div>`;
+            }
           });
 
           document.getElementById('list').innerHTML = html;

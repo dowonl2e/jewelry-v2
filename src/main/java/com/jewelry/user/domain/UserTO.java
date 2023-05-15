@@ -4,7 +4,6 @@ import com.jewelry.common.domain.CommonTO;
 
 public class UserTO extends CommonTO {
 
-	private String user_id;
 	private String user_pwd;
 	private String user_name;
 	private String user_role;
@@ -16,13 +15,7 @@ public class UserTO extends CommonTO {
 	private String inpt_dt;
 	private String updt_id;
 	private String updt_dt;
-	
-	public String getUser_id() {
-		return user_id;
-	}
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
+
 	public String getUser_pwd() {
 		return user_pwd;
 	}

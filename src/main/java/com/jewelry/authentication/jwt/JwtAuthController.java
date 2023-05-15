@@ -43,7 +43,7 @@ public class JwtAuthController {
 									resObj.get().getAccessToken(),
 									resObj.get().getAccessTokenExpioresIn())
 					)
-		);
+				);
 	}
 
 	@PostMapping("/validate")
@@ -59,7 +59,6 @@ public class JwtAuthController {
 	@PostMapping("/reissue")
 	public ResponseEntity<?> reissue(@CookieValue(name = "refresh-token") String requestRefreshToken,
 																	 @RequestHeader("Authorization") String requestAccessToken) {
-		System.out.println("재발행 체크");
 		TokenVO reissueTokenVo = jwtAuthService.reIssue(requestAccessToken, requestRefreshToken);
 
 		if (reissueTokenVo != null) { // 토큰 재발급 성공

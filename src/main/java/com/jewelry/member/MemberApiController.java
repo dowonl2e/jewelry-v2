@@ -27,8 +27,15 @@ public class MemberApiController {
   }
 
   @PostMapping("/profile/info")
-  public UserVO findMemberByToken(@RequestHeader("Authorization") String accessToken) {
-    return userService.findUserByToken(accessToken);
+  public UserVO findMemberByToken(
+      @RequestHeader("Authorization") String accessToken,
+      @RequestBody final UserTO to) {
+    String resolveAccessToken = jwtTokenProvider.resolveToken(accessToken);
+    if(ObjectUtils.isEmpty(resolveAccessToken)
+        || !jwtTokenProvider.validateToken(resolveAccessToken)) {
+      return null;
+    }
+    return userService.findUser(jwtTokenProvider.getPrincipal(resolveAccessToken));
   }
 
   @PatchMapping("/profile/modify")

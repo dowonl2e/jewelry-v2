@@ -36,7 +36,7 @@ public class CatalogTO extends CommonTO {
 	public CatalogTO() {
 		setRecordcount(16);
 	}
-	
+
 	public Long getCatalog_no() {
 		return catalog_no;
 	}

@@ -1,6 +1,6 @@
 package com.jewelry.user.service.impl;
 
-import com.jewelry.config.provider.JwtTokenProvider;
+import com.jewelry.cms.menu.mapper.MenuAuthMapper;
 import com.jewelry.user.domain.UserTO;
 import com.jewelry.user.domain.UserVO;
 import com.jewelry.user.mapper.UserMapper;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.util.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +21,7 @@ public class UserServiceImpl implements UserService {
 	
 	private final UserMapper userMapper;
 
-	private final JwtTokenProvider jwtTokenProvider;
+	private final MenuAuthMapper menuAuthMapper;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -55,19 +54,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserVO findUser(String userid) {
 		return userMapper.selectUser(userid);
-	}
-
-	@Transactional(readOnly = true)
-	@Override
-	public UserVO findUserByToken(String accessToken) {
-		String resolveAccessToken = jwtTokenProvider.resolveToken(accessToken);
-		if(ObjectUtils.isEmpty(resolveAccessToken)
-				|| !jwtTokenProvider.validateToken(resolveAccessToken)) {
-			return null;
-		}
-
-		String principal = jwtTokenProvider.getPrincipal(resolveAccessToken);
-		return userMapper.selectUser(principal);
 	}
 
 	@Transactional

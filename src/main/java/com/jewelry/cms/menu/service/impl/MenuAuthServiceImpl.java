@@ -162,5 +162,10 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	public List<MenuAuthVO> findUserMenusAuth(MenuAuthTO to) {
 		return authMapper.selectUserAuthMenus(to);
 	}
-	
+
+	@Transactional(readOnly = true)
+	@Override
+	public MenuAuthVO findUserMenuAuth(MenuAuthTO to) {
+		return authMapper.selectUserAuthMenu(to);
+	}
 }

@@ -3,7 +3,8 @@ package com.jewelry.common.domain;
 import com.jewelry.common.paging.Pagination;
 
 public class CommonTO extends Pagination {
-
+	private String accessToken;
+	private String menuId;
 	private String user_id;
 	private String inpt_id;
 	private String inpt_dt;
@@ -15,7 +16,23 @@ public class CommonTO extends Pagination {
 	private String searchword;
 	private String searchstdt;
 	private String searcheddt;
-	
+
+	public String getAccessToken() {
+		return accessToken;
+	}
+
+	public void setAccessToken(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	public String getMenuId() {
+		return menuId;
+	}
+
+	public void setMenuId(String menuId) {
+		this.menuId = menuId;
+	}
+
 	public String getUser_id() {
 		return user_id;
 	}

@@ -130,6 +130,9 @@
   </div>
 
   <script th:inline="javascript">
+    const uri = /*[[ ${#httpServletRequest.servletPath} ]]*/;
+    const uri2 = uri.substring(1, uri.length);
+
     $(document).ready(function(){
       init();
 		});
@@ -142,12 +145,17 @@
     }
 
     function findMyInfo(){
+      const data = {
+        'menuId': uri2
+      };
+
       fetch(`/api/member/profile/info`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': getToken()
-        }
+        },
+        body: JSON.stringify(data)
       }).then(response => {
         if(!response.ok){
           throw new Error('Request Failed...');
@@ -177,9 +185,6 @@
             if(response.data != null && response.data.list != null && response.data.list.length > 0){
               let html = ``;
 
-              const uri = /*[[ ${#httpServletRequest.servletPath} ]]*/;
-              const uri2 = uri.substring(1, uri.length);
-
               var isSubActive = '';
               response.data.subList.forEach((obj2, idx) => {
                 if(uri2.startsWith(checkNullVal(obj2.menuid))){
@@ -192,7 +197,6 @@
                 menuLink = checkNullVal(obj.menulink);
                 childCnt = checkNullVal(obj.childcnt);
                 menuId = checkNullVal(obj.menuid);
-                console.log(isSubActive + ', ' + uri2 + ', ' + menuId + ', ' + topMenuNm);
                 if(isSubActive == '' && uri2.startsWith(menuId) && topMenuNm == ''){
                   topMenuNm = checkNullVal(obj.menunm);
                 }
