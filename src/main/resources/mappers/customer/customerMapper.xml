@@ -144,5 +144,17 @@
 		, del_yn = 'Y'
 		WHERE customer_no = #{customer_no}
 	</update>
+
+	<update id="updateCustomersToDelete" parameterType="CustomerTO">
+		UPDATE tb_customer
+		SET updt_dt = NOW()
+		, updt_id = #{updt_id}
+		, del_yn = 'Y'
+		WHERE customer_no IN (
+			<foreach collection="customer_no_arr" item="item" separator=" , ">
+				#{item}
+			</foreach>
+		)
+	</update>
 	
 </mapper>

@@ -283,7 +283,6 @@
             fncClose();
           }
         }).catch(error => {
-        console.log(error);
           alert('오류가 발생하였습니다.');
           fncClose();
         });
@@ -330,11 +329,21 @@
           body: formData
         }).then(response => {
           if(!response.ok){
-            throw new Error('Request Failed...');
+            console.log(response.status);
+            if(response.status == '403'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+            }
+            else {
+              throw new Error(response);
+            }
           }
-          alert('저장되었습니다.');
-          fncParentRefresh();
-          fncClose();
+          else {
+            alert('저장되었습니다.');
+            fncParentRefresh();
+            fncClose();
+          }
         }).catch(error => {
           alert('오류가 발생하였습니다.');
         });

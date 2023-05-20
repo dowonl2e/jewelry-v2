@@ -236,8 +236,8 @@ function fncClose(){
   self.close();
 }
 
-function removeAuthButton(className){
-  document.getElementsByClassName(className).innerHTML = '';
+function removeAuthButton(id){
+  document.getElementById(id).innerHTML = '';
 }
 
 function altNoAuth(){

@@ -294,8 +294,7 @@ public class StockServiceImpl implements StockService {
 	public String updateStocksToDelete(StockTO to) {
 		String result = "success";
 		try {
-			Long[] stock_no_arr = to.getStock_no_arr();
-			if(stock_no_arr != null && stock_no_arr.length > 0) {
+			if(to.getStock_no_arr() != null && to.getStock_no_arr().length > 0) {
 				int res = stockMapper.updateStocksToDelete(to);
 				result = res > 0 ? "success" : "fail";
 			}

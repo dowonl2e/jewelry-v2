@@ -61,7 +61,7 @@ public class MenuAuthApiController {
 	@PostMapping("/user/auth")
 	public MenuAuthVO userAuth(
 			@RequestHeader("Authorization") String accessToken,
-			final MenuAuthTO to){
+			@RequestBody final MenuAuthTO to){
 		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return menuAuthService.findUserMenuAuth(to);
 	}

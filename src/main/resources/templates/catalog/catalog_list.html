@@ -6,107 +6,105 @@
 <th:block layout:fragment="content">
   <div class="card shadow mb-4">
     <div class="card-body">
-        <form id="searchForm" onsubmit="return false;" class="border-bottom">
-            <div class="mb20" id="adv-search">
-                <div class="form-inline">
-                    <select id="searchvender" class="form-control">
-                      <option value="">제조사구분</option>
-                      <option value="1">제조사1</option>
-                      <option value="2">제조사2</option>
-                    </select>
-                    <input type="number" id="searchrecordcnt" class="form-control mlr5" placeholder="행 개수" min="1" max="100" oninput="fncCheckZero(this);" style="width:100px;"/>
-                    <input type="text" id="searchword" class="form-control mlr5" placeholder="모델번호/품명 입력" style="width: auto;" />
-                    <button type="button" onclick="findAll(0);" class="btn btn-secondary">
-                        <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
-                    </button>
-                    <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-                    <span id="write-auth1"></span>
-                </div>
-            </div>
-        </form>
-            <div class="table-responsive clearfix text-center border-bottom" id="list">
-
-            </div>
-
-            <div class="btn_wrap text-left mt-3">
-              <span id="write-auth2"></span>
-              <span id="remove-auth1"></span>
-            </div>
-
-            <nav aria-label="Page navigation" class="text-center">
-                <ul class="pagination"></ul>
-            </nav>
+      <form id="searchForm" onsubmit="return false;" class="border-bottom">
+        <div class="mb20" id="adv-search">
+          <div class="form-inline">
+            <select id="searchvender" class="form-control">
+              <option value="">제조사구분</option>
+              <option value="1">제조사1</option>
+              <option value="2">제조사2</option>
+            </select>
+            <input type="number" id="searchrecordcnt" class="form-control mlr5" placeholder="행 개수" min="1" max="100" oninput="fncCheckZero(this);" style="width:100px;"/>
+            <input type="text" id="searchword" class="form-control mlr5" placeholder="모델번호/품명 입력" style="width: auto;" />
+            <button type="button" onclick="findAll(0);" class="btn btn-secondary">
+                <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
+            </button>
+            <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
+            <span id="write-auth1"></span>
+          </div>
         </div>
+      </form>
+      <div class="table-responsive clearfix text-center border-bottom" id="list"></div>
+
+      <div class="btn_wrap text-left mt-3">
+        <span id="write-auth2"></span>
+        <span id="remove-auth1"></span>
+      </div>
+
+      <nav aria-label="Page navigation" class="text-center">
+        <ul class="pagination"></ul>
+      </nav>
     </div>
+  </div>
 
-    <script th:inline="javascript">
-		  /*<![CDATA[*/
+  <script th:inline="javascript">
+    /*<![CDATA[*/
 
-        var minNumberLen = 1;
-        var maxNumberLen = 100;
-        /**
-         * 페이지 HTML 렌더링
-         */
+      var minNumberLen = 1;
+      var maxNumberLen = 100;
+      /**
+       * 페이지 HTML 렌더링
+       */
 
-        var codemap = {
-          [# th:each="code, loop : ${cdmapper}"]
-            "[(${code.cdid})]": "[(${code.cdnm})]",
-          [/]
-        };
+      var codemap = {
+        [# th:each="code, loop : ${cdmapper}"]
+          "[(${code.cdid})]": "[(${code.cdnm})]",
+        [/]
+      };
 
-        window.onload = () => {
-          setQueryStringParams();
-          findAll();
-          addEnterSearchEvent();
+      window.onload = () => {
+        setQueryStringParams();
+        findAll();
+        addEnterSearchEvent();
+      }
+
+      /**
+        * 키워드 - 엔터 검색 이벤트 바인딩
+        */
+      function addEnterSearchEvent() {
+        document.getElementById('searchword').addEventListener('keyup', (e) => {
+          if (e.keyCode === 13) {
+            findAll(0);
+          }
+        });
+      }
+
+      function drawPages(params) {
+
+        if (!params) {
+          document.querySelector('.pagination').innerHTML = '';
+          return false;
         }
 
-        /**
-          * 키워드 - 엔터 검색 이벤트 바인딩
-          */
-        function addEnterSearchEvent() {
-          document.getElementById('searchword').addEventListener('keyup', (e) => {
-            if (e.keyCode === 13) {
-                findAll(0);
-            }
-          });
+        let html = '';
+        const pagination = params;
+
+        var startpage = pagination.startpage;
+        var endpage = pagination.endpage;
+
+        // 첫 페이지, 이전 페이지
+        if (pagination.hasprevpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+          `;
         }
 
-        function drawPages(params) {
+        // 페이지 번호
+        for (let i = startpage ; i < endpage ; i++) {
+          const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
+          html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
+        }
 
-          if (!params) {
-              document.querySelector('.pagination').innerHTML = '';
-              return false;
-          }
+        // 다음 페이지, 마지막 페이지
+        if (pagination.hasnextpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+          `;
+        }
 
-          let html = '';
-          const pagination = params;
-
-          var startpage = pagination.startpage;
-          var endpage = pagination.endpage;
-
-          // 첫 페이지, 이전 페이지
-          if (pagination.hasprevpage) {
-              html += `
-                  <li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-                  <li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
-              `;
-          }
-
-          // 페이지 번호
-          for (let i = startpage ; i < endpage ; i++) {
-              const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
-              html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
-          }
-
-          // 다음 페이지, 마지막 페이지
-          if (pagination.hasnextpage) {
-              html += `
-                  <li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
-                  <li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-              `;
-          }
-
-          document.querySelector('.pagination').innerHTML = html;
+        document.querySelector('.pagination').innerHTML = html;
       }
 
       /**
@@ -132,7 +130,8 @@
           getJson('/api/catalog/list', params).then(response => {
             let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', removeAuth = 'N';
             if (!Object.keys(response).length || response.menuAuth == null) {
-              removeAuthButton('write-auth-btn');
+              removeAuthButton('write-auth1');
+              removeAuthButton('write-auth2');
             }
             else {
               accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
@@ -140,10 +139,10 @@
                 altNoAuth();
                 goMainPage();
               }
-
               writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
               viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
               removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+
               //등록 권한 관련 버튼 체크
               if(writeAuth == 'Y'){
                 let writeAuthBtn = `
@@ -316,14 +315,13 @@
         if(confirm('삭제하시겠습니까?')){
           const formData = new FormData();
           $(".form-check").each(function(){
-              if($(this).is(":checked"))
-                  formData.append("catalog_no_arr[]", checkNullVal($(this).val()));
+            if($(this).is(":checked"))
+              formData.append("catalog_no_arr[]", checkNullVal($(this).val()));
           });
 
           fetch('/api/catalog/catalogs/remove', {
               method: 'PATCH',
               headers: {
-                'Content-Type': 'application/json',
                 'Authorization': getToken()
               },
               body: formData
@@ -332,7 +330,7 @@
                 throw new Error('Request Failed...');
             }
             alert('삭제되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
               alert('오류가 발생하였습니다.');
           });

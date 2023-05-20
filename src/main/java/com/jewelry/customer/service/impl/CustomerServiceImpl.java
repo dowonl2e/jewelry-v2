@@ -1,5 +1,6 @@
 package com.jewelry.customer.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.customer.domain.CustomerTO;
 import com.jewelry.customer.domain.CustomerVO;
 import com.jewelry.customer.mapper.CustomerMapper;
@@ -7,6 +8,7 @@ import com.jewelry.customer.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +18,9 @@ import java.util.Map;
 public class CustomerServiceImpl implements CustomerService {
 
 	private final CustomerMapper customerMapper;
-	
+
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllCustomer(CustomerTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -30,6 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public CustomerVO findCustomerByNo(Long customerno) {
 		return customerMapper.selectCustomer(customerno);
@@ -74,4 +78,22 @@ public class CustomerServiceImpl implements CustomerService {
 		return res > 0 ? "success" : "fail";
 	}
 
+	@Transactional
+	@Override
+	public String updateCustomersToDelete(CustomerTO to) {
+		String result = "fail";
+		try {
+			if(to.getCustomer_no_arr() != null && to.getCustomer_no_arr().length > 0) {
+				int res = customerMapper.updateCustomersToDelete(to);
+				result = res > 0 ? "success" : "fail";
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			result = "fail";
+		}
+
+		return result;
+	}
 }

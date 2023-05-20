@@ -93,7 +93,7 @@
 
 	<select id="selectUserAuthMenu" parameterType="CommonTO" resultType="MenuAuthVO">
 		SELECT IF(a.user_role = 'ADMIN', 'Y', IFNULL(B.ACCESS_AUTH,'N')) AS ACCESS_AUTH
-						, IF(a.user_role = 'ADMIN', 'N', IFNULL(B.WRITE_AUTH,'N')) AS WRITE_AUTH
+						, IF(a.user_role = 'ADMIN', 'Y', IFNULL(B.WRITE_AUTH,'N')) AS WRITE_AUTH
 						, IF(a.user_role = 'ADMIN', 'Y', IFNULL(B.VIEW_AUTH,'N')) AS VIEW_AUTH
 						, IF(a.user_role = 'ADMIN', 'Y', IFNULL(B.MODIFY_AUTH,'N')) AS MODIFY_AUTH
 						, IF(a.user_role = 'ADMIN', 'Y', IFNULL(B.REMOVE_AUTH,'N')) AS REMOVE_AUTH

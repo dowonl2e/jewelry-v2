@@ -112,9 +112,47 @@
 
   <script th:inline="javascript">
 		/*<![CDATA[*/
+
+      window.onload = () => {
+        checkAuth();
+      }
+
+		  function checkAuth() {
+        if(!isValidToken())
+          return false;
+
+        const params = {
+					'menuId': 'customer'
+				};
+
+        fetch(`/api/menuauth/user/auth`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+					},
+					body: JSON.stringify(params)
+				}).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
+          return response.json();
+        }).then(json => {
+          if(checkNullValR(json.accessAuth, 'N') != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+          }
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+          fncClose();
+        });
+			}
+
 			function fncSave(){
         if(!isValidToken())
           return false;
+
         if($("#reg_dt").val() == ''){
           alert('등록일을 입력해주세요.');
           $("#reg_dt").focus();

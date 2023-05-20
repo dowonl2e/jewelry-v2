@@ -1,11 +1,10 @@
 package com.jewelry.customer.mapper;
 
-import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
-
 import com.jewelry.customer.domain.CustomerTO;
 import com.jewelry.customer.domain.CustomerVO;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 @Mapper
 public interface CustomerMapper {
@@ -21,5 +20,7 @@ public interface CustomerMapper {
 	int updateCustomer(CustomerTO to) throws Exception;
 
 	int updateCustomerToDelete(CustomerTO to) throws Exception;
+
+	int updateCustomersToDelete(CustomerTO to) throws Exception;
 
 }

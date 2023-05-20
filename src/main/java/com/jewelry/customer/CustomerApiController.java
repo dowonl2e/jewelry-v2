@@ -20,8 +20,14 @@ public class CustomerApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "customer";
+
 	@GetMapping("/list")
-	public Map<String, Object> findAll(final CustomerTO to){
+	public Map<String, Object> findAll(
+			@RequestHeader("Authorization") String accessToken,
+			final CustomerTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return customerService.findAllCustomer(to);
 	}
 	
@@ -67,5 +73,15 @@ public class CustomerApiController {
 		return  new ResponseEntity<>(response.getStatus());
 	}
 
+	@PatchMapping("/customers/remove")
+	public ResponseEntity<Object> customersRemove(
+			@RequestHeader("Authorization") String accessToken,
+			final CustomerTO to){
+		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String result = customerService.updateCustomersToDelete(to);
+
+		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
+		return new ResponseEntity<>(response.getStatus());
+	}
 	
 }

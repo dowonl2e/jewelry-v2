@@ -18,41 +18,40 @@
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
             <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary waves-effect waves-light">자료등록</a>
-<!--            </th:block>-->
+            <span id="write-auth1"></span>
           </div>
         </div>
       </form>
       <div class="table-responsive clearfix">
         <table class="table">
           <thead>
-          <tr>
-            <th rowspan="2" class="">No.</th>
-            <th rowspan="2" class="border-left"><input type="checkbox" id="arr_customer_no"/></th>
-            <th rowspan="2" class="border-left">등록일</th>
-            <th rowspan="2" class="border-left">계약구분</th>
-            <th rowspan="2" class="border-left">고객코드</th>
-            <th colspan="2" class="border-left">계약고객</th>
-            <th colspan="5" class="border-left">건수</th>
-            <th colspan="2" class="border-left">(단위:천원)</th>
-            <th rowspan="2" class="border-left">비고</th>
-          </tr>
-          <tr>
-            <th class="border-left">이름</th>
-            <th class="border-left">H.P</th>
-            <th class="border-left">주문</th>
-            <th class="border-left">수리</th>
-            <th class="border-left">예약</th>
-            <th class="border-left">판매</th>
-            <th class="border-left">견적</th>
-            <th class="border-left">매츨</th>
-            <th class="border-left">매수</th>
-          </tr>
+            <tr>
+              <th rowspan="2" class="">No.</th>
+              <th rowspan="2" class="border-left"><input type="checkbox" id="arr_customer_no" onchange="allCheck(this);"/></th>
+              <th rowspan="2" class="border-left">등록일</th>
+              <th rowspan="2" class="border-left">계약구분</th>
+              <th rowspan="2" class="border-left">고객코드</th>
+              <th colspan="2" class="border-left">계약고객</th>
+              <th colspan="5" class="border-left">건수</th>
+              <th colspan="2" class="border-left">(단위:천원)</th>
+              <th rowspan="2" class="border-left">비고</th>
+            </tr>
+            <tr>
+              <th class="border-left">이름</th>
+              <th class="border-left">H.P</th>
+              <th class="border-left">주문</th>
+              <th class="border-left">수리</th>
+              <th class="border-left">예약</th>
+              <th class="border-left">판매</th>
+              <th class="border-left">견적</th>
+              <th class="border-left">매츨</th>
+              <th class="border-left">매수</th>
+            </tr>
           </thead>
           <tbody id="list"></tbody>
         </table>
-        <div class="btn_wrap text-right">
+        <div class="btn_wrap text-left">
+          <span id="remove-auth1"></span>
         </div>
         <nav aria-label="Page navigation" class="text-center">
           <ul class="pagination"></ul>
@@ -155,6 +154,43 @@
         history.replaceState({}, '', replaceUri);
 
         getJson('/api/customer/list', params).then(response => {
+          let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', removeAuth = 'N';
+          if (!Object.keys(response).length || response.menuAuth == null) {
+            removeAuthButton('write-auth1');
+          }
+          else {
+            accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+            if(accessAuth != 'Y'){
+              altNoAuth();
+              goMainPage();
+            }
+
+            writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+            viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+            removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+            //등록 권한 관련 버튼 체크
+            if(writeAuth == 'Y'){
+              let writeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncPopupWrite(); return false;" class="btn btn-primary waves-effect waves-light">자료등록</a>
+              `;
+              document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+            }
+            else {
+              removeAuthButton('write-auth1');
+            }
+
+            //삭제 권한 관련 버튼 체크
+            if(removeAuth == 'Y'){
+              let removeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncRemove(); return false;" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+              `;
+              document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
+            }
+            else {
+              removeAuthButton('remove-auth1');
+            }
+          }
+
           if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
             document.getElementById('list').innerHTML = '<td colspan="15" class="text-center">등록된 고객이 없습니다.</td>';
             drawPages();
@@ -163,14 +199,12 @@
 
           let html = '';
           let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-          //const viewAuth = '${sessionScope.VIEW_AUTH}';
-          const viewAuth = 'Y';
           response.list.forEach((obj, idx) => {
             const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
             html += `
               <tr class="small">
                 <td class="text-center">` + (num--) + `</td>
-                <td class="text-center"><input type="checkbox" id="arr_customer_no" value="`+checkNullVal(obj.customerno)+`"/></td>
+                <td class="text-center"><input type="checkbox" class="form-check" value="`+checkNullVal(obj.customerno)+`"/></td>
                 <td class="text-center">` + checkSubstringNullVal(obj.regdt,0,10) + `</td>
                 <td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.contractcd)]) +`</td>
                 <td class="text-center bold">
@@ -270,10 +304,56 @@
         window.open(url, name, option);
       }
 
+      function fncRemove(){
+        if(!isValidToken())
+          return false;
+
+        var checkcnt = 0;
+        $(".form-check").each(function(){
+          if($(this).is(":checked")){
+            checkcnt++;
+          }
+        });
+        if(checkcnt == 0){
+          alert('삭제할 고객을 선택해주세요.');
+          return false;
+        }
+
+        if(confirm('삭제하시겠습니까?')){
+          const formData = new FormData();
+          $(".form-check").each(function(){
+            if($(this).is(":checked"))
+              formData.append("customer_no_arr[]", checkNullVal($(this).val()));
+          });
+          console.log(formData);
+          fetch('/api/customer/customers/remove', {
+            method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
+            body: formData
+          }).then(response => {
+            if(!response.ok){
+              throw new Error('Request Failed...');
+            }
+            alert('삭제되었습니다.');
+            refresh();
+          }).catch(error => {
+            alert('오류가 발생하였습니다.');
+          });
+        }
+      }
+
       function refresh(){
         findAll(/*[[${param.currentpage}]]*/);
       }
 
+      function allCheck(obj){
+        if($(obj).is(":checked"))
+          $(".form-check").attr("checked", true);
+        else
+          $(".form-check").attr("checked", false);
+      }
 		/*]]>*/
 	</script>
 </th:block>

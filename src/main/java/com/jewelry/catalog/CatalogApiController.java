@@ -74,7 +74,7 @@ public class CatalogApiController {
 	}
 
 	@PatchMapping("/catalogs/remove")
-	public ResponseEntity<Object> repairsRemove(
+	public ResponseEntity<Object> catalogsRemove(
 			@RequestHeader("Authorization") String accessToken,
 			final CatalogTO to){
 		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));

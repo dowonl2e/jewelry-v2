@@ -24,7 +24,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 
 	private final UserMapper userMapper;
 	
-	private final MenuAuthMapper authMapper;
+	private final MenuAuthMapper menuAuthMapper;
 		
 	@Transactional(readOnly = true)
 	@Override
@@ -46,12 +46,12 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 
 		to.setMenu_depth(1);
 		List<MenuAuthVO> list = null;
-		List<MenuAuthVO> oneAuthList = authMapper.selectUserAuthMenuList(to);
+		List<MenuAuthVO> oneAuthList = menuAuthMapper.selectUserAuthMenuList(to);
 		if(!CollectionUtils.isEmpty(oneAuthList)) {
 			list = new ArrayList<>();
 
 			to.setMenu_depth(2);
-			List<MenuAuthVO> twoAuthList = authMapper.selectUserAuthMenuList(to);
+			List<MenuAuthVO> twoAuthList = menuAuthMapper.selectUserAuthMenuList(to);
 			
 			for(MenuAuthVO oneDepthVo : oneAuthList) {
 				list.add(oneDepthVo);
@@ -73,10 +73,10 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 		String result = "fail";
 		try {
 
-			Integer existCnt = authMapper.selectUserAuthMenuExistCnt(to);
+			Integer existCnt = menuAuthMapper.selectUserAuthMenuExistCnt(to);
 			existCnt = existCnt == null ? 0 : existCnt;
 			
-			int res = existCnt == 0 ? authMapper.insertUserAuthMenu(to) : authMapper.updateUserAuthMenu(to);
+			int res = existCnt == 0 ? menuAuthMapper.insertUserAuthMenu(to) : menuAuthMapper.updateUserAuthMenu(to);
 				
 			result = res > 0 ? "success" : "fail";
 			
@@ -97,7 +97,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 			int res = 0;
 			if(to.getMenuIdArr() != null && to.getMenuIdArr().length > 0) {
 				
-				List<MenuAuthVO> authList = authMapper.selectUserAuthMenusWithUserId(to.getUser_id());
+				List<MenuAuthVO> authList = menuAuthMapper.selectUserAuthMenusWithUserId(to.getUser_id());
 				List<MenuAuthTO> insertList = new ArrayList<>();
 				List<MenuAuthTO> updateList = new ArrayList<>();
 				
@@ -143,8 +143,8 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 					}
 					idx++;
 				}
-				res += (CollectionUtils.isEmpty(insertList) ? 0 : authMapper.insertUserAuthMenus(insertList));
-				res += (CollectionUtils.isEmpty(updateList) ? 0 : authMapper.updateUserAuthMenus(updateList));
+				res += (CollectionUtils.isEmpty(insertList) ? 0 : menuAuthMapper.insertUserAuthMenus(insertList));
+				res += (CollectionUtils.isEmpty(updateList) ? 0 : menuAuthMapper.updateUserAuthMenus(updateList));
 				
 			}
 			result = res > 0 ? "success" : "fail";
@@ -160,12 +160,12 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	@Transactional(readOnly = true)
 	@Override
 	public List<MenuAuthVO> findUserMenusAuth(MenuAuthTO to) {
-		return authMapper.selectUserAuthMenus(to);
+		return menuAuthMapper.selectUserAuthMenus(to);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
 	public MenuAuthVO findUserMenuAuth(MenuAuthTO to) {
-		return authMapper.selectUserAuthMenu(to);
+		return menuAuthMapper.selectUserAuthMenu(to);
 	}
 }
