@@ -1,9 +1,9 @@
 package com.jewelry.order.service;
 
-import java.util.Map;
-
 import com.jewelry.order.domain.OrderTO;
 import com.jewelry.order.domain.OrderVO;
+
+import java.util.Map;
 
 public interface OrderService {
 	
@@ -11,7 +11,7 @@ public interface OrderService {
 	
 	String insertOrder(OrderTO to);
 	
-	OrderVO findOrderByNo(Long orderno);
+	OrderVO findOrderByNo(OrderTO to);
 	
 	String updateOrder(OrderTO to);
 	

@@ -35,11 +35,12 @@ public class CustomerServiceImpl implements CustomerService {
 	@Transactional(readOnly = true)
 	@MenuAuthAnt
 	@Override
-	public CustomerVO findCustomerByNo(Long customerno) {
-		return customerMapper.selectCustomer(customerno);
+	public CustomerVO findCustomerByNo(CustomerTO to) {
+		return customerMapper.selectCustomer(to.getCustomer_no());
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertCustomer(CustomerTO to) {
 		int res = 0;
@@ -53,6 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCustomer(CustomerTO to) {
 		int res = 0;
@@ -66,6 +68,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCustomerToDelete(CustomerTO to) {
 		int res = 0;
@@ -79,6 +82,7 @@ public class CustomerServiceImpl implements CustomerService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCustomersToDelete(CustomerTO to) {
 		String result = "fail";

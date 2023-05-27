@@ -129,11 +129,11 @@
                 history.replaceState({}, '', replaceUri);
 
                 getJson('/api/catalog/list', params).then(response => {
-                    if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
-                        document.getElementById('list').innerHTML = '<div class="row row-cols-1" style="line-height:80px;"><div class="col">등록된 카다로그가 없습니다.</div></div>';
-                        drawPages();
-                        return false;
-                    }
+                  if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
+                    document.getElementById('list').innerHTML = '<div class="row row-cols-1" style="line-height:80px;"><div class="col">등록된 카다로그가 없습니다.</div></div>';
+                    drawPages();
+                    return false;
+                  }
 
                     let html = '';
                     let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;

@@ -43,8 +43,14 @@ public class CustomerApiController {
 	}
 
 	@GetMapping("/{customerno}")
-	public CustomerVO findCodeByCdId(@PathVariable final Long customerno) {
-		return customerService.findCustomerByNo(customerno);
+	public CustomerVO findCodeByCdId(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long customerno) {
+		CustomerTO to = new CustomerTO();
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setCustomer_no(customerno);
+		return customerService.findCustomerByNo(to);
 	}
 	
 	@PatchMapping("/{customerno}")
@@ -52,8 +58,11 @@ public class CustomerApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@PathVariable final Long customerno,
 			@RequestBody final CustomerTO to) {
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
 		to.setCustomer_no(customerno);
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setUpdt_id(userId);
 		String result = customerService.updateCustomer(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -64,9 +73,12 @@ public class CustomerApiController {
 	public ResponseEntity<Object> remove(
 			@RequestHeader("Authorization") String accessToken,
 			@PathVariable final Long customerno) {
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
 		CustomerTO to = new CustomerTO();
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
 		to.setCustomer_no(customerno);
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setUpdt_id(userId);
 		String result = customerService.updateCustomerToDelete(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -77,7 +89,10 @@ public class CustomerApiController {
 	public ResponseEntity<Object> customersRemove(
 			@RequestHeader("Authorization") String accessToken,
 			final CustomerTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = customerService.updateCustomersToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

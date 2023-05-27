@@ -1,5 +1,6 @@
 package com.jewelry.order.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.customer.domain.CustomerVO;
 import com.jewelry.customer.mapper.CustomerMapper;
 import com.jewelry.file.domain.FileTO;
@@ -39,6 +40,7 @@ public class OrderServiceImpl implements OrderService {
 	private final StockMapper stockMapper;
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllOrder(OrderTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -51,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertOrder(OrderTO to) {
 		String result = "success";
@@ -119,18 +122,18 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public OrderVO findOrderByNo(Long orderno) {
-		OrderVO vo = orderMapper.selectOrder(orderno);
-		
+	public OrderVO findOrderByNo(OrderTO to) {
+		OrderVO vo = orderMapper.selectOrder(to.getOrder_no());
 		if(vo != null) {
-			vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(orderno, "ORDER")));
+			vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(to.getOrder_no(), "ORDER")));
 		}
-		
 		return vo;
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrder(OrderTO to) {
 		String result = "success";
@@ -248,6 +251,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrdersStep(OrderTO to) {
 		String result = "success";
@@ -268,6 +272,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrdersToDelete(OrderTO to) {
 		String result = "success";
@@ -287,6 +292,8 @@ public class OrderServiceImpl implements OrderService {
 		return result;
 	}
 
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrdersCustomer(OrderTO to) {
 		String result = "success";
@@ -311,6 +318,8 @@ public class OrderServiceImpl implements OrderService {
 		return result;
 	}
 
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrdersVender(OrderTO to) {
 		String result = "success";
@@ -333,13 +342,25 @@ public class OrderServiceImpl implements OrderService {
 
 		return result;
 	}
-	
+
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateOrderToDelete(OrderTO to) {
-		return null;
+		String result = "fail";
+		try {
+
+		}
+		catch (Exception e){
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			result = "fail";
+		}
+		return result;
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllOrdersNo(OrderTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -348,6 +369,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllCustomerOrder(OrderTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -358,70 +380,4 @@ public class OrderServiceImpl implements OrderService {
 		
 		return response;
 	}
-	
-	/**
-	 * 2022-12-09 dwlee
-	 * 주문이력 재고등록 기능 수정으로 StockService로 이동
-	 */
-//	@Transactional
-//	@Override
-//	public String insertOrdersToStock(OrderTO to) {
-//		String result = "success";
-//		try {
-//			
-//			Long[] order_no_arr = to.getOrder_no_arr();
-//			if(order_no_arr != null && order_no_arr.length > 0) {
-//				List<OrderVO> orderList = orderMapper.selectOrderListWithNo(to);
-//				if(orderList != null && orderList.size() > 0) {
-//					FileTO fileto = null;
-//					StockTO stockto = new StockTO();
-//					stockto.setInpt_id(to.getInpt_id());
-//					stockto.setStock_type_cd("OC03");
-//					for(OrderVO vo : orderList) {
-//						stockto.setReg_dt(Utils.getTodayDateFormat("yyyy-MM-dd"));
-//						stockto.setStore_cd(vo.getStorecd());
-//						stockto.setCatalog_no(vo.getCatalogno());
-//						stockto.setModel_id(vo.getModelid());
-//						stockto.setVender_no(vo.getVenderno());
-//						stockto.setVender_nm(vo.getVendernm());
-//						stockto.setMaterial_cd(vo.getMaterialcd());
-//						stockto.setColor_cd(vo.getColorcd());
-//						stockto.setMain_stone_type(vo.getMainstonetype());
-//						stockto.setSub_stone_type(vo.getSubstonetype());
-//						stockto.setSize(vo.getSize());
-//						stockto.setStock_desc(vo.getOrderdesc());
-//						stockto.setQuantity(vo.getQuantity());
-//						int res = stockMapper.insertStock(stockto);
-//						if(res > 0) {
-//							Long stockno = stockto.getStock_no();
-//							if(stockno != null && stockno > 0) {
-//								fileto = new FileTO();
-//								fileto.setInpt_id(to.getInpt_id());
-//								fileto.setRef_no(stockno);
-//								fileto.setRef_info("STOCK");
-//								fileto.setFile_path(vo.getFilepath());
-//								fileto.setFile_nm(vo.getFilenm());
-//								fileto.setOrigin_nm(vo.getOriginnm());
-//								fileto.setFile_ord(1);
-//								fileto.setFile_ext(vo.getFileext());
-//								fileto.setFile_size(vo.getFilesize());
-//								fileto.setVersion_id(vo.getVersionid());
-//								fileMapper.insertFile(fileto);
-//							}
-//						}
-//					}
-//					to.setOrder_step("C");
-//					orderMapper.updateOrdersStatus(to);
-//				}
-//			}
-//			
-//		}
-//		catch (Exception e) {
-//			e.printStackTrace();
-//			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//			result = "fail";
-//		}
-//
-//		return result;
-//	}
 }

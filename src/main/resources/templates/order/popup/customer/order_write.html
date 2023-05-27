@@ -35,10 +35,10 @@
                 </select>
               </td>
               <td class="text-center border-right">
-                <input type="date" name="receipt_dt" id="receipt_dt" class="form-control form-data mtb5" value="${today}" maxlength="10"/>
+                <input type="date" name="receipt_dt" id="receipt_dt" class="form-control form-data mtb5" th:value="${today}" maxlength="10"/>
               </td>
               <td class="text-center">
-                <input type="date" name="expected_ord_dt" id="expected_ord_dt" class="form-control form-data mtb5" value="${today}" maxlength="10"/>
+                <input type="date" name="expected_ord_dt" id="expected_ord_dt" class="form-control form-data mtb5" th:value="${today}" maxlength="10"/>
               </td>
             </tr>
             <tr>
@@ -155,9 +155,7 @@
           </table>
         </div>
         <div class="btn_wrap text-center">
-<!--          <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">등록</a>
-<!--          </th:block>-->
+          <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">등록</a>
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -169,6 +167,7 @@
 			$(document).ready(function(){
 				const inputElement = document.getElementById("file");
 				inputElement.addEventListener("change", readURL, false);
+			  checkAuth();
 			});
 
 			function readURL() {
@@ -183,6 +182,38 @@
 			    document.getElementById('preview').src = "";
 			    document.getElementById('file-label').innerHTML = '파일 첨부하기';
 			  }
+			}
+
+      function checkAuth() {
+        if(!isValidToken())
+          return false;
+
+        const params = {
+					'menuId': 'order'
+				};
+
+        fetch(`/api/menuauth/user/auth`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': getToken()
+					},
+					body: JSON.stringify(params)
+				}).then(response => {
+          if (!response.ok) {
+            throw new Error('Request failed...');
+          }
+          return response.json();
+        }).then(json => {
+          if(checkNullValR(json.writeAuth, 'N') != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+          }
+        }).catch(error => {
+          alert('오류가 발생하였습니다.');
+          fncClose();
+        });
 			}
 
 			function fncSave(){
@@ -277,7 +308,15 @@
 					body: formData
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('저장되었습니다.');
 					fncParentRefresh();

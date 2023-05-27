@@ -21,8 +21,14 @@ public class OrderApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "order";
+
 	@GetMapping("/list")
-	public Map<String, Object> list(final OrderTO to){
+	public Map<String, Object> list(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return orderService.findAllOrder(to);
 	}
 	
@@ -31,8 +37,11 @@ public class OrderApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@RequestPart(value = "file", required = false) MultipartFile file,
 			final OrderTO to){
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
 		to.setOrderfile(file);
-		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setInpt_id(userId);
 		String result = orderService.insertOrder(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -40,8 +49,14 @@ public class OrderApiController {
 	}
 	
 	@GetMapping("/{orderno}")
-	public OrderVO order(@PathVariable final Long orderno){
-		return orderService.findOrderByNo(orderno);
+	public OrderVO order(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long orderno){
+		OrderTO to = new OrderTO();
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setOrder_no(orderno);
+		return orderService.findOrderByNo(to);
 	}
 	
 	@PatchMapping("/modify/{orderno}")
@@ -50,6 +65,8 @@ public class OrderApiController {
 			@PathVariable final Long orderno, final OrderTO to,
 			@RequestPart(value = "file", required = false) MultipartFile file){
 		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userid);
 		to.setOrder_no(orderno);
 		to.setOrderfile(file);
 		to.setInpt_id(userid);
@@ -64,7 +81,10 @@ public class OrderApiController {
 	public ResponseEntity<Object> stepModify(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersStep(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -75,7 +95,10 @@ public class OrderApiController {
 	public ResponseEntity<Object> ordersRemove(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -83,13 +106,21 @@ public class OrderApiController {
 	}
 	
 	@GetMapping("/schedule/list")
-	public Map<String, Object> scheduleList(final OrderTO to){
+	public Map<String, Object> scheduleList(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setOrder_step("A");
 		return orderService.findAllOrder(to);
 	}
 
 	@GetMapping("/stocked/list")
-	public Map<String, Object> stockedList(final OrderTO to){
+	public Map<String, Object> stockedList(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setOrder_step("B");
 		return orderService.findAllOrder(to);
 	}
@@ -98,7 +129,10 @@ public class OrderApiController {
 	public ResponseEntity<Object> customerModify(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersCustomer(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -109,7 +143,10 @@ public class OrderApiController {
 	public ResponseEntity<Object> venderModify(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersVender(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -117,18 +154,33 @@ public class OrderApiController {
 	}
 
 	@PostMapping("/list/nos")
-	public Map<String, Object> listByOrdersNo(final OrderTO to){
+	public Map<String, Object> listByOrdersNo(
+			@RequestHeader("Authorization") String accessToken,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return orderService.findAllOrdersNo(to);
 	}
 	
 	@GetMapping("/customer/list/{customerno}")
-	public Map<String, Object> orderCustomerList(@PathVariable("customerno") final Long customerno, final OrderTO to){
+	public Map<String, Object> orderCustomerList(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable("customerno") final Long customerno,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setCustomer_no(customerno);
 		return orderService.findAllCustomerOrder(to);
 	}
 
 	@GetMapping("/customer/list/{customerno}/{orderstep}")
-	public Map<String, Object> orderCustomerList(@PathVariable("customerno") final Long customerno, @PathVariable("orderstep") final String orderstep, final OrderTO to){
+	public Map<String, Object> orderCustomerList(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable("customerno") final Long customerno,
+			@PathVariable("orderstep") final String orderstep,
+			final OrderTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setOrder_step(orderstep);
 		to.setCustomer_no(customerno);
 		return orderService.findAllCustomerOrder(to);

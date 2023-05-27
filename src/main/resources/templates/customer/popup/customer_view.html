@@ -78,9 +78,7 @@
             </tbody>
           </table>
           <div class="btn_wrap text-center">
-<!--            <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--            </th:block>-->
+            <span id="modify-auth"></span>
             <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
           </div>
         </div>
@@ -123,6 +121,21 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+          }
+          if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+            document.getElementById('modify-auth').innerHTML = `
+              <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
+            `;
+          }
+          else {
+		   	    removeAuthButton('modify-auth');
+          }
+
 		   		document.getElementById('reg_dt_td').innerHTML = checkSubstringNullVal(json.regdt,0,10);
 		   		document.getElementById('store_cd_td').innerHTML = checkNullVal(codemap[checkNullVal(json.storecd)]);
 		   		document.getElementById('contract_cd_td').innerHTML = checkNullVal(codemap[checkNullVal(json.contractcd)]);

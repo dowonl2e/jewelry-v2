@@ -9,7 +9,7 @@ public interface CustomerService {
 	
 	Map<String, Object> findAllCustomer(CustomerTO to);
 	
-	CustomerVO findCustomerByNo(Long customerno);
+	CustomerVO findCustomerByNo(CustomerTO to);
 	
 	String insertCustomer(CustomerTO to);
 	
