@@ -170,15 +170,16 @@
         getJson('/api/order/list', params).then(response => {
           let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
           if (!Object.keys(response).length || response.menuAuth == null) {
-            removeAuthButton('write-auth1');
-            removeAuthButton('write-auth2');
-            removeAuthButton('modify-auth1');
+            altNoAuth();
+            goMainPage();
+            return false;
           }
           else {
             accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
             if(accessAuth != 'Y'){
               altNoAuth();
               goMainPage();
+              return false;
             }
             writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
             viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
@@ -225,6 +226,7 @@
               removeAuthButton('remove-auth1');
             }
           }
+
           if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
             document.getElementById('list').innerHTML = '<td colspan="14" class="text-center">주문내역이 없습니다.</td>';
             drawPages();
@@ -390,7 +392,7 @@
           return false;
         }
 
-        var url = "/order/popup/step/modify?ordersno="+ordersno;
+        var url = "/order/popup/step/modify?menuId=order&ordersno="+ordersno;
         var name = "orderStepModifyPopup";
         var option = "width = 500, height = 300, top = 100, left = 200, location = no";
         window.open(url, name, option);
@@ -411,7 +413,7 @@
           return false;
         }
 
-        var url = "/order/popup/customer/modify?ordersno="+ordersno;
+        var url = "/order/popup/customer/modify?menuId=order&ordersno="+ordersno;
         var name = "orderCustomerModifyPopup";
         var option = "width = 1100, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);
@@ -432,7 +434,7 @@
           return false;
         }
 
-        var url = "/order/popup/vender/modify?ordersno="+ordersno;
+        var url = "/order/popup/vender/modify?menuId=order&ordersno="+ordersno;
         var name = "orderVenderModifyPopup";
         var option = "width = 1100, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);
@@ -472,7 +474,7 @@
         }
 
         var partUri = (customercnt == 0 && nocustomercnt > 0) ? 'nc-stock' : 'stock';
-        var url = '/order/popup/orders/'+partUri+'/write?ordersno='+ordersno;
+        var url = '/order/popup/orders/'+partUri+'/write?menuId=order&ordersno='+ordersno;
         var name = "orderVenderModifyPopup";
         var option = "width = 1500, height = 800, top = 100, left = 200, location = no";
         window.open(url, name, option);

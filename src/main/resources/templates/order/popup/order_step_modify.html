@@ -56,7 +56,10 @@
 			  }
 
 				if(confirm('변경하시겠습니까?')){
+				  const menuId = /*[[${param.menuId}]]*/;
+
           const formData = new FormData();
+          formData.append('menuId', menuId);
 					formData.append('order_no_arr[]',ordersno);
 					$(".form-data").each(function(){
 						formData.append($(this).attr("name"), checkNullVal($(this).val()));

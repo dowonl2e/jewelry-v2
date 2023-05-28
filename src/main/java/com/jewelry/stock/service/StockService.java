@@ -1,11 +1,10 @@
 package com.jewelry.stock.service;
 
-import java.util.List;
-import java.util.Map;
-
-import com.jewelry.order.domain.OrderTO;
 import com.jewelry.stock.domain.StockTO;
 import com.jewelry.stock.domain.StockVO;
+
+import java.util.List;
+import java.util.Map;
 
 public interface StockService {
 	
@@ -36,8 +35,6 @@ public interface StockService {
 	Map<String, Object> findAllAccumulationStock(StockTO to);
 
 	String insertCustomerOrder(StockTO to);
-	
-	String insertOrdersToStock(StockTO to, OrderTO orderto);
-	
+
 	Map<String, Object> isSameCustomer(String stocksno);
 }

@@ -4,7 +4,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
-  <div class="card shadow mb-4">
+  <div class="card shadow mb-4 mt-1">
     <div class="card-header py-3">
       <h6 class="m-0 font-weight-bold text-primary">주문 고객 변경</h6>
     </div>
@@ -51,6 +51,7 @@
 
       var minNumberLen = 1;
       var maxNumberLen = 100;
+      const menuId = /*[[${param.menuId}]]*/;
 
       /**
        * 페이지 HTML 렌더링
@@ -128,7 +129,8 @@
         const form = document.getElementById('searchForm');
 
         var params = {
-          startpage: page
+          menuId: menuId
+          , currentpage: page
           , searchword: form.searchword.value
           , ordersno: /*[[${ordersno}]]*/
         }
@@ -179,7 +181,9 @@
           return false;
 
         if(confirm('변경하시겠습니까?')){
+
           const formData = new FormData();
+          formData.append('menuId', menuId);
           formData.append('customer_no', customerno);
           formData.append('order_no_arr[]', ordersno);
 
@@ -191,7 +195,15 @@
             body: formData
           }).then(response => {
             if(!response.ok){
-              throw new Error('Request Failed...');
+              if(response.status == '403'){
+                altNoAuth();
+                fncParentRefresh();
+                fncClose();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
             }
             alert('변경되었습니다.');
             fncParentRefresh();

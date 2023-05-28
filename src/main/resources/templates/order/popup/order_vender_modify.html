@@ -53,6 +53,7 @@
 
 	  var minNumberLen = 1;
 	  var maxNumberLen = 100;
+    const menuId = /*[[${param.menuId}]]*/;
 
     var codemap = {
       [# th:each="code, loop : ${cdmapper}"]
@@ -127,7 +128,8 @@
 			const form = document.getElementById('searchForm');
 
 			var params = {
-			  currentpage: page
+				menuId: menuId
+			  , currentpage: page
 				, searchrecordcnt: form.searchrecordcnt.value
 				, searchword: form.searchword.value
 				, ordersno: /*[[${ordersno}]]*/
@@ -176,14 +178,16 @@
 
 		function fncModify(venderno){
 		  if(!isValidToken())
-          return false;
+        return false;
 
       const ordersno = /*[[${ordersno}]]*/;
       if(!ordersno)
         return false;
 
 			if(confirm('변경하시겠습니까?')){
+
 				const formData = new FormData();
+        formData.append('menuId', menuId);
 				formData.append('vender_no', venderno);
         formData.append('order_no_arr[]', ordersno);
 
@@ -195,7 +199,15 @@
 					body: formData
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('저장되었습니다.');
 					fncParentRefresh();

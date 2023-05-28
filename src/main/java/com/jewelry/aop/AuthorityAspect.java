@@ -57,6 +57,7 @@ public class AuthorityAspect {
 
     //권한자체가 없을 경우 초기화
     if(authVo == null){
+      log.info("권한이 없습니다.");
       authVo = new MenuAuthVO("N","N","N","N","N");
     }
 

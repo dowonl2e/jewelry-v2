@@ -6,7 +6,6 @@ import com.jewelry.catalog.domain.CatalogVO;
 import com.jewelry.catalog.domain.StoneTO;
 import com.jewelry.catalog.mapper.CatalogMapper;
 import com.jewelry.catalog.service.CatalogService;
-import com.jewelry.cms.menu.mapper.MenuAuthMapper;
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.mapper.FileMapper;
 import com.jewelry.file.service.AmazonS3Service;
@@ -26,11 +25,7 @@ import java.util.Map;
 public class CatalogServiceImpl implements CatalogService {
 
 	private final CatalogMapper catalogMapper;
-	
 	private final AmazonS3Service amazonS3Service;
-
-	private final MenuAuthMapper menuAuthMapper;
-
 	private final FileMapper fileMapper;
 	
 	
@@ -41,7 +36,6 @@ public class CatalogServiceImpl implements CatalogService {
 		Map<String, Object> response = new HashMap<>();
 
 		to.setTotalcount(catalogMapper.selectCatalogListCount(to));
-		//response.put("menuAuth", menuAuthMapper.selectUserAuthMenu(to));
 		response.put("list", catalogMapper.selectCatalogList(to));
 		response.put("params", to);
 
@@ -131,6 +125,7 @@ public class CatalogServiceImpl implements CatalogService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCatalog(CatalogTO to) {
 		String result = "success";
@@ -208,12 +203,14 @@ public class CatalogServiceImpl implements CatalogService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCatalogToDelete(String cdid) {
 		return null;
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCatalogsToDelete(CatalogTO to) {
 		String result = "fail";

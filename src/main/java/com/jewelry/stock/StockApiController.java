@@ -1,7 +1,6 @@
 package com.jewelry.stock;
 
 import com.jewelry.config.provider.JwtTokenProvider;
-import com.jewelry.order.domain.OrderTO;
 import com.jewelry.response.ResponseCode;
 import com.jewelry.stock.domain.StockTO;
 import com.jewelry.stock.domain.StockVO;
@@ -134,22 +133,6 @@ public class StockApiController {
 			final StockTO to){
 		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		String result = stockService.updateStocksVender(to);
-
-		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
-		return new ResponseEntity<>(response.getStatus());
-	}
-
-	@PatchMapping("/orders/stock/write")
-	public ResponseEntity<Object> ordersStockWrite(
-			@RequestHeader("Authorization") String accessToken,
-			final StockTO to, final OrderTO orderto,
-			@RequestPart(value = "file", required = false) MultipartFile file){
-		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setInpt_id(userid);
-		to.setUpdt_id(userid);
-		to.setStockfile(file);
-		orderto.setUpdt_id(userid);
-		String result = stockService.insertOrdersToStock(to, orderto);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
 		return new ResponseEntity<>(response.getStatus());

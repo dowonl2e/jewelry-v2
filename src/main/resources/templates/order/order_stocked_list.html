@@ -56,15 +56,9 @@
 
         <div class="text-left mt-3">
           <a href="javascript:void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a><span class="ml5">체크된 것</span>
-<!--          <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncPopupStepModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">단계변경</span></a>
-            <a href="javascript: void(0);" onclick="fncPopupCustomerModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">고객변경</span></a>
-            <a href="javascript: void(0);" onclick="fncPopupVenderModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">제조사 변경</span></a>
-            <a href="javascript: void(0);" onclick="fncOrderToStock(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고등록</span></a>
-<!--          </th:block>-->
-<!--          <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
-<!--          </th:block>-->
+          <span id="modify-auth1"></span>
+          <span id="write-auth2"></span>
+          <span id="remove-auth1"></span>
         </div>
 
         <nav aria-label="Page navigation" class="text-center">
@@ -168,6 +162,59 @@
         history.replaceState({}, '', replaceUri);
 
         getJson('/api/order/stocked/list', params).then(response => {
+          let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+          if (!Object.keys(response).length || response.menuAuth == null) {
+            altNoAuth();
+            goMainPage();
+            return false;
+          }
+          else {
+            accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+            if(accessAuth != 'Y'){
+              altNoAuth();
+              goMainPage();
+              return false;
+            }
+            writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+            viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+            modifyAuth = checkNullValR(response.menuAuth.modifyAuth, 'N');
+            removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+
+            //등록 권한 관련 버튼 체크
+            if(writeAuth == 'Y'){
+              let writeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncOrderToStock(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">재고등록</span></a>
+              `;
+              document.getElementById('write-auth2').innerHTML = writeAuthBtn;
+            }
+            else {
+              removeAuthButton('write-auth2');
+            }
+
+            if(modifyAuth == 'Y'){
+              let modifyAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncPopupStepModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">단계변경</span></a>
+                <a href="javascript: void(0);" onclick="fncPopupCustomerModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">고객변경</span></a>
+                <a href="javascript: void(0);" onclick="fncPopupVenderModify(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">제조사 변경</span></a>
+              `;
+              document.getElementById('modify-auth1').innerHTML = modifyAuthBtn;
+            }
+            else {
+              removeAuthButton('modify-auth1');
+            }
+
+            //삭제 권한 관련 버튼 체크
+            if(removeAuth == 'Y'){
+              let removeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+              `;
+              document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
+            }
+            else {
+              removeAuthButton('remove-auth1');
+            }
+          }
+
           if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
             document.getElementById('list').innerHTML = '<td colspan="14" class="text-center">입고예정 내역이 없습니다.</td>';
             drawPages();
@@ -176,8 +223,6 @@
 
           let html = '';
           let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-          //const viewAuth = '${sessionScope.VIEW_AUTH}';
-          const viewAuth = 'Y';
           response.list.forEach((obj, idx) => {
             html += `
               <tr class="small">
@@ -227,7 +272,6 @@
               </tr>
             `;
           });
-
 
           document.getElementById('list').innerHTML = html;
           drawPages(response.params);
@@ -390,7 +434,14 @@
             body: formData
           }).then(response => {
             if(!response.ok){
-              throw new Error('Request Failed...');
+              if(response.status == '403'){
+                altNoAuth();
+                refresh();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
             }
             alert('삭제되었습니다.');
             refresh();

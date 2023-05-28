@@ -5,6 +5,7 @@ import com.jewelry.order.domain.OrderTO;
 import com.jewelry.order.domain.OrderVO;
 import com.jewelry.order.service.OrderService;
 import com.jewelry.response.ResponseCode;
+import com.jewelry.stock.domain.StockTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -82,7 +83,6 @@ public class OrderApiController {
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setMenuId(menuId);
 		to.setUser_id(userId);
 		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersStep(to);
@@ -109,7 +109,7 @@ public class OrderApiController {
 	public Map<String, Object> scheduleList(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setMenuId(menuId);
+		to.setMenuId(menuId+"/schedule");
 		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setOrder_step("A");
 		return orderService.findAllOrder(to);
@@ -119,7 +119,7 @@ public class OrderApiController {
 	public Map<String, Object> stockedList(
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
-		to.setMenuId(menuId);
+		to.setMenuId(menuId+"/stocked");
 		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setOrder_step("B");
 		return orderService.findAllOrder(to);
@@ -130,7 +130,6 @@ public class OrderApiController {
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setMenuId(menuId);
 		to.setUser_id(userId);
 		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersCustomer(to);
@@ -144,7 +143,6 @@ public class OrderApiController {
 			@RequestHeader("Authorization") String accessToken,
 			final OrderTO to){
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setMenuId(menuId);
 		to.setUser_id(userId);
 		to.setUpdt_id(userId);
 		String result = orderService.updateOrdersVender(to);
@@ -184,6 +182,22 @@ public class OrderApiController {
 		to.setOrder_step(orderstep);
 		to.setCustomer_no(customerno);
 		return orderService.findAllCustomerOrder(to);
+	}
+
+	@PatchMapping("/orders/stock/write")
+	public ResponseEntity<Object> ordersStockWrite(
+			@RequestHeader("Authorization") String accessToken,
+			@RequestPart(value = "file", required = false) MultipartFile file,
+			final StockTO to, final OrderTO orderto){
+		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setInpt_id(userid);
+		to.setUpdt_id(userid);
+		to.setStockfile(file);
+		orderto.setUpdt_id(userid);
+		String result = orderService.insertOrdersToStock(to, orderto);
+
+		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
+		return new ResponseEntity<>(response.getStatus());
 	}
 
 }

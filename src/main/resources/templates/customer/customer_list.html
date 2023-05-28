@@ -156,13 +156,16 @@
         getJson('/api/customer/list', params).then(response => {
           let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', removeAuth = 'N';
           if (!Object.keys(response).length || response.menuAuth == null) {
-            removeAuthButton('write-auth1');
+            altNoAuth();
+            goMainPage();
+            return false;
           }
           else {
             accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
             if(accessAuth != 'Y'){
               altNoAuth();
               goMainPage();
+              return false;
             }
 
             writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');

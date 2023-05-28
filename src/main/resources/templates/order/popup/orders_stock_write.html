@@ -331,8 +331,9 @@
 
   <script th:inline="javascript">
 		/*<![CDATA[*/
+      const menuId = /*[[${param.menuId}]]*/;
 			$(document).ready(function(){
-				const inputElement = document.getElementById("file");
+        const inputElement = document.getElementById("file");
 				inputElement.addEventListener("change", readURL, false);
 
 				$("#real_pch_gold_price, .perpricebasic, .perpriceadd, .perpricemain, .perpricesub, .perweightgram, .materialcd, .multiplecnt").on('change keyup', function() {
@@ -502,6 +503,7 @@
 
 				const fileField = document.querySelector('input[type="file"]');
 				const formData = new FormData();
+        formData.append('menuId', menuId);
         formData.append("order_no_arr[]", ordersno);
 
 				$(".form-data").each(function(){
@@ -514,7 +516,7 @@
 				//배열 데이터 넣기
 				formData.append("file", fileField.files[0]);
 
-				fetch('/api/stock/orders/stock/write', {
+				fetch('/api/order/orders/stock/write', {
 					method: 'PATCH',
 					headers: {
 					  'Authorization': getToken()
