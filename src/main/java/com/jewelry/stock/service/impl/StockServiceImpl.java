@@ -1,5 +1,6 @@
 package com.jewelry.stock.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.domain.FileVO;
 import com.jewelry.file.mapper.FileMapper;
@@ -40,6 +41,7 @@ public class StockServiceImpl implements StockService {
 	private final OrderMapper orderMapper;
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllStock(StockTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -52,27 +54,31 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public List<StockVO> findAllPrevStock() {
 		return stockMapper.selectPrevStockList();
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public StockVO findStockByNo(Long stockno) {
-		StockVO vo = stockMapper.selectStock(stockno);
+	public StockVO findStockByNo(StockTO to) {
+		StockVO vo = stockMapper.selectStock(to.getStock_no());
 		if(vo != null) 
-			vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(stockno, "STOCK")));
+			vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(to.getStock_no(), "STOCK")));
 		return vo;
 	}
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public StockVO findStockCustomerByNo(Long stockno) {
-		return stockMapper.selectStockCustomer(stockno);
+	public StockVO findStockCustomerByNo(StockTO to) {
+		return stockMapper.selectStockCustomer(to.getStock_no());
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertStock(StockTO to) {
 		String result = "fail";
@@ -148,6 +154,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStock(StockTO to) {
 		String result = "success";
@@ -277,6 +284,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStockToDelete(StockTO to) {
 		int res = 0;
@@ -290,6 +298,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStocksToDelete(StockTO to) {
 		String result = "success";
@@ -309,6 +318,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStocksToSale(StockTO to) {
 		String result = "success";
@@ -329,6 +339,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStocksRegDate(StockTO to) {
 		String result = "success";
@@ -349,6 +360,7 @@ public class StockServiceImpl implements StockService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStocksType(StockTO to) {
 		String result = "success";
@@ -369,6 +381,7 @@ public class StockServiceImpl implements StockService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateStocksVender(StockTO to) {
 		String result = "success";
@@ -393,6 +406,7 @@ public class StockServiceImpl implements StockService {
 	}
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllAccumulationStock(StockTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -405,6 +419,7 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertCustomerOrder(StockTO to) {
 		String result = "success";
@@ -473,6 +488,8 @@ public class StockServiceImpl implements StockService {
 		return result;
 	}
 
+	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> isSameCustomer(String stocksno) {
 		Map<String, Object> map = new HashMap<>();

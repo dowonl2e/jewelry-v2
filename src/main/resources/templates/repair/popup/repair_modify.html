@@ -79,9 +79,7 @@
         </div>
 
         <div class="btn_wrap text-center">
-<!--          <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--          </th:block>-->
+          <span id="modify-auth1"></span>
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -118,6 +116,17 @@
 		    	return response.json();
 
 		   	}).then(json => {
+          if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+		   	  }
+		   	  else {
+		   	    document.getElementById('modify-auth1').innerHTML = `
+		   	      <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
+		   	    `;
+		   	  }
 
 		   		const form = document.getElementById('form');
 
@@ -196,10 +205,18 @@
 					body: formData
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('저장되었습니다.');
-					window.opener.refresh();
+					fncParentRefresh();
 					fncClose();
 				}).catch(error => {
 					alert('오류가 발생하였습니다.');

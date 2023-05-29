@@ -36,7 +36,7 @@
           <thead>
           <tr>
             <th class="text-center">No</th>
-            <th class="text-center border-left"><a href="javascript:void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a></th>
+            <th class="text-center border-left"><input type="checkbox" onchange="allCheck(this);"/></th>
             <th class="text-center border-left">접수일<br/>입고일</th>
             <th class="text-center border-left">구  분<br/>판매일</th>
             <th class="text-center border-left">매장명<br/>고객명</th>
@@ -331,53 +331,43 @@
       }
 
       function fncOrderToStock(){
-        if(!isValidToken())
-          return false;
-
-        var orderscheckcnt = 0;
+        var ordersno = '';
+        var customercnt = 0;
+        var nocustomercnt = 0;
         $(".form-check").each(function(){
           if($(this).is(":checked")){
-            orderscheckcnt++;
+            if(ordersno != '')
+              ordersno += ',';
+            ordersno += $(this).val();
+            if($("#order_type_arr_"+$(this).val()).val() == 'CUSTOMER'){
+              customercnt++;
+            }
+            else {
+              nocustomercnt++;
+            }
           }
         });
 
-        if(orderscheckcnt == 0){
-          alert('재고등록할 이력을 선택해주세요.');
+        if(ordersno == ''){
+          alert('주문내역을 선택해주세요.');
           return false;
         }
 
-        if(confirm('재고등록하시겠습니까?')){
-
-          const formData = new FormData();
-          formData.append('menuId', 'order/schedule');
-          $(".form-check").each(function(){
-            if($(this).is(":checked"))
-              formData.append("order_no_arr[]", checkNullVal($(this).val()));
-          });
-
-          fetch('/api/orders/stock/write', {
-            method: 'PATCH',
-            headers: {
-              'Authorization': getToken()
-            },
-            body: formData
-          }).then(response => {
-            if(!response.ok){
-              if(response.status == '403'){
-                altNoAuth();
-                refresh();
-                return false;
-              }
-              else {
-                throw new Error('Request Failed...');
-              }
-            }
-            alert('재고등록되었습니다.');
-            findAll();
-          }).catch(error => {
-            alert('오류가 발생하였습니다.');
-          });
+        if(customercnt > 0 && nocustomercnt > 0){
+          alert('재고등록시 고객주문과 기성주문을 별도로 등록가능합니다.');
+          return false;
         }
+
+        if(customercnt > 1){
+          alert('재고등록시 고객 주문은 1건만 등록가능합니다.');
+          return false;
+        }
+
+        var partUri = (customercnt == 0 && nocustomercnt > 0) ? 'nc-stock' : 'stock';
+        var url = '/order/popup/orders/'+partUri+'/write?menuId=order/schedule&ordersno='+ordersno;
+        var name = "orderVenderModifyPopup";
+        var option = "width = 1500, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
       }
 
       function fncPopupVenderModify(){
@@ -451,6 +441,13 @@
 
       function refresh(){
         findAll(/*[[${param.currentpage}]]*/);
+      }
+
+      function allCheck(obj){
+        if($(obj).is(":checked"))
+          $(".form-check").attr("checked", true);
+        else
+          $(".form-check").attr("checked", false);
       }
 
     /*]]>*/

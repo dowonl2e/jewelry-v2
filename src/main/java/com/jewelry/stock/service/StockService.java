@@ -12,9 +12,9 @@ public interface StockService {
 	
 	List<StockVO> findAllPrevStock();
 	
-	StockVO findStockByNo(Long stockno);
+	StockVO findStockByNo(StockTO to);
 	
-	StockVO findStockCustomerByNo(Long stockno);
+	StockVO findStockCustomerByNo(StockTO to);
 	
 	String insertStock(StockTO to);
 	

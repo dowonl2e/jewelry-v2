@@ -21,8 +21,13 @@ public class StockApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "stock";
 	@GetMapping("/list")
-	public Map<String, Object> list(final StockTO to){
+	public Map<String, Object> list(
+			@RequestHeader("Authorization") String accessToken,
+			final StockTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return stockService.findAllStock(to);
 	}
 	
@@ -31,8 +36,11 @@ public class StockApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@RequestPart(value = "file", required = false) MultipartFile file,
 			final StockTO to){
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
 		to.setStockfile(file);
-		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setInpt_id(userId);
 		String result = stockService.insertStock(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -40,13 +48,25 @@ public class StockApiController {
 	}
 
 	@GetMapping("/{stockno}")
-	public StockVO stock(@PathVariable final Long stockno){
-		return stockService.findStockByNo(stockno);
+	public StockVO stock(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long stockno){
+		StockTO to = new StockTO();
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setStock_no(stockno);
+		return stockService.findStockByNo(to);
 	}
 
 	@GetMapping("/customer/{stockno}")
-	public StockVO stockCustomer(@PathVariable final Long stockno){
-		return stockService.findStockCustomerByNo(stockno);
+	public StockVO stockCustomer(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long stockno){
+		StockTO to = new StockTO();
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setStock_no(stockno);
+		return stockService.findStockCustomerByNo(to);
 	}
 
 	@PatchMapping("/modify/{stockno}")
@@ -54,11 +74,13 @@ public class StockApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@PathVariable final Long stockno, final StockTO to,
 			@RequestPart(value = "file", required = false) MultipartFile file){
-		String username = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
 		to.setStock_no(stockno);
 		to.setStockfile(file);
-		to.setInpt_id(username);
-		to.setUpdt_id(username);
+		to.setInpt_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStock(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -69,7 +91,10 @@ public class StockApiController {
 	public ResponseEntity<Object> ordersRemove(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStocksToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -80,7 +105,10 @@ public class StockApiController {
 	public ResponseEntity<Object> ordersSale(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStocksToSale(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -88,7 +116,11 @@ public class StockApiController {
 	}
 	
 	@GetMapping("/accumulation/list")
-	public Map<String, Object> listAll(final StockTO to){
+	public Map<String, Object> listAll(
+			@RequestHeader("Authorization") String accessToken,
+			final StockTO to){
+		to.setMenuId(menuId+"/accumulation");
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return stockService.findAllAccumulationStock(to);
 	}
 
@@ -96,7 +128,10 @@ public class StockApiController {
 	public ResponseEntity<Object> regDateModify(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStocksRegDate(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -107,7 +142,10 @@ public class StockApiController {
 	public ResponseEntity<Object> typeModify(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStocksType(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -118,9 +156,11 @@ public class StockApiController {
 	public ResponseEntity<Object> orderCustomerWrite(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		String username = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setInpt_id(username);
-		to.setUpdt_id(username);
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setInpt_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.insertCustomerOrder(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -131,7 +171,10 @@ public class StockApiController {
 	public ResponseEntity<Object> venderModify(
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = stockService.updateStocksVender(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

@@ -18,9 +18,7 @@
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
             <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light">수리등록</a>
-<!--            </th:block>-->
+            <span id="write-auth1"></span>
           </div>
         </div>
       </form>
@@ -30,12 +28,8 @@
 
       <div class="btn_wrap text-left mt-3">
         <a href="javascript: void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a><span class="ml5">체크된 것</span>
-<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-        <a href="javascript: void(0);" onclick="fncRepairComplete(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">수리완료</span></a>
-<!--        </th:block>-->
-<!--            <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-          <a href="javascript: void(0);" onclick="fncRemove(); return false;" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
-<!--          </th:block>-->
+        <span id="modify-auth1"></span>
+        <span id="remove-auth1"></span>
       </div>
 
       <nav aria-label="Page navigation" class="text-center">
@@ -128,6 +122,57 @@
         history.replaceState({}, '', replaceUri);
 
         getJson('/api/repair/list', params).then(response => {
+          let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+          if (!Object.keys(response).length || response.menuAuth == null) {
+            altNoAuth();
+            goMainPage();
+            return false;
+          }
+          else {
+            accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+            if(accessAuth != 'Y'){
+              altNoAuth();
+              goMainPage();
+              return false;
+            }
+            writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+            viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+            modifyAuth = checkNullValR(response.menuAuth.modifyAuth, 'N');
+            removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+
+            //등록 권한 관련 버튼 체크
+            if(writeAuth == 'Y'){
+              let writeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light">수리등록</a>
+              `;
+              document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+            }
+            else {
+              removeAuthButton('write-auth1');
+            }
+
+            if(modifyAuth == 'Y'){
+              let modifyAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncRepairComplete(); return false;" class="btn btn-primary btn-icon-split btn-sm mlr5"><span class="text">수리완료</span></a>
+              `;
+              document.getElementById('modify-auth1').innerHTML = modifyAuthBtn;
+            }
+            else {
+              removeAuthButton('modify-auth1');
+            }
+
+            //삭제 권한 관련 버튼 체크
+            if(removeAuth == 'Y'){
+              let removeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncRemove(); return false;" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+              `;
+              document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
+            }
+            else {
+              removeAuthButton('remove-auth1');
+            }
+          }
+
           if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
             document.getElementById('list').innerHTML = '<div class="row row-cols-1" style="line-height:80px;"><div class="col">수리이력이 없습니다.</div></div>';
             drawPages();
@@ -136,8 +181,6 @@
 
           let html = '';
           let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-          //const viewAuth = '${sessionScope.VIEW_AUTH}';
-          const viewAuth = 'Y';
           response.list.forEach((obj, idx) => {
             const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
             if(idx%4 == 0){
@@ -166,9 +209,13 @@
                     </div>
                     <div class="row row-cols-1 mlr5 mt5">
                       <div class="col text-center">
-                        <input type="checkbox" id="repair_no_`+obj.repairno+`" class="form-check-inline form-check" value="`+obj.repairno+`"/>
-                        <label for="catalog_no_`+obj.catalogno+`" class="form-label">
             `;
+            if(removeAuth == 'Y' || modifyAuth == 'Y'){
+              html += `
+                <input type="checkbox" id="repair_no_`+obj.repairno+`" class="form-check-inline form-check" value="`+obj.repairno+`"/>
+                <label for="catalog_no_`+obj.catalogno+`" class="form-label">
+              `;
+            }
             if(viewAuth == 'Y'){
               html += `
                           <a href="javascript: void(0);" onclick="fncPopupView(\'`+obj.repairno+`\'); return false;">
@@ -282,10 +329,17 @@
             body: formData
           }).then(response => {
             if(!response.ok){
-              throw new Error('Request Failed...');
+              if(response.status == '403'){
+                altNoAuth();
+                refresh();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
             }
             alert('완료처리 되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
             alert('오류가 발생하였습니다.');
           });
@@ -325,10 +379,17 @@
             body: formData
           }).then(response => {
             if(!response.ok){
-              throw new Error('Request Failed...');
+              if(response.status == '403'){
+                altNoAuth();
+                refresh();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
             }
             alert('삭제되었습니다.');
-            findAll();
+            refresh();
           }).catch(error => {
             alert('오류가 발생하였습니다.');
           });

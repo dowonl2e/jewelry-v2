@@ -25,16 +25,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		log.info("RequestUrl : " + request.getRequestURI());
 		if(request.getRequestURI().startsWith("/api")) {
+			log.debug("RequestUrl : " + request.getRequestURI());
 			String token = resolveToken(request);
 			if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
 				Authentication authentication = jwtTokenProvider.getAuthentication(token);
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				log.info("Security Context에 '"+authentication.getName()+"' 인증 정보를 저장했습니다.");
+				log.debug("Security Context에 '"+authentication.getName()+"' 인증 정보를 저장했습니다.");
 			}
 			else {
-				log.info("유효한 토큰이 없습니다.");
+				log.debug("유효한 토큰이 없습니다.");
 //				return;
 			}
 		}

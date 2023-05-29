@@ -1,5 +1,6 @@
 package com.jewelry.repair.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.file.domain.FileTO;
 import com.jewelry.file.mapper.FileMapper;
 import com.jewelry.file.service.AmazonS3Service;
@@ -27,6 +28,7 @@ public class RepairServiceImpl implements RepairService {
 	private final FileMapper fileMapper;
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllRepair(RepairTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -40,15 +42,17 @@ public class RepairServiceImpl implements RepairService {
 
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public RepairVO findRepair(Long repairno) {
-		RepairVO vo = repairMapper.selectRepair(repairno);
-		if(vo != null) vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(repairno, "REPAIR")));
+	public RepairVO findRepair(RepairTO to) {
+		RepairVO vo = repairMapper.selectRepair(to.getRepair_no());
+		if(vo != null) vo.setFilelist(fileMapper.selectFileListByRefInfo(new FileTO(to.getRepair_no(), "REPAIR")));
 		return vo;
 	}
 
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertRepair(RepairTO to) {
 		String result = "success";
@@ -86,6 +90,7 @@ public class RepairServiceImpl implements RepairService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateRepair(RepairTO to) {
 		String result = "success";
@@ -128,6 +133,7 @@ public class RepairServiceImpl implements RepairService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateRepairToDelete(RepairTO to) {
 		String result = "success";
@@ -145,6 +151,7 @@ public class RepairServiceImpl implements RepairService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateRepairsToDelete(RepairTO to) {
 		String result = "fail";
@@ -165,6 +172,7 @@ public class RepairServiceImpl implements RepairService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateRepairsToComplete(RepairTO to) {
 		String result = "fail";
@@ -184,7 +192,8 @@ public class RepairServiceImpl implements RepairService {
 		return result;
 	}
 
-
+	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllCustomerRepair(RepairTO to) {
 		Map<String, Object> response = new HashMap<>();

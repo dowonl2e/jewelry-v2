@@ -309,9 +309,7 @@
         </div>
 
         <div class="btn_wrap text-center">
-<!--          <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--          </th:block>-->
+          <span id="modify-auth"></span>
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -399,6 +397,17 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+          }
+          else {
+            let modifyAuthBtn = `<a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>`;
+            document.getElementById('modify-auth').innerHTML = modifyAuthBtn;
+          }
+
 		   		var filelist = json.filelist;
 		   		var filepath = '';
 		   		var filenm = '';
@@ -481,7 +490,7 @@
 
 		   	}).catch(error => {
 		    	alert('재고 정보를 찾을 수 없습니다.');
-		    	window.opener.refresh();
+		    	fncParentRefresh();
 		    	fncClose();
 		   	});
 			}
@@ -551,7 +560,15 @@
 					body: formData
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              fncParentRefresh();
+              fncClose();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('저장되었습니다.');
 					fncParentRefresh();

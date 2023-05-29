@@ -9,7 +9,7 @@ public interface RepairService {
 
 	Map<String, Object> findAllRepair(RepairTO to);
 	
-	RepairVO findRepair(Long repairno);
+	RepairVO findRepair(RepairTO to);
 	
 	String insertRepair(RepairTO to);
 	

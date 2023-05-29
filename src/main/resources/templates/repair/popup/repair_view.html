@@ -63,9 +63,7 @@
         </div>
 
         <div class="btn_wrap text-center">
-<!--          <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--          </th:block>-->
+          <span id="modify-auth1"></span>
           <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
         </div>
       </form>
@@ -99,6 +97,19 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+		   	  }
+
+		   	  if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+		   	    document.getElementById('modify-auth1').innerHTML = `
+		   	      <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
+		   	    `;
+		   	  }
+
 		   		var filelist = json.filelist;
 		   		var filepath = '';
 		   		var filenm = '';

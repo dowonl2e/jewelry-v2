@@ -42,7 +42,7 @@
           <thead>
           <tr>
             <th class="text-center">No</th>
-            <th class="text-center border-left"><a href="javascript:void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a></th>
+            <th class="text-center border-left"><input type="checkbox" onchange="allCheck(this);"/></th>
             <th class="text-center border-left">접수일<br/>입고일</th>
             <th class="text-center border-left">구  분<br/>판매일</th>
             <th class="text-center border-left">매장명<br/>고객명</th>
@@ -482,6 +482,13 @@
 
       function refresh(){
         findAll(/*[[${param.currentpage}]]*/);
+      }
+
+      function allCheck(obj){
+        if($(obj).is(":checked"))
+          $(".form-check").attr("checked", true);
+        else
+          $(".form-check").attr("checked", false);
       }
 
     /*]]>*/
