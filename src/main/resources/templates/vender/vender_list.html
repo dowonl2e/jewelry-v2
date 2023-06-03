@@ -15,9 +15,7 @@
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
             <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light mlr5">자료등록</a>
-<!--            </th:block>-->
+            <span id="write-auth1"></span>
           </div>
         </div>
       </form>
@@ -44,9 +42,7 @@
         </table>
         <div class="btn_wrap text-left mt-3">
           <a href="javascript: void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a><span class="ml5">체크된 것</span>
-<!--          <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
-<!--          </th:block>-->
+          <span id="remove-auth1"></span>
         </div>
         <nav aria-label="Page navigation" class="text-center">
           <ul class="pagination"></ul>
@@ -56,212 +52,257 @@
   </div>
 
   <script th:inline="javascript">
+    /*<![CDATA[*/
+      var minNumberLen = 1;
+      var maxNumberLen = 100;
 
-	  var minNumberLen = 1;
-	  var maxNumberLen = 100;
+      var codemap = {
+        [# th:each="code, loop : ${cdmapper}"]
+          "[(${code.cdid})]": "[(${code.cdnm})]",
+        [/]
+      };
 
-		var codemap = {
-      [# th:each="code, loop : ${cdmapper}"]
-        "[(${code.cdid})]": "[(${code.cdnm})]",
-      [/]
-    };
+      window.onload = () => {       //들어왔을때 가장먼저 호출하지 않아도 실행되는 자바스크립트 함수
+        setQueryStringParams();
+        findAll();
+        addEnterSearchEvent();
+      }
 
-		window.onload = () => {       //들어왔을때 가장먼저 호출하지 않아도 실행되는 자바스크립트 함수
-			setQueryStringParams();
-	    findAll();
-			addEnterSearchEvent();
-		}
+      /**
+        * 키워드 - 엔터 검색 이벤트 바인딩
+        */
+      function addEnterSearchEvent() {
+        document.getElementById('searchword').addEventListener('keyup', (e) => {
+          if (e.keyCode === 13) {
+            findAll(0);
+          }
+        });
+      }
 
-	  /**
-	 	  * 키워드 - 엔터 검색 이벤트 바인딩
-		  */
-		function addEnterSearchEvent() {
-			document.getElementById('searchword').addEventListener('keyup', (e) => {
-				if (e.keyCode === 13) {
-					findAll(0);
-				}
-			});
-		}
+      function drawPages(params) {
 
-		function drawPages(params) {
+        if (!params) {
+          document.querySelector('.pagination').innerHTML = '';
+          return false;
+        }
 
-			if (!params) {
-	 			document.querySelector('.pagination').innerHTML = '';
-	 			return false;
-	 		}
+        let html = '';
+        const pagination = params;
 
-	 		let html = '';
-	 		const pagination = params;
+        var startpage = pagination.startpage;
+        var endpage = pagination.endpage;
 
-			var startpage = pagination.startpage;
-			var endpage = pagination.endpage;
+        // 첫 페이지, 이전 페이지
+        if (pagination.hasprevpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+          `;
+        }
 
-			// 첫 페이지, 이전 페이지
-	 		if (pagination.hasprevpage) {
-	 			html += `
-	 				<li><a href="javascript:void(0)" onclick="findAll(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
-	 				<li><a href="javascript:void(0)" onclick="findAll(`+(startpage)+`);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
-	 			`;
-	 		}
+        // 페이지 번호
+        for (let i = startpage ; i < endpage ; i++) {
+          const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
+          html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
+        }
 
-	 		// 페이지 번호
-	 		for (let i = startpage ; i < endpage ; i++) {
-	 			const active = ((i) === (pagination.currentpage-1)) ? 'class="active"' : '';
-        html += '<li '+active+'><a href="javascript:void(0)" onclick="findAll(\''+(i+1)+'\')">'+(i+1)+'</a></li>';
-	 		}
+        // 다음 페이지, 마지막 페이지
+        if (pagination.hasnextpage) {
+          html += `
+            <li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
+            <li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+          `;
+        }
 
-	 		// 다음 페이지, 마지막 페이지
-	 		if (pagination.hasnextpage) {
-	 			html += `
-	 				<li><a href="javascript:void(0)" onclick="findAll(`+(endpage+1)+`);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
-	 				<li><a href="javascript:void(0)" onclick="findAll(`+(pagination.totalpage)+`);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-	 			`;
-	 		}
+        document.querySelector('.pagination').innerHTML = html;
+      }
 
-	 		document.querySelector('.pagination').innerHTML = html;
-	 	}
+      /**
+       * 게시글 리스트 조회
+       */
+      function findAll(page) {
 
-		/**
-		 * 게시글 리스트 조회
-		 */
-		function findAll(page) {
+        const pageParams = Number(new URLSearchParams(location.search).get('page'));
+        page = page ? page : (pageParams ? pageParams : 1);
 
-			const pageParams = Number(new URLSearchParams(location.search).get('page'));
-			page = page ? page : (pageParams ? pageParams : 1);
+        const form = document.getElementById('searchForm');
 
-			const form = document.getElementById('searchForm');
+        var params = {
+          currentpage: page
+          , searchrecordcnt: form.searchrecordcnt.value
+          , searchword: form.searchword.value
+        }
+        checkListNullParams(params);
 
-			var params = {
-			  currentpage: page
-				, searchrecordcnt: form.searchrecordcnt.value
-				, searchword: form.searchword.value
-			}
-			checkListNullParams(params);
+        const queryString = new URLSearchParams(params).toString();
+        const replaceUri = location.pathname + '?' + queryString;
+        history.replaceState({}, '', replaceUri);
 
-			const queryString = new URLSearchParams(params).toString();
-			const replaceUri = location.pathname + '?' + queryString;
-			history.replaceState({}, '', replaceUri);
+        getJson('/api/vender/list', params).then(response => {
+          let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+          if (!Object.keys(response).length || response.menuAuth == null) {
+            altNoAuth();
+            goMainPage();
+            return false;
+          }
+          else {
+            accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+            if(accessAuth != 'Y'){
+              altNoAuth();
+              goMainPage();
+              return false;
+            }
+            writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+            viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+            removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
 
-			getJson('/api/vender/list', params).then(response => {
-				if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
-					document.getElementById('list').innerHTML = '<td colspan="13" class="text-center">등록된 거래처가 없습니다.</td>';
-					drawPages();
-					return false;
-				}
+            //등록 권한 관련 버튼 체크
+            if(writeAuth == 'Y'){
+              let writeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light mlr5">자료등록</a>
+              `;
+              document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+            }
+            else {
+              removeAuthButton('write-auth1');
+            }
 
-				let html = '';
-				let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-				//const viewAuth = '${sessionScope.VIEW_AUTH}';
-				const viewAuth = 'Y';
-     		response.list.forEach((obj, idx) => {
-				//const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
-				html += `
-     				<tr>
-							<td class="text-center">` + (num--) + `</td>
-							<td class="text-center"><input type="checkbox" class="form-check-inline form-check" value="`+checkNullVal(obj.venderno)+`" /></td>
-							<td class="text-center">` + checkSubstringNullVal(obj.inptdt,0,10) +`</td>
-							<td class="text-center bold">
-				`;
-				if(viewAuth == 'Y'){
-					html += `			<a href="javascript: void(0);" onclick="fncPopupView('` + obj.venderno + `'); return false;">`+checkNullVal(obj.vendernm)+`</a>`;
-				}
-				else {
-					html += checkNullVal(obj.vendernm);
-				}
-				html += `
-							</td>
-							<td class="text-center">` + checkNullVal(obj.businessnm)+`</td>
-							<td class="text-center">` + checkNullVal(obj.agentcel)+`</td>
-							<td class="text-center">` + checkNullVal(obj.vendercel1)+`</td>
-							<td class="text-center">` + checkNullVal(obj.venderfax)+`</td>
-							<td class="text-center">` + checkNullVal(obj.managernm)+`</td>
-							<td class="text-center">` + checkNullVal(obj.managercel)+`</td>
-							<td class="text-center">` + checkNullVal(obj.etc)+`</td>
-							<td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.vatcd)])+`</td>
-							<td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.meltcd)])+`</td>
-	   				</tr>
-     			`;
-     		});
+            //삭제 권한 관련 버튼 체크
+            if(removeAuth == 'Y'){
+              let removeAuthBtn = `
+                <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+              `;
+              document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
+            }
+            else {
+              removeAuthButton('remove-auth1');
+            }
+          }
 
-				document.getElementById('list').innerHTML = html;
-				drawPages(response.params);
-			});
-		}
+          if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
+            document.getElementById('list').innerHTML = '<td colspan="13" class="text-center">등록된 거래처가 없습니다.</td>';
+            drawPages();
+            return false;
+          }
 
-		/**
-		 * 작성하기
-		 */
-		function fncPopupWrite() {
-		  var url = "/vender/popup/write";
-      var name = "venderWritePopup";
-      var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
-      window.open(url, name, option);
-		}
+          let html = '';
+          let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
+          response.list.forEach((obj, idx) => {
+          html += `
+              <tr>
+                <td class="text-center">` + (num--) + `</td>
+                <td class="text-center"><input type="checkbox" class="form-check-inline form-check" value="`+checkNullVal(obj.venderno)+`" /></td>
+                <td class="text-center">` + checkSubstringNullVal(obj.inptdt,0,10) +`</td>
+                <td class="text-center bold">
+          `;
+          if(viewAuth == 'Y'){
+            html += `			<a href="javascript: void(0);" onclick="fncPopupView('` + obj.venderno + `'); return false;">`+checkNullVal(obj.vendernm)+`</a>`;
+          }
+          else {
+            html += checkNullVal(obj.vendernm);
+          }
+          html += `
+                </td>
+                <td class="text-center">` + checkNullVal(obj.businessnm)+`</td>
+                <td class="text-center">` + checkNullVal(obj.agentcel)+`</td>
+                <td class="text-center">` + checkNullVal(obj.vendercel1)+`</td>
+                <td class="text-center">` + checkNullVal(obj.venderfax)+`</td>
+                <td class="text-center">` + checkNullVal(obj.managernm)+`</td>
+                <td class="text-center">` + checkNullVal(obj.managercel)+`</td>
+                <td class="text-center">` + checkNullVal(obj.etc)+`</td>
+                <td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.vatcd)])+`</td>
+                <td class="text-center">` + checkNullVal(codemap[checkNullVal(obj.meltcd)])+`</td>
+              </tr>
+            `;
+          });
 
-		/**
-		 * 수정하기
-		 */
-		function fncPopupView(venderno) {
-		  var url = "/vender/popup/"+venderno;
-      var name = "venderViewPopup";
-      var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
-      window.open(url, name, option);
-		}
+          document.getElementById('list').innerHTML = html;
+          drawPages(response.params);
+        });
+      }
 
-		/*
-		 * 삭제하기
-		 */
-		function fncRemove(){
-      if(!isValidToken())
-        return false;
+      /**
+       * 작성하기
+       */
+      function fncPopupWrite() {
+        var url = "/vender/popup/write";
+        var name = "venderWritePopup";
+        var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
+      }
 
-			var checkcnt = 0;
-			$(".form-check").each(function(){
-				if($(this).is(":checked")){
-					checkcnt++;
-				}
-			});
-			if(checkcnt == 0){
-				alert('삭제할 거래처를 선택해주세요.');
-				return false;
-			}
+      /**
+       * 수정하기
+       */
+      function fncPopupView(venderno) {
+        var url = "/vender/popup/"+venderno;
+        var name = "venderViewPopup";
+        var option = "width = 1000, height = 800, top = 100, left = 200, location = no";
+        window.open(url, name, option);
+      }
 
-			if(confirm('삭제하시겠습니까?')){
-				const formData = new FormData();
-				$(".form-check").each(function(){
-					if($(this).is(":checked"))
-						formData.append("vender_no_arr[]", checkNullVal($(this).val())); // VenderTO의 vender_no_arr 변수를 가리킨다.
-				});
+      /*
+       * 삭제하기
+       */
+      function fncRemove(){
+        if(!isValidToken())
+          return false;
 
-				fetch('/api/vender/venders/remove', {
-					method: 'PATCH',  //컨트롤러 api에 들어가면 venderto 에 넣기 위해서 이걸 정리하고
-					headers: {
-					  'Authorization': getToken()
-					},
-					body: formData
-				}).then(response => {
-					if(!response.ok){
-						throw new Error('Request Failed...');
-					}
-					alert('삭제되었습니다.');
-					findAll();
-				}).catch(error => {
-					alert('오류가 발생하였습니다.');
-				});
-			}
-		}
+        var checkcnt = 0;
+        $(".form-check").each(function(){
+          if($(this).is(":checked")){
+            checkcnt++;
+          }
+        });
+        if(checkcnt == 0){
+          alert('삭제할 거래처를 선택해주세요.');
+          return false;
+        }
 
-		function refresh(){
-      findAll(/*[[${param.currentpage}]]*/);
-		}
+        if(confirm('삭제하시겠습니까?')){
+          const formData = new FormData();
+          $(".form-check").each(function(){
+            if($(this).is(":checked"))
+              formData.append("vender_no_arr[]", checkNullVal($(this).val())); // VenderTO의 vender_no_arr 변수를 가리킨다.
+          });
 
-		function fncCheckAll(obj){
-			if($(obj).is(":checked")){
-        $(".form-check").attr("checked", true);
-			}
-			else
-        $(".form-check").attr("checked", false);
-		}
+          fetch('/api/vender/venders/remove', {
+            method: 'PATCH',  //컨트롤러 api에 들어가면 venderto 에 넣기 위해서 이걸 정리하고
+            headers: {
+              'Authorization': getToken()
+            },
+            body: formData
+          }).then(response => {
+            if(!response.ok){
+              if(response.status == '403'){
+                altNoAuth();
+                refresh();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
+            }
+            alert('삭제되었습니다.');
+            findAll();
+          }).catch(error => {
+            alert('오류가 발생하였습니다.');
+          });
+        }
+      }
+
+      function refresh(){
+        findAll(/*[[${param.currentpage}]]*/);
+      }
+
+      function fncCheckAll(obj){
+        if($(obj).is(":checked")){
+          $(".form-check").attr("checked", true);
+        }
+        else
+          $(".form-check").attr("checked", false);
+      }
+    /*]]>*/
 	</script>
 </th:block>
 </html>

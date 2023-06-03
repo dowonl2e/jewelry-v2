@@ -46,9 +46,7 @@
             </tbody>
           </table>
           <div class="btn_wrap text-center">
-            <c:if test="${sessionScope.MODIFY_AUTH eq 'Y'}">
-              <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-            </c:if>
+            <span id="modify-auth"></span>
             <a href="javascript: void(0);" onclick="goList(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">목록</a>
           </div>
         </div>
@@ -84,6 +82,17 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+            altNoAuth();
+            goList();
+            return false;
+          }
+
+          if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+            let modifyAuthBtn = `<a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>`;
+            document.getElementById('modify-auth').innerHTML = modifyAuthBtn;
+          }
+
 		   		document.getElementById('user_id_td').innerHTML = checkNullVal(json.userid);
 		   		document.getElementById('user_name_td').innerHTML = checkNullVal(json.username);
 		   		document.getElementById('celnum_td').innerHTML = checkNullVal(json.celnum);

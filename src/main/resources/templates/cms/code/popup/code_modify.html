@@ -31,9 +31,7 @@
       </div>
 
       <div class="btn_wrap text-center mb-3">
-<!--        <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-          <a href="javascript:void(0);" onclick="modify(); return false;" class="btn btn-primary waves-effect waves-light"><span class="text">저장</span></a>
-<!--        </th:block>-->
+        <a href="javascript:void(0);" onclick="modify(); return false;" class="btn btn-primary waves-effect waves-light"><span class="text">저장</span></a>
         <a href="javascript:void(0);" onclick="goList();" class="btn btn-secondary btn-icon-split"><span class="text">목록</span></a>
       </div>
     </form>
@@ -67,6 +65,11 @@
 			    }
 		    	return response.json();
 		   	}).then(json => {
+          if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            goList();
+            return false;
+          }
 
 		   		const form = document.getElementById('form');
 		   		form.cd_id.value = checkNullVal(json.cdid);
@@ -104,7 +107,14 @@
 					body: JSON.stringify(params)
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              goList();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 
 					alert('수정되었습니다.');
@@ -149,7 +159,14 @@
           }
       	}).then(response => {
       		if (!response.ok) {
-         		throw new Error('Request failed...');
+         		if(response.status == '403'){
+              altNoAuth();
+              goList();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
         	}
 
         	alert('삭제되었습니다.');

@@ -1,5 +1,6 @@
 package com.jewelry.cms.menu.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.cms.menu.domain.MenuAuthTO;
 import com.jewelry.cms.menu.domain.MenuAuthVO;
 import com.jewelry.cms.menu.mapper.MenuAuthMapper;
@@ -27,6 +28,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	private final MenuAuthMapper menuAuthMapper;
 		
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllManager(final UserTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -39,6 +41,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	}
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllMenuAuth(final MenuAuthTO to) {
 
@@ -68,6 +71,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateMenuAuth(MenuAuthTO to) {
 		String result = "fail";
@@ -90,6 +94,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateMenusAuth(MenuAuthTO to) {
 		String result = "fail";
@@ -158,6 +163,7 @@ public class MenuAuthServiceImpl implements MenuAuthService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public List<MenuAuthVO> findUserMenusAuth(MenuAuthTO to) {
 		return menuAuthMapper.selectUserAuthMenus(to);

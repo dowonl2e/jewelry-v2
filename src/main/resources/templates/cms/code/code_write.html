@@ -37,7 +37,7 @@
     </form>
   </div>
 
-  <script>
+  <script th:inline="javascript">
 		/*<![CDATA[*/
 			function save(){
 			  if(!isValidToken())
@@ -60,10 +60,17 @@
           body: JSON.stringify(params)
         }).then(response => {
           if(!response.ok){
-            throw new Error('Request Failed...');
+            if(response.status == '403'){
+              altNoAuth();
+              goList();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
           }
           alert('저장되었습니다.');
-          goPage('/code/list');
+          goList();
         }).catch(error => {
           alert('오류가 발생하였습니다.');
         });

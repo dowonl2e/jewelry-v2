@@ -305,13 +305,13 @@
 
         var checkcnt = 0;
         $(".form-check").each(function(){
-            if($(this).is(":checked")){
-                checkcnt++;
-            }
+          if($(this).is(":checked")){
+              checkcnt++;
+          }
         });
         if(checkcnt == 0){
-            alert('삭제할 카다로그를 선택해주세요.');
-            return false;
+          alert('삭제할 카다로그를 선택해주세요.');
+          return false;
         }
 
         if(confirm('삭제하시겠습니까?')){
@@ -322,14 +322,21 @@
           });
 
           fetch('/api/catalog/catalogs/remove', {
-              method: 'PATCH',
-              headers: {
-                'Authorization': getToken()
-              },
-              body: formData
+            method: 'PATCH',
+            headers: {
+              'Authorization': getToken()
+            },
+            body: formData
           }).then(response => {
             if(!response.ok){
+              if(response.status == '403'){
+                altNoAuth();
+                refresh();
+                return false;
+              }
+              else {
                 throw new Error('Request Failed...');
+              }
             }
             alert('삭제되었습니다.');
             refresh();

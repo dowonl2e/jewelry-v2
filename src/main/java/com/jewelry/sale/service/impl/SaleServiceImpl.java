@@ -1,5 +1,6 @@
 package com.jewelry.sale.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.order.domain.OrderTO;
 import com.jewelry.order.mapper.OrderMapper;
 import com.jewelry.sale.domain.SaleTO;
@@ -28,6 +29,7 @@ public class SaleServiceImpl implements SaleService {
 	private final OrderMapper orderMapper;
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllSale(SaleTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -39,8 +41,9 @@ public class SaleServiceImpl implements SaleService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
-	public String updateSalesToStock(SaleTO to) {
+	public String deleteSalesToStock(SaleTO to) {
 		String result = "fail";
 		try {
 			
@@ -57,6 +60,7 @@ public class SaleServiceImpl implements SaleService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateSalesCustomer(SaleTO to) {
 		String result = "fail";
@@ -107,6 +111,7 @@ public class SaleServiceImpl implements SaleService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateSalesDate(SaleTO to) {
 		String result = "fail";

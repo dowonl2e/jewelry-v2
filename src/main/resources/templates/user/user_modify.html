@@ -102,6 +102,12 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            goList();
+            return false;
+          }
+
 		   		document.getElementById('user_id_td').innerHTML = checkNullVal(json.userid);
 		   		form.user_name.value = checkNullVal(json.username);
 		   		form.celnum.value = checkNullVal(json.celnum);
@@ -149,12 +155,12 @@
 				useYn = $("input:radio[name=use_yn]:checked").val();
 				const form = document.getElementById('form');
 				const params = {
-						user_pwd : form.user_pwd.value,
-						user_name : form.user_name.value,
-						celnum : form.celnum.value,
-						email : form.email.value,
-						gender : form.gender.value,
-						use_yn : useYn
+          user_pwd : form.user_pwd.value,
+          user_name : form.user_name.value,
+          celnum : form.celnum.value,
+          email : form.email.value,
+          gender : form.gender.value,
+          use_yn : useYn
 				};
 
 				fetch('/api/user/modify/'+userid, {
@@ -166,7 +172,14 @@
 					body: JSON.stringify(params)
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              goList();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('저장되었습니다.');
 					goList();

@@ -20,8 +20,14 @@ public class CodeApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "code";
+
 	@GetMapping("/list")
-	public Map<String, Object> findAll(final CodeTO to){
+	public Map<String, Object> findAll(
+			@RequestHeader("Authorization") String accessToken,
+			final CodeTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		to.setCd_depth(1);
 		return codeService.findAllCode(to);
 	}
@@ -30,7 +36,10 @@ public class CodeApiController {
 	public ResponseEntity<Object> write(
 			@RequestHeader("Authorization") String accessToken,
 			@RequestBody final CodeTO to) {
-		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setInpt_id(userId);
 		String result = codeService.insertCode(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -39,8 +48,15 @@ public class CodeApiController {
 	}
 
 	@GetMapping("/{cdid}")
-	public CodeVO findCodeByCdId(@PathVariable final String cdid) {
-		return codeService.findCodeByCdId(cdid);
+	public CodeVO findCodeByCdId(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final String cdid) {
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		CodeTO to = new CodeTO();
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setCd_id(cdid);
+		return codeService.findCodeByCdId(to);
 	}
 	
 	@PatchMapping("/{cdid}")
@@ -48,7 +64,10 @@ public class CodeApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@PathVariable final String cdid,
 			@RequestBody final CodeTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		to.setCd_id(cdid);
 		String result = codeService.updateCode(to);
 		
@@ -57,13 +76,29 @@ public class CodeApiController {
 	}
 
 	@DeleteMapping("/{cdid}")
-	public String remove(@PathVariable final String cdid) {
-		return codeService.deleteCode(cdid);
+	public String remove(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final String cdid) {
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		CodeTO to = new CodeTO();
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setCd_id(cdid);
+		return codeService.deleteCode(to);
 	}
 	
 	//********************************하위코드********************************
 	@GetMapping("/list/{upcdid}/{cddepth}")
-	public Map<String, Object> findAll(@PathVariable("upcdid") final String cdid, @PathVariable("cddepth") final Integer cddepth){
-		return codeService.findAllSubCode(cdid, cddepth);
+	public Map<String, Object> findAll(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable("upcdid") final String upcdid,
+			@PathVariable("cddepth") final Integer cddepth){
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		CodeTO to = new CodeTO();
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUp_cd_id(upcdid);
+		to.setCd_depth(cddepth);
+		return codeService.findAllSubCode(to);
 	}
 }

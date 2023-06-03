@@ -1,14 +1,14 @@
 package com.jewelry.sale.service;
 
-import java.util.Map;
-
 import com.jewelry.sale.domain.SaleTO;
+
+import java.util.Map;
 
 public interface SaleService {
 
 	Map<String, Object> findAllSale(SaleTO to);
 	
-	String updateSalesToStock(SaleTO to);
+	String deleteSalesToStock(SaleTO to);
 	
 	String updateSalesCustomer(SaleTO to);
 	

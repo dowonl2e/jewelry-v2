@@ -20,9 +20,7 @@
               <span aria-hidden="true" class="glyphicon glyphicon-search">검색</span>
             </button>
             <a href="javascript: void(0);" onclick="fncRefresh(); return false;" class="btn btn-warning waves-effect waves-light mlr5">새로고침</a>
-<!--            <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light">자료등록</a>
-<!--            </th:block>-->
+            <span id="write-auth1"></span>
           </div>
         </div>
       </form>
@@ -52,9 +50,7 @@
         </table>
         <div class="btn_wrap text-left mt-3">
           <a href="javascript: void(0);" class="btn btn-success btn-circle btn-sm"><i class="fas fa-check"></i></a><span class="ml5">체크된 것</span>
-<!--          <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-            <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
-<!--          </th:block>-->
+          <span id="remove-auth1"></span>
         </div>
         <nav aria-label="Page navigation" class="text-center">
           <ul class="pagination"></ul>
@@ -151,6 +147,46 @@
 			history.replaceState({}, '', replaceUri);
 
 			getJson('/api/vender/pay/list', params).then(response => {
+			  let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+        if (!Object.keys(response).length || response.menuAuth == null) {
+          altNoAuth();
+          goMainPage();
+          return false;
+        }
+        else {
+          accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+          if(accessAuth != 'Y'){
+            altNoAuth();
+            goMainPage();
+            return false;
+          }
+          writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+          viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+          removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+
+          //등록 권한 관련 버튼 체크
+          if(writeAuth == 'Y'){
+            let writeAuthBtn = `
+              <a href="javascript: void(0);" onclick="fncPopupWrite();" class="btn btn-primary waves-effect waves-light">자료등록</a>
+            `;
+            document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+          }
+          else {
+            removeAuthButton('write-auth1');
+          }
+
+          //삭제 권한 관련 버튼 체크
+          if(removeAuth == 'Y'){
+            let removeAuthBtn = `
+              <a href="javascript: void(0);" onclick="fncRemove(); return false;" id="remove-btn" class="btn btn-danger btn-icon-split btn-sm mlr5"><span class="text">삭제</span></a>
+            `;
+            document.getElementById('remove-auth1').innerHTML = removeAuthBtn;
+          }
+          else {
+            removeAuthButton('remove-auth1');
+          }
+        }
+
 				if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
 					document.getElementById('list').innerHTML = '<td colspan="11" class="text-center">등록된 제조사 결제내역이 없습니다.</td>';
 					drawPages();
@@ -159,8 +195,6 @@
 
 				let html = '';
 				let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-				//const viewAuth = '${sessionScope.VIEW_AUTH}';
-				const viewAuth = 'Y';
 
 				var exptSumGram = 0;
 				var exptSumPrice = 0;
@@ -240,7 +274,6 @@
      			</tr>
      		`;
 
-
 				document.getElementById('list').innerHTML = html;
 				drawPages(response.params);
 			});
@@ -275,7 +308,14 @@
 					body: formData
 				}).then(response => {
 					if(!response.ok){
-						throw new Error('Request Failed...');
+						if(response.status == '403'){
+              altNoAuth();
+              refresh();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
 					}
 					alert('삭제되었습니다.');
 					refresh();

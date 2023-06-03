@@ -5,6 +5,7 @@ import com.jewelry.common.paging.Pagination;
 public class CommonTO extends Pagination {
 	private String accessToken;
 	private String menuId;
+	private String tgt_user_id;
 	private String user_id;
 	private String inpt_id;
 	private String inpt_dt;
@@ -33,6 +34,12 @@ public class CommonTO extends Pagination {
 		this.menuId = menuId;
 	}
 
+	public String getTgt_user_id() {
+		return tgt_user_id;
+	}
+	public void setTgt_user_id(String tgt_user_id) {
+		this.tgt_user_id = tgt_user_id;
+	}
 	public String getUser_id() {
 		return user_id;
 	}

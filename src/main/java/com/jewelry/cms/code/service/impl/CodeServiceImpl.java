@@ -1,5 +1,6 @@
 package com.jewelry.cms.code.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.cms.code.domain.CodeTO;
 import com.jewelry.cms.code.domain.CodeVO;
 import com.jewelry.cms.code.mapper.CodeMapper;
@@ -19,6 +20,7 @@ public class CodeServiceImpl implements CodeService {
 	private final CodeMapper codeMapper;
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllCode(CodeTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -31,12 +33,14 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public CodeVO findCodeByCdId(String cdid) {
-		return codeMapper.selectCode(cdid);
+	public CodeVO findCodeByCdId(CodeTO to) {
+		return codeMapper.selectCode(to.getCd_id());
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertCode(CodeTO to) {
 		int res = 0;
@@ -50,6 +54,7 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCode(CodeTO to) {
 		int res = 0;
@@ -63,12 +68,13 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
-	public String deleteCode(String cdid) {
+	public String deleteCode(CodeTO to) {
 		int res = 0;
 		try {
-			codeMapper.deleteLowCodeByCdId(cdid);
-			res = codeMapper.deleteCode(cdid);
+			codeMapper.deleteLowCodeByCdId(to.getCd_id());
+			res = codeMapper.deleteCode(to.getCd_id());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -77,12 +83,14 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth) {
 		return findAllByUpCdId(upcdid, cddepth, "Y");
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth, String useyn) {
 		CodeTO to = new CodeTO();
@@ -93,6 +101,7 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public List<CodeVO> findAllByUpCdId(String[] upcdid, Integer cddepth) {
 		CodeTO to = new CodeTO();
@@ -102,15 +111,12 @@ public class CodeServiceImpl implements CodeService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public Map<String, Object> findAllSubCode(String upcdid, Integer cddepth) {
-		CodeTO to = new CodeTO();
-		to.setUp_cd_id(upcdid);
-		to.setCd_depth(cddepth);
-
+	public Map<String, Object> findAllSubCode(CodeTO to) {
 		Map<String, Object> response = new HashMap<>();
-		CodeVO vo = codeMapper.selectCode(upcdid);
-		response.put("vo", vo);
+
+		response.put("vo", codeMapper.selectCode(to.getUp_cd_id()));
 		response.put("list", codeMapper.selectSubCodeList(to));
 		
 		return response;

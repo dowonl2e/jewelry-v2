@@ -20,8 +20,14 @@ public class CashApiController {
 
 	private final JwtTokenProvider jwtTokenProvider;
 
+	private final String menuId = "cash";
+
 	@GetMapping("/list")
-	public Map<String, Object> list(final CashTO to){
+	public Map<String, Object> list(
+			@RequestHeader("Authorization") String accessToken,
+			final CashTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return cashService.findAllCash(to);
 	}
 
@@ -29,7 +35,10 @@ public class CashApiController {
 	public ResponseEntity<Object> write(
 			@RequestHeader("Authorization") String accessToken,
 			final CashTO to){
-		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setInpt_id(userId);
 		String result = cashService.insertCash(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -37,8 +46,14 @@ public class CashApiController {
 	}
 
 	@GetMapping("/{cashno}")
-	public CashVO view(@PathVariable final Long cashno){
-		return cashService.findCash(cashno);
+	public CashVO view(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final Long cashno){
+		CashTO to = new CashTO();
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		to.setCash_no(cashno);
+		return cashService.findCash(to);
 	}
 	
 
@@ -47,10 +62,12 @@ public class CashApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@PathVariable final Long cashno,
 			final CashTO to){
-		String userid = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setUpdt_id(userid);
-		to.setInpt_id(userid);
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		to.setCash_no(cashno);
+		to.setInpt_id(userId);
 		String result = cashService.updateCash(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;
@@ -61,7 +78,10 @@ public class CashApiController {
 	public ResponseEntity<Object> cashesRemove(
 			@RequestHeader("Authorization") String accessToken,
 			final CashTO to){
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setUpdt_id(userId);
 		String result = cashService.updateCashesToDelete(to);
 
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

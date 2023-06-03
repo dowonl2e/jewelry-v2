@@ -231,7 +231,15 @@
                 body: formData
               }).then(response => {
                 if(!response.ok){
-                  throw new Error('Request Failed...');
+                  if(response.status == '403'){
+                    altNoAuth();
+                    fncParentRefresh();
+                    fncClose();
+                    return false;
+                  }
+                  else {
+                    throw new Error('Request Failed...');
+                  }
                 }
                 alert('저장되었습니다.');
                 fncParentRefresh();

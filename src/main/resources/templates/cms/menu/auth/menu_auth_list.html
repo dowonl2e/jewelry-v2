@@ -142,6 +142,25 @@
 			history.replaceState({}, '', replaceUri);
 
 			getJson('/api/menuauth/managers', params).then(response => {
+			  let accessAuth = 'N', writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+        if (!Object.keys(response).length || response.menuAuth == null) {
+          altNoAuth();
+          goMainPage();
+          return false;
+        }
+        else {
+          accessAuth = checkNullValR(response.menuAuth.accessAuth, 'N');
+          if(accessAuth != 'Y'){
+            altNoAuth();
+            goMainPage();
+            return false;
+          }
+          writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+          viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+          modifyAuth = checkNullValR(response.menuAuth.modifyAuth, 'N');
+          removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+        }
+
 				if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
 					document.getElementById('list').innerHTML = '<td colspan="7" class="text-center">등록된 사용자가 없습니다.</td>';
 					drawPages();
@@ -150,8 +169,6 @@
 
 				let html = '';
 				let num = response.params.totalcount - (response.params.currentpage-1) * response.params.recordcount;
-				//const viewAuth = '${sessionScope.VIEW_AUTH}';
-				const viewAuth = 'Y';
      		response.list.forEach((obj, idx) => {
      			const viewUri = `/code/modify/`+obj.cdid + '?' + queryString;
      			html += `
@@ -170,7 +187,7 @@
   						<td class="text-center">
   				`;
   				if(viewAuth == 'Y'){
-  					html += `		<a href="javascript: void(0);" onclick="fncAuthMenuList(\'`+obj.userid+`\', \'`+obj.username+`\'); return false;" class="btn btn-info">권한조회</a>`;
+  					html += `		<a href="javascript: void(0);" onclick="fncAuthMenuList(\'`+obj.userid+`\', \'`+obj.username+`\'); return false;" class="btn btn-info auth-view-btn">권한조회</a>`;
   				}
   				html += `
  							</td>
@@ -208,16 +225,26 @@
         }
         return response.json();
       }).then(json => {
+        let writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N';
+        viewAuth = checkNullValR(json.menuAuth.viewAuth, 'N');
+        if(viewAuth != 'Y'){
+          altNoAuth();
+          if(document.getElementById('menuListDiv')){
+            document.getElementById('menuListDiv').innerHTML = '';
+          }
+          if($(".auth-view-btn").length > 0){
+            $(".auth-view-btn").remove();
+          }
+          return false;
+        }
+        writeAuth = checkNullValR(json.menuAuth.writeAuth, 'N');
+        modifyAuth = checkNullValR(json.menuAuth.modifyAuth, 'N');
+
         if (!Object.keys(json).length || json.list == null || json.list.length == 0) {
           alert('메뉴가 없습니다.');
           $("#authMenuTbl").remove();
           return false;
         }
-
-        //const writeAuth = '${sessionScope.WRITE_AUTH}';
-        //const modifyAuth = '${sessionScope.MODIFY_AUTH}';
-        const writeAuth = 'Y';
-        const modifyAuth = 'Y';
 
         let html = ``;
         html += `
@@ -384,7 +411,13 @@
           body: formData
         }).then(response => {
           if(!response.ok){
-            throw new Error('Request Failed...');
+            if(response.status == '403'){
+              altNoAuth();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
           }
           alert('저장되었습니다.');
         }).catch(error => {
@@ -427,7 +460,13 @@
           body: formData
         }).then(response => {
           if(!response.ok){
-            throw new Error('Request Failed...');
+            if(response.status == '403'){
+              altNoAuth();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
           }
           alert('저장되었습니다.');
         }).catch(error => {

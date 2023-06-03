@@ -10,7 +10,7 @@
 		FROM tb_menu A
 			LEFT OUTER JOIN TB_AUTH_MENU B
 				ON A.menu_id = B.MENU_ID
-				AND B.USER_ID = #{user_id}
+				AND B.USER_ID = #{tgt_user_id}
 		WHERE A.menu_depth = #{menu_depth}
 		ORDER BY A.menu_ord ASC
 	</select>

@@ -92,7 +92,7 @@ public class StockApiController {
 			@RequestHeader("Authorization") String accessToken,
 			final StockTO to){
 		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
-		to.setMenuId(menuId);
+		to.setMenuId(to.getMenuId() == null ? menuId : to.getMenuId());
 		to.setUser_id(userId);
 		to.setUpdt_id(userId);
 		String result = stockService.updateStocksToDelete(to);

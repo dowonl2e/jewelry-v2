@@ -31,12 +31,8 @@
       </div>
 
       <div class="btn_wrap text-center mb-3">
-<!--        <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-          <a href="javascript:void(0);" onclick="modify(); return false;" class="btn btn-primary waves-effect waves-light"><span class="text">저장</span></a>
-<!--        </th:block>-->
-<!--        <th:block th:if="${session.REMOVE_AUTH == 'Y'}">-->
-          <a href="javascript:void(0);" onclick="remove(); return false;" class="btn btn-danger waves-effect waves-light"><span class="text">삭제</span></a>
-<!--        </th:block>-->
+        <a href="javascript:void(0);" onclick="modify(); return false;" class="btn btn-primary waves-effect waves-light"><span class="text">저장</span></a>
+        <span id="remove-auth"></span>
         <a href="javascript:void(0);" onclick="goList();" class="btn btn-secondary btn-icon-split"><span class="text">목록</span></a>
       </div>
     </form>
@@ -69,6 +65,19 @@
 			    }
 		    	return response.json();
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            goList();
+            return false;
+          }
+
+          if(checkNullVal(json.menuAuthVO.removeAuth) == 'Y'){
+            let removeAuthBtn = `
+              <a href="javascript:void(0);" onclick="remove(); return false;" class="btn btn-danger waves-effect waves-light"><span class="text">삭제</span></a>
+            `;
+            document.getElementById('remove-auth').innerHTML = removeAuthBtn;
+          }
+
 		   		const form = document.getElementById('form');
 		   		form.cd_id.value = json.cdid;
 		   		form.cd_nm.value = json.cdnm;
@@ -77,7 +86,7 @@
 
 		   	}).catch(error => {
 		    	alert('코드 정보를 찾을 수 없습니다.');
-		    	location.href = '/code/list';
+		    	goList();
 		   	});
 			}
 
@@ -103,9 +112,15 @@
             body: JSON.stringify(params)
           }).then(response => {
             if(!response.ok){
-              throw new Error('Request Failed...');
+              if(response.status == '403'){
+                altNoAuth();
+                goList();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
             }
-
             alert('수정되었습니다.');
             goList();
           }).catch(error => {
@@ -149,7 +164,14 @@
           }
         }).then(response => {
           if (!response.ok) {
-            throw new Error('Request failed...');
+            if(response.status == '403'){
+              altNoAuth();
+              goList();
+              return false;
+            }
+            else {
+              throw new Error('Request Failed...');
+            }
           }
 
           alert('삭제되었습니다.');

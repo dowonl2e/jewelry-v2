@@ -86,9 +86,7 @@
             </tbody>
           </table>
           <div class="btn_wrap text-center">
-<!--            <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-              <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--            </th:block>-->
+            <span id="modify-auth"></span>
             <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
           </div>
         </div>
@@ -129,6 +127,18 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+          }
+
+          if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+            let modifyAuthBtn = `<a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>`;
+            document.getElementById('modify-auth').innerHTML = modifyAuthBtn;
+          }
+
 		   		document.getElementById('vender_nm_td').innerHTML = checkNullVal(json.vendernm); // innerHTML이 갖고온 놈을 위에 태그의 id안에 뿌려준다.
 		   		document.getElementById('business_nm_td').innerHTML = checkNullVal(json.businessnm);
 		   		document.getElementById('agent_cel_td').innerHTML = checkNullVal(json.agentcel);

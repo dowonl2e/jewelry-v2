@@ -63,7 +63,7 @@
 		, email = #{email}
 		, gender = #{gender}
 		, use_yn = #{use_yn}
-		WHERE user_id = #{user_id}
+		WHERE user_id = #{tgt_user_id}
 	</update>
 	
 	<select id="selectManagerListCount" parameterType="UserTO" resultType="Integer">

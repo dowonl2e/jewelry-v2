@@ -22,9 +22,14 @@ public class UserApiController {
 	private final UserService userService;
 
 	private final JwtTokenProvider jwtTokenProvider;
-	
+	private final String menuId = "user";
+
 	@GetMapping("/list")
-	public Map<String, Object> findAllUser(final UserTO to){
+	public Map<String, Object> findAllUser(
+			@RequestHeader("Authorization") String accessToken,
+			final UserTO to){
+		to.setMenuId(menuId);
+		to.setUser_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
 		return userService.findAllUser(to);
 	}
 	
@@ -33,7 +38,10 @@ public class UserApiController {
 			@RequestHeader("Authorization") String accessToken,
 			@RequestBody final UserTO to) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		to.setInpt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setInpt_id(userId);
 		to.setUser_pwd(passwordEncoder.encode(to.getUser_pwd()));
 		to.setUser_role("MANAGER");
 		String result = userService.insertUser(to);
@@ -43,19 +51,28 @@ public class UserApiController {
 	}
 
 	@GetMapping("/{userid}")
-	public UserVO findUser(@PathVariable final String userid) {
-		return userService.findUser(userid);
+	public UserVO findUser(
+			@RequestHeader("Authorization") String accessToken,
+			@PathVariable final String userid) {
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		UserTO to = new UserTO();
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		return userService.findUser(to);
 	}
 
 	@PatchMapping("/modify/{userid}")
 	public ResponseEntity<Object> modify(
 			@RequestHeader("Authorization") String accessToken,
-			@PathVariable final String userid,
+			@PathVariable("userid") final String tgt_user_id,
 			@RequestBody final UserTO to) {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		to.setUpdt_id(jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken)));
+		String userId = jwtTokenProvider.getPrincipal(jwtTokenProvider.resolveToken(accessToken));
+		to.setMenuId(menuId);
+		to.setUser_id(userId);
+		to.setTgt_user_id(tgt_user_id);
 		to.setUser_pwd(ObjectUtils.isEmpty(to.getUser_pwd()) ? null : passwordEncoder.encode(to.getUser_pwd()));
-		to.setUser_id(userid);
+		to.setUpdt_id(userId);
 		String result = userService.updateUser(to);
 		
 		ResponseCode response = result.equals("success") ? ResponseCode.SUCCESS : ResponseCode.INTERNAL_SERVER_ERROR;

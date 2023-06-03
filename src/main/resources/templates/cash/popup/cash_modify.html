@@ -145,9 +145,7 @@
                 </div>
 
                 <div class="btn_wrap text-center">
-<!--                    <th:block th:if="${session.MODIFY_AUTH == 'Y'}">-->
-                        <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--                    </th:block>-->
+                    <a href="javascript: void(0);" onclick="fncSave(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
                     <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
                 </div>
             </form>
@@ -205,6 +203,13 @@
 		    	return response.json();
 
 		   	}).then(json => {
+		   	  if(checkNullVal(json.menuAuthVO.modifyAuth) != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+          }
+
 		   		const form = document.getElementById('form');
 		   		form.store_cd.value = checkNullVal(json.storecd);
 		   		form.reg_dt.value = checkSubstringNullVal(json.regdt,0,10);
@@ -291,7 +296,15 @@
 						body: formData
 					}).then(response => {
 						if(!response.ok){
-							throw new Error('Request Failed...');
+							if(response.status == '403'){
+                altNoAuth();
+                fncParentRefresh();
+                fncClose();
+                return false;
+              }
+              else {
+                throw new Error('Request Failed...');
+              }
 						}
 						alert('수정되었습니다.');
 						fncParentRefresh();

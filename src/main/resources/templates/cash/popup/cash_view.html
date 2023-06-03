@@ -4,7 +4,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="layout/admin_popup_layout">
 <th:block layout:fragment="content">
-    <!-- DataTales Example -->
     <div class="card shadow mt-4 mb-4">
         <div class="card-header py-3 text-center">
             <h6 class="m-0 font-weight-bold text-primary">금/현금 조회</h6>
@@ -94,9 +93,7 @@
                 </div>
 
                 <div class="btn_wrap text-center">
-<!--                    <th:block th:if="${sessionScope.MODIFY_AUTH == 'Y'}">-->
-                        <a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>
-<!--                    </th:block>-->
+                    <span id="modify-auth"></span>
                     <a href="javascript: void(0);" onclick="fncClose(); return false;" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
                 </div>
             </form>
@@ -140,6 +137,18 @@
               return response.json();
 
             }).then(json => {
+              if(checkNullVal(json.menuAuthVO.viewAuth) != 'Y'){
+                altNoAuth();
+                fncParentRefresh();
+                fncClose();
+                return false;
+              }
+
+              if(checkNullVal(json.menuAuthVO.modifyAuth) == 'Y'){
+                let modifyAuthBtn = `<a href="javascript: void(0);" onclick="goModify(); return false;" class="btn btn-primary waves-effect waves-light mlr5">수정</a>`;
+                document.getElementById('modify-auth').innerHTML = modifyAuthBtn;
+              }
+
               document.getElementById('store_cd_td').innerHTML = checkNullVal(codemap[json.storecd]);
               document.getElementById('reg_dt_td').innerHTML = checkSubstringNullVal(json.regdt,0,10);
               document.getElementById('cash_type_cd_td').innerHTML = checkNullVal(codemap[json.cashtypecd]);

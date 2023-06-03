@@ -10,13 +10,13 @@ public interface CodeService {
 	
 	Map<String, Object> findAllCode(CodeTO to);
 	
-	CodeVO findCodeByCdId(String cdid);
+	CodeVO findCodeByCdId(CodeTO to);
 	
 	String insertCode(CodeTO to);
 	
 	String updateCode(CodeTO to);
 	
-	String deleteCode(String cdid);
+	String deleteCode(CodeTO to);
 	
 	List<CodeVO> findAllByUpCdId(String upcdid, Integer cddepth);
 
@@ -25,6 +25,6 @@ public interface CodeService {
 	List<CodeVO> findAllByUpCdId(String[] upcdid, Integer cddepth);
 	
 	//********************************하위코드********************************
-	Map<String, Object> findAllSubCode(String upcdid, Integer cddepth);
+	Map<String, Object> findAllSubCode(CodeTO to);
 
 }

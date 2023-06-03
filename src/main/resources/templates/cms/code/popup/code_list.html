@@ -25,9 +25,7 @@
         </table>
       </div>
       <div class="text-center">
-<!--        <th:block th:if="${session.WRITE_AUTH == 'Y'}">-->
-          <a href="javascript: void(0);" onclick="goWrite();" class="btn btn-primary waves-effect waves-light mlr5">코드추가</a>
-<!--        </th:block>-->
+        <span id="write-auth1"></span>
         <a href="javascript: void(0);" onclick="fncClose();" class="btn btn-secondary waves-effect waves-light mlr5">닫기</a>
       </div>
     </div>
@@ -48,7 +46,39 @@
 
 		  const upCdId = /*[[${upcdid}]]*/;
 		  const cdDepth = /*[[${cddepth}]]*/;
+
 			getJson('/api/code/list/'+upCdId+'/'+cdDepth).then(response => {
+			  let writeAuth = 'N', viewAuth = 'N', modifyAuth = 'N', removeAuth = 'N';
+        if (!Object.keys(response).length || response.menuAuth == null) {
+          altNoAuth();
+          fncParentRefresh();
+          fncClose();
+          return false;
+        }
+        else {
+          viewAuth = checkNullValR(response.menuAuth.viewAuth, 'N');
+          if(viewAuth != 'Y'){
+            altNoAuth();
+            fncParentRefresh();
+            fncClose();
+            return false;
+          }
+          writeAuth = checkNullValR(response.menuAuth.writeAuth, 'N');
+          modifyAuth = checkNullValR(response.menuAuth.modifyAuth, 'N');
+          removeAuth = checkNullValR(response.menuAuth.removeAuth, 'N');
+
+          //등록 권한 관련 버튼 체크
+          if(writeAuth == 'Y'){
+            let writeAuthBtn = `
+              <a href="javascript: void(0);" onclick="goWrite();" class="btn btn-primary waves-effect waves-light mlr5">코드추가</a>
+            `;
+            document.getElementById('write-auth1').innerHTML = writeAuthBtn;
+          }
+          else {
+            removeAuthButton('write-auth1');
+          }
+        }
+
 				document.getElementById('upcdnm').innerHTML = checkNullVal(response.vo.cdnm)+'('+upCdId+')';
 				if (!Object.keys(response).length || response.list == null || response.list.length == 0) {
 					document.getElementById('list').innerHTML = '<td colspan="6" class="text-center">등록된 코드가 없습니다.</td>';
@@ -56,8 +86,6 @@
 				}
 
 				let html = '';
-			  //const viewAuth = '${sessionScope.VIEW_AUTH}';
-				const viewAuth = 'Y';
      		response.list.forEach((obj, idx) => {
      			const viewUri = `/code/popup/modify/`+obj.cdid+`/`+obj.cddepth;
      			html += `
@@ -65,7 +93,7 @@
   						<td class="text-center">`+obj.cdid+`</td>
   						<td class="text-center bold">
   				`;
-  				if(viewAuth == 'Y'){
+  				if(modifyAuth == 'Y'){
 						html += `		<a href="`+viewUri+`">`+checkNullVal(obj.cdnm)+`</a>`;
   				}
   				else {

@@ -1,5 +1,6 @@
 package com.jewelry.cash.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.cash.domain.CashTO;
 import com.jewelry.cash.domain.CashVO;
 import com.jewelry.cash.mapper.CashMapper;
@@ -24,6 +25,7 @@ public class CashServiceImpl implements CashService {
 	private final CashMapper cashMapper;
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllCash(CashTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -51,11 +53,14 @@ public class CashServiceImpl implements CashService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public CashVO findCash(Long cashno) {
-		return cashMapper.selectCash(cashno);
+	public CashVO findCash(CashTO to) {
+		return cashMapper.selectCash(to.getCash_no());
 	}
 
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertCash(CashTO to) {
 		String result = "fail";
@@ -99,7 +104,9 @@ public class CashServiceImpl implements CashService {
 		}
 		return result;
 	}
-	
+
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCash(CashTO to) {
 		String result = "fail";
@@ -170,6 +177,8 @@ public class CashServiceImpl implements CashService {
 		return result;
 	}
 
+	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateCashesToDelete(CashTO to) {
 		String result = "fail";

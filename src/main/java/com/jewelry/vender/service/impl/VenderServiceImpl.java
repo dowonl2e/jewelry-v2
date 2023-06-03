@@ -1,5 +1,6 @@
 package com.jewelry.vender.service.impl;
 
+import com.jewelry.annotation.MenuAuthAnt;
 import com.jewelry.vender.domain.VenderPayTO;
 import com.jewelry.vender.domain.VenderPayVO;
 import com.jewelry.vender.domain.VenderTO;
@@ -12,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -22,6 +22,7 @@ public class VenderServiceImpl implements VenderService {
 	private final VenderMapper venderMapper;
 	
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllVender(VenderTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -34,12 +35,14 @@ public class VenderServiceImpl implements VenderService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public VenderVO findVenderByNo(Long venderno) {
-		return venderMapper.selectVender(venderno);
+	public VenderVO findVenderByNo(VenderTO to) {
+		return venderMapper.selectVender(to.getVender_no());
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertVender(VenderTO to) {
 		String result = "fail";
@@ -54,6 +57,7 @@ public class VenderServiceImpl implements VenderService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateVender(VenderTO to) {
 		String result = "fail";
@@ -68,6 +72,7 @@ public class VenderServiceImpl implements VenderService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateVenderToDelete(VenderTO to) {
 		String result = "fail";
@@ -89,6 +94,7 @@ public class VenderServiceImpl implements VenderService {
 	}
 
 	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
 	public Map<String, Object> findAllVenderPay(VenderPayTO to) {
 		Map<String, Object> response = new HashMap<>();
@@ -100,12 +106,15 @@ public class VenderServiceImpl implements VenderService {
 		return response;
 	}
 
+	@Transactional(readOnly = true)
+	@MenuAuthAnt
 	@Override
-	public VenderPayVO findVenderPayByNo(Long payNo) {
-		return venderMapper.selectVenderPay(payNo);
+	public VenderPayVO findVenderPayByNo(VenderPayTO to) {
+		return venderMapper.selectVenderPay(to.getPay_no());
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String insertVenderPay(VenderPayTO to) {
 		String result = "fail";
@@ -122,6 +131,7 @@ public class VenderServiceImpl implements VenderService {
 	}
 
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateVenderPay(VenderPayTO to) {
 		String result = "fail";
@@ -138,6 +148,7 @@ public class VenderServiceImpl implements VenderService {
 	}
 	
 	@Transactional
+	@MenuAuthAnt
 	@Override
 	public String updateVenderPaysToDelete(VenderPayTO to) {
 		String result = "fail";
@@ -153,9 +164,5 @@ public class VenderServiceImpl implements VenderService {
 			result = "fail";
 		}
 		return result;
-	}
-	
-	private void sort(List<VenderVO> list) {
-		
 	}
 }
