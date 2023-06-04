@@ -2,7 +2,8 @@
 Jewelry Management System Version 2
 
 ## 프로젝트 업데이트 내용
-- 세션 기반 사용자 인증에서 JWT(Json Web Token) 인증으로 수정
+- JSP에서 Thymeleaf로 변경
+- 세션기반에서 JWT(Json Web Token) 인증
 - Token 인증을 통한 메뉴 권한 처리 변경
 - Redis를 통한 Refresh Token 관리
 
