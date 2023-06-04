@@ -11,7 +11,7 @@ Jewelry Management System Version 2
 2023.04.01 ~ 2022.06.01
 
 ## 개발환경
-- IDE : SpringToolSuite4, MySQLWorkbench
+- IDE : IntelliJ IDE CE, MySQLWorkbench
 - OS : MacOS
 
 ## 기술스택 / Skill Set
@@ -23,5 +23,5 @@ Jewelry Management System Version 2
 - Framework / Library : Spring Boot, Spring Security, Spring Data JPA, Mybatis, Docker, JWT(Json Web Token)
 - Server : Tomcat 9.0
 - Build Tool : Gradle
-- Database : MySQL
+- Database : MySQL 8.0
 
