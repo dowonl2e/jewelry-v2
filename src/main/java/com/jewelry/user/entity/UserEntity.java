@@ -1,17 +1,12 @@
 package com.jewelry.user.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-
 import com.jewelry.authentication.jwt.values.Role;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
 
 @Getter
 @Builder
@@ -42,16 +37,16 @@ public class UserEntity {
 	@Column(name = "user_role")
 	@Enumerated(EnumType.STRING)
 	private Role userRole;
-	
+
 	@Builder
-    public UserEntity(String userId, String userPwd, String userName, String email, String celnum, String gender, String useYn, Role userRole){
-        this.userId = userId;
-        this.userPwd = userPwd;
-        this.userName = userName;
-        this.email = email;
-        this.celnum = celnum;
-        this.gender = gender;
-        this.useYn = useYn;
-        this.userRole = userRole;
-    }
+	public UserEntity(String userId, String userPwd, String userName, String email, String celnum, String gender, String useYn, Role userRole){
+		this.userId = userId;
+		this.userPwd = userPwd;
+		this.userName = userName;
+		this.email = email;
+		this.celnum = celnum;
+		this.gender = gender;
+		this.useYn = useYn;
+		this.userRole = userRole;
+	}
 }
